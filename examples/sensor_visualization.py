@@ -4,8 +4,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 import carla
 
-from display import Display
-from vehicle import Vehicle
+from src.display import Display
+from src.vehicle import Vehicle
 
 def main():
     # Carla client

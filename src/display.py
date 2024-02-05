@@ -5,7 +5,7 @@ Display Module:
 
 import pygame
 import configuration
-from vehicle import Vehicle
+from src.vehicle import Vehicle
 
 class Display:
     def __init__(self, title, vehicle):

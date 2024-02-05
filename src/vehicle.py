@@ -11,7 +11,7 @@ import json
 import os
 
 import configuration
-import sensors
+import src.sensors as sensors
 
 class Vehicle:
     def __init__(self, world):

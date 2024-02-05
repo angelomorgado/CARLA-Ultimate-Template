@@ -7,9 +7,8 @@ Main window:
 
 import carla
 
-from vehicle import Vehicle
+from src.vehicle import Vehicle
 import configuration
-
 
 def main():
     # Carla client
@@ -24,8 +23,6 @@ def main():
     # Create vehicle
     autonomous_vehicle = Vehicle(world=world)
     autonomous_vehicle.set_autopilot(True)
-
-    # Print the vehicle's **tire_friction**, **damping_rate**, **long_stiff_value**, **torque_curve**, **steering_curve**, **drag_coefficient** and **mass** attributes along with the name of the vehicle
     autonomous_vehicle.print_vehicle_physics()
 
     # Change the vehicle's physics to a determined weather that is stated in the JSON file.
@@ -33,17 +30,6 @@ def main():
 
     print("\n\n===========================================================================================================\n")
     autonomous_vehicle.print_vehicle_physics()
-    
-
-    # Main loop goes here
-    # try:
-    #     while True:
-    #         pass
-    # except KeyboardInterrupt:
-    #     pass
-    # finally:
-    #     # When terminated destroy the vehicle
-    #     vehicle.destroy_vehicle(vehicle=autonomous_vehicle)
 
     autonomous_vehicle.destroy_vehicle()
 
