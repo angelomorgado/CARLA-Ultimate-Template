@@ -51,19 +51,18 @@ def control_main():
     # Create display
     display = Display('Carla Sensor feed', autonomous_vehicle)
 
-    action = [0.0, 10.0, 0.0, False]
+    # [Steer (-1.0, 1.0), Speed (km/h), Brake (0.0, 1.0), Lights (True, False)]
+    action = [0.0, 10.0, 0.0, True]
 
     while True:
         try:
             autonomous_vehicle.control_vehicle(action)
             display.play_window_tick()
         except KeyboardInterrupt:
+            autonomous_vehicle.destroy_vehicle()
             display.close_window()
             break
-        
-        
-
-    autonomous_vehicle.destroy_vehicle()
+    
 
 if __name__ == '__main__':
     control_main()

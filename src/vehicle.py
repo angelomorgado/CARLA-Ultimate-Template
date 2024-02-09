@@ -141,28 +141,19 @@ class Vehicle:
     # ====================================== Vehicle Control ======================================
     # Control the vehicle based on the action space provided by the environment. The action space is steering_angle,throttle,brake,lights_on]. The first three are continuous values normalized between [-1, 1] for the steering angle and [0, 1] for the throttle and brake and the last one is a boolean.
     def control_vehicle(self, action):
-        # action = self.normalize_action(action)
         control = carla.VehicleControl()
-        control.steering = action[0]
-        control.throttle = action[1]
+        ackermann_control = carla.VehicleAckermannControl()
+        ackermann_control.steer = action[0]
+        # control.throttle = action[1]
+        ackermann_control.speed = action[1]
         control.brake = action[2]
-        control.reverse = False
-        control.use_adaptive_cruise_control = False
         control.lights = carla.VehicleLightState.NONE
         if action[3] == 1:
             control.lights = carla.VehicleLightState(carla.VehicleLightState.Position | carla.VehicleLightState.LowBeam | carla.VehicleLightState.LowBeam)
-        self.__vehicle.apply_control(control)
-
-    def normalize_action(self, action):
-        # Check if the steering angle is normalized between [-1, 1] if not normalize it
-        if action[0] > 1:
-            action[0] = 1
-        elif action[0] < -1:
-            action[0] = -1
         
-        # Check if the throttle is normalized between [0, 1] if not normalize it
-        if action[1] > 1:
-            action[1] = 1
-        elif action[1] < 0:
-            action[1] = 0
-        return action
+        self.__vehicle.apply_control(control)
+        self.__vehicle.apply_ackermann_control(ackermann_control)
+    
+    def normalize_action(self, action):
+        # Normalize speed from km/h to m/s
+        action[1] = action[1] / 3.6
