@@ -53,7 +53,18 @@ class Vehicle:
             vehicle_data = json.load(f)
         
         return vehicle_data
+    
+    def destroy_vehicle(self):
+        self.__vehicle.set_autopilot(False)
 
+        # Destroy sensors
+        for sensor in self.__sensor_dict:
+            self.__sensor_dict[sensor].destroy()
+
+        self.__vehicle.destroy()
+    
+
+    # ====================================== Vehicle Sensors ======================================
     def attach_sensors(self, vehicle_data, world):
         for sensor in vehicle_data:
             if sensor == 'rgb_camera':
@@ -75,16 +86,8 @@ class Vehicle:
                 self.__sensor_dict[sensor]    = sensors.Lane_Invasion(world=world, vehicle=self.__vehicle, sensor_dict=vehicle_data['lane_invasion'])
             else:
                 print('Error: Unknown sensor ', sensor)
-  
-    def destroy_vehicle(self):
-        self.__vehicle.set_autopilot(False)
 
-        # Destroy sensors
-        for sensor in self.__sensor_dict:
-            self.__sensor_dict[sensor].destroy()
-
-        self.__vehicle.destroy()
-
+    # ====================================== Vehicle Physics ======================================
 
     # Change the vehicle physics to a determined weather that is stated in the JSON file.
     def change_vehicle_physics(self, weather_condition):
@@ -134,3 +137,32 @@ class Vehicle:
         print(f"tire_friction: {vehicle_physics.wheels[1].tire_friction}")
         print(f"damping_rate: {vehicle_physics.wheels[1].damping_rate}")
         print(f"long_stiff_value: {vehicle_physics.wheels[1].long_stiff_value}")
+
+    # ====================================== Vehicle Control ======================================
+    # Control the vehicle based on the action space provided by the environment. The action space is steering_angle,throttle,brake,lights_on]. The first three are continuous values normalized between [-1, 1] for the steering angle and [0, 1] for the throttle and brake and the last one is a boolean.
+    def control_vehicle(self, action):
+        # action = self.normalize_action(action)
+        control = carla.VehicleControl()
+        control.steering = action[0]
+        control.throttle = action[1]
+        control.brake = action[2]
+        control.reverse = False
+        control.use_adaptive_cruise_control = False
+        control.lights = carla.VehicleLightState.NONE
+        if action[3] == 1:
+            control.lights = carla.VehicleLightState(carla.VehicleLightState.Position | carla.VehicleLightState.LowBeam | carla.VehicleLightState.LowBeam)
+        self.__vehicle.apply_control(control)
+
+    def normalize_action(self, action):
+        # Check if the steering angle is normalized between [-1, 1] if not normalize it
+        if action[0] > 1:
+            action[0] = 1
+        elif action[0] < -1:
+            action[0] = -1
+        
+        # Check if the throttle is normalized between [0, 1] if not normalize it
+        if action[1] > 1:
+            action[1] = 1
+        elif action[1] < 0:
+            action[1] = 0
+        return action
