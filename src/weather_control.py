@@ -43,18 +43,23 @@ class WeatherControl:
         presets = [x for x in dir(carla.WeatherParameters) if re.match('[A-Z].+', x)]
         return [(getattr(carla.WeatherParameters, x), name(x)) for x in presets]
     
+    # The output is a tuple (carla.WeatherPreset, Str: name of the weather preset)
     def get_weather_presets(self):
         return self.weather_list
     
     def print_all_weather_presets(self):    
-        print(self.weather_list)
+        for idx, weather in enumerate(self.weather_list):
+            print(f'{idx}: {weather[1]}')
 
     def __activate_weather_preset(self):
-        print(self.active_weather)
-        self.world.set_weather(self.active_weather)
+        self.world.set_weather(self.weather_list[self.active_weather][0])
 
     def set_active_weather_preset(self, weather):
-        self.active_weather = weather
+        for idx, w in enumerate(self.weather_list):
+            if w[1] == weather:
+                self.active_weather = idx
+                self.__activate_weather_preset()
+                return
 
     # This method let's the user choose with numbers the active preset. It serves as more of a debug.
     def choose_weather(self):
@@ -65,11 +70,11 @@ class WeatherControl:
         idx = int(input())
 
         try:
-            self.active_weather = self.weather_list[idx][0]
+            self.active_weather = idx
             self.__activate_weather_preset()
         except IndexError:
             print('Invalid index')
             return
         
-        print(f'Weather preset {self.active_weather} activated')
+        print(f'Weather preset {self.weather_list[self.active_weather][1]} activated')
 
