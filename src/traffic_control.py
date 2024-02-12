@@ -3,12 +3,23 @@ import carla
 import random
 import time
 
+'''
+Traffic Controller module:
+    It provides the functionality to spawn, destroy, and control vehicles and pedestrians in the Carla simulation.
+
+    TODO: - Implement generation of other types of vehicles (e.g, trucks, motorcycles, bicycles, etc.)
+          - Pedestrians still can't move
+          - Make the spawning deterministic (e.g, using a json or a database to store the spawn points and the vehicles to spawn)
+'''
+
 class TrafficControl:
     def __init__(self, world, client) -> None:
         self.active_vehicles = []
         self.active_pedestrians = []
+        self.active_ai_controllers = []
         self.__world = world
         self.__client = client
+
 
     # ============ Vehicle Control ============
     def spawn_vehicles(self, num_vehicles = 10, autopilot_on = False):
@@ -57,20 +68,9 @@ class TrafficControl:
             print("You need to spawn at least 1 pedestrian.")
             return
 
-        # Get spawn locations
-        spawn_points = []
-        for i in range(num_pedestrians):
-            spawn_point = carla.Transform()
-            loc = self.__world.get_random_location_from_navigation()
-            if loc is not None:
-                spawn_point.location = loc
-                spawn_points.append(spawn_point)
-        
-        # Spawn pedestrians
-        batch = []
-        walker_speed = []
+        print(f"Spawning {num_pedestrians} pedestrian(s)...")
 
-        for spawn_point in spawn_points:
+        for _ in range(num_pedestrians):
             walker_bp = random.choice(self.__world.get_blueprint_library().filter('walker.pedestrian.*'))
 
             if walker_bp.has_attribute('is_invincible'):
@@ -78,23 +78,46 @@ class TrafficControl:
 
             walker_bp.set_attribute('speed', str(random.uniform(0.5, 1.0)))
 
-            batch.append(carla.command.SpawnActor(walker_bp, spawn_point))
+            spawn_point = carla.Transform(location=self.__world.get_random_location_from_navigation())
 
-        pedestrians = self.__client.apply_batch_sync(batch, True)
-
-        for response in pedestrians:
-            if response.error:
-                # print(response.error)
-                pass
-            else:
-                walker = response.actor_id
+            # Spawn the walker
+            walker = self.__world.try_spawn_actor(walker_bp, spawn_point)
+            if walker:
                 self.active_pedestrians.append(walker)
+
+                # Spawn the walker controller
+                walker_controller_bp = self.__world.get_blueprint_library().find('controller.ai.walker')
+
+                # Attach AI controller to the walker
+                ai_controller = self.__world.try_spawn_actor(walker_controller_bp, carla.Transform(), walker)
+
+                if ai_controller:
+                    try:
+                        # Start the walker controller
+                        ai_controller.start()
+
+                        # Set the walker's target location
+                        ai_controller.go_to_location(self.__world.get_random_location_from_navigation())
+
+                        # Set the walker's max speed
+                        ai_controller.set_max_speed(1 + random.random())
+
+                        # Store the AI controller
+                        self.active_ai_controllers.append(ai_controller)
+                    except Exception as e:
+                        print(f"Error initializing walker controller: {e}")
 
         print(f"Successfully spawned {len(self.active_pedestrians)} pedestrians!")
 
 
     def destroy_pedestrians(self):
-        for pedestrian in self.active_pedestrians:
-            pedestrian.destroy()
+        for idx, pedestrian in enumerate(self.active_pedestrians):
+            try:
+                pedestrian.destroy()
+                self.active_ai_controllers[idx].stop()
+            except Exception as e:
+                print(f"Error destroying pedestrians: {e}")
+
         self.active_pedestrians = []
+        self.active_ai_controllers = []
         print('Destroyed all pedestrians!')

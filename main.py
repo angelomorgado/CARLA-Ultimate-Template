@@ -71,12 +71,14 @@ def traffic_main():
     world = World(client)
 
     # world.spawn_vehicles(20, True)
-    world.spawn_pedestrians(20)
-
+    world.spawn_pedestrians(50)
+    print("Press Ctrl+C to exit...")
     while True:
         try:
+            print("", end="")
             pass
         except KeyboardInterrupt:
+            print("Exiting...")
             world.destroy_vehicles()
             world.destroy_pedestrians()
             break
