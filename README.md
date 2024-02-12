@@ -7,6 +7,13 @@ All the modules are designed to be as modular as possible, so that they can be e
 
 ---
 
+# TODO
+
+- [ ] Add support for synchronous mode
+
+
+---
+
 ## To Run the Project
 
 1. It is recommended to use a virtual environment with python 3.8. 

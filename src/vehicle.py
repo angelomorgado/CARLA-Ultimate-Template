@@ -200,4 +200,6 @@ class Vehicle:
     def normalize_action(self, action):
         # Normalize speed from km/h to m/s
         action[1] = action[1] / 3.6
+    
+    # TODO: Add debug to vehicle through world.debug
 

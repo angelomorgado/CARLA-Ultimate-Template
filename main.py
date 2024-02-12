@@ -63,19 +63,38 @@ def control_main():
             autonomous_vehicle.destroy_vehicle()
             display.close_window()
             break
+
+def traffic_main():
+    # Carla client
+    client = carla.Client('localhost', 2000)
+    client.set_timeout(10.0)
+    world = World(client)
+
+    # world.spawn_vehicles(20, True)
+    world.spawn_pedestrians(20)
+
+    while True:
+        try:
+            pass
+        except KeyboardInterrupt:
+            world.destroy_vehicles()
+            world.destroy_pedestrians()
+            break
+
     
 def weather_main():
     # Carla client
     client = carla.Client('localhost', 2000)
     client.set_timeout(10.0)
     world = World(client)
-    
+
     while True:
         try:
-            # world.choose_weather()
-            world.change_map()
+            world.choose_weather()
+            # world.change_map()
+            pass
         except KeyboardInterrupt:
             break
 
 if __name__ == '__main__':
-    weather_main()
+    traffic_main()

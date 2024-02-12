@@ -1,14 +1,19 @@
 import carla
 
 from src.weather_control import WeatherControl
+from src.traffic_control import TrafficControl
 
 class World:
     def __init__(self, client) -> None:
         self.__client = client
         self.__world = client.get_world()
         self.weather_control = WeatherControl(self.__world)
+        self.traffic_control = TrafficControl(self.__world, self.__client)
         self.available_maps = self.__client.get_available_maps()
         self.active_map = 4
+
+    def get_client(self):
+        return self.__client
 
     # ============ Weather Control ============
     # The output is a tuple (carla.WeatherPreset, Str: name of the weather preset)
@@ -43,6 +48,22 @@ class World:
         self.print_available_maps()
         map_idx = int(input('Choose a map index: '))
         self.set_active_map(map_idx)
+    
+    # ============ Traffic Control ============
+    def spawn_vehicles(self, num_vehicles = 10, autopilot_on = False):
+        self.traffic_control.spawn_vehicles(num_vehicles, autopilot_on)
+    
+    def destroy_vehicles(self):
+        self.traffic_control.destroy_vehicles()
+    
+    def toggle_autopilot(self, autopilot_on = True):
+        self.traffic_control.toggle_autopilot(autopilot_on)
+    
+    def spawn_pedestrians(self, num_pedestrians=10):
+        self.traffic_control.spawn_pedestrians(num_pedestrians)
+    
+    def destroy_pedestrians(self):
+        self.traffic_control.destroy_pedestrians()
 
 
     
