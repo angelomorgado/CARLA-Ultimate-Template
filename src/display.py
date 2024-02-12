@@ -2,7 +2,8 @@
 Display Module:
     It provides the functionality to display the sensor data in a window using Pygame.
 '''
-
+import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 
 import configuration

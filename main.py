@@ -68,11 +68,12 @@ def weather_main():
     # Carla client
     client = carla.Client('localhost', 2000)
     client.set_timeout(10.0)
-    world = World(client.get_world())
+    world = World(client)
     
     while True:
         try:
-            world.choose_weather()
+            # world.choose_weather()
+            world.change_map()
         except KeyboardInterrupt:
             break
 
