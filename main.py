@@ -10,6 +10,7 @@ import carla
 from src.vehicle import Vehicle
 import configuration
 from src.display import Display
+from src.weather_control import WeatherControl
 
 def physics_main():
     # Carla client
@@ -63,6 +64,23 @@ def control_main():
             display.close_window()
             break
     
+def weather_main():
+    # Carla client
+    client = carla.Client('localhost', 2000)
+    client.set_timeout(10.0)
+    world = client.get_world()
+
+    if world is None:
+        print('Failed to load world')
+        return
+    
+    weather_control = WeatherControl(world=world)
+
+    while True:
+        try:
+            weather_control.choose_weather()
+        except KeyboardInterrupt:
+            break
 
 if __name__ == '__main__':
-    control_main()
+    weather_main()
