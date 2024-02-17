@@ -98,5 +98,15 @@ def weather_main():
         except KeyboardInterrupt:
             break
 
+def test_main():
+    # Carla client
+    client = carla.Client('localhost', 2000)
+    client.set_timeout(10.0)
+    world = World(client)
+
+    world.print_available_maps()
+    print('\n\n ========================================')
+    world.print_all_weather_presets()
+
 if __name__ == '__main__':
-    traffic_main()
+    test_main()

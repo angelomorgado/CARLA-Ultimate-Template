@@ -47,16 +47,62 @@ The name of the scenario will be based on these attributes, then because there c
 
 #### Available Maps:
 
-TODO
+(Choose only the most appropriate)
+
+- /Game/Carla/Maps/Town01
+- /Game/Carla/Maps/Town01_Opt
+- /Game/Carla/Maps/Town02
+- /Game/Carla/Maps/Town02_Opt
+- /Game/Carla/Maps/Town03
+- /Game/Carla/Maps/Town03_Opt
+- /Game/Carla/Maps/Town04
+- /Game/Carla/Maps/Town04_Opt
+- /Game/Carla/Maps/Town05
+- /Game/Carla/Maps/Town05_Opt
+- /Game/Carla/Maps/Town06
+- /Game/Carla/Maps/Town06_Opt
+- /Game/Carla/Maps/Town07
+- /Game/Carla/Maps/Town07_Opt
+- /Game/Carla/Maps/Town10HD
+- /Game/Carla/Maps/Town10HD_Opt
+- /Game/Carla/Maps/Town11/Town11
+- /Game/Carla/Maps/Town12/Town12
 
 #### Available Weather Conditions
 
-TODO
+- Clear Night
+- Clear Noon
+- Clear Sunset
+- Cloudy Night
+- Cloudy Noon
+- Cloudy Sunset
+- Default
+- Dust Storm
+- Hard Rain Night
+- Hard Rain Noon
+- Hard Rain Sunset
+- Mid Rain Sunset
+- Mid Rainy Night
+- Mid Rainy Noon
+- Soft Rain Night
+- Soft Rain Noon
+- Soft Rain Sunset
+- Wet Cloudy Night
+- Wet Cloudy Noon
+- Wet Cloudy Sunset
+- Wet Night
+- Wet Noon
+- Wet Sunset
 
 #### Available Traffic Densities
 
-TODO
+- None
+- Low
+- Medium
+- High
 
-#### Available Conditions
+#### Available Situations
 
-TODO
+- City Road
+- Roundabout
+- Junction (Still wondering if i'm to include this one)
