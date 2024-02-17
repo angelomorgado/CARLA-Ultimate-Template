@@ -2,13 +2,15 @@ import carla
 
 from src.weather_control import WeatherControl
 from src.traffic_control import TrafficControl
+from src.weather_control import WeatherControl
 
 class World:
     def __init__(self, client) -> None:
         self.__client = client
         self.__world = client.get_world()
         self.weather_control = WeatherControl(self.__world)
-        self.traffic_control = TrafficControl(self.__world, self.__client)
+        self.traffic_control = TrafficControl(self.__world)
+        self.weather_control = WeatherControl(self.__world)
         self.available_maps = self.__client.get_available_maps()
         self.active_map = 4
 
@@ -64,6 +66,19 @@ class World:
     
     def destroy_pedestrians(self):
         self.traffic_control.destroy_pedestrians()
+    
+    # ============ Weather Control ===============
+    def get_weather_presets(self):
+        return self.weather_control.get_weather_presets()
+    
+    def print_all_weather_presets(self):
+        self.weather_control.print_all_weather_presets()
+    
+    def set_active_weather_preset(self, weather):
+        self.weather_control.set_active_weather_preset(weather)
+    
+    def choose_weather(self):
+        self.weather_control.choose_weather()
 
 
     

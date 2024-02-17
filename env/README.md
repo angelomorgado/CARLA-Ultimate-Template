@@ -45,7 +45,6 @@ Implement the `setup_carla_environment` method to configure the CARLA environmen
 
 The name of the scenario will be based on these attributes, then because there can be many there will be a counter after the name to differentiate.
 
-
 #### Available Maps:
 
 TODO

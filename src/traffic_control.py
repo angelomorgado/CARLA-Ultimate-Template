@@ -13,12 +13,11 @@ Traffic Controller module:
 '''
 
 class TrafficControl:
-    def __init__(self, world, client) -> None:
+    def __init__(self, world) -> None:
         self.active_vehicles = []
         self.active_pedestrians = []
         self.active_ai_controllers = []
         self.__world = world
-        self.__client = client
 
 
     # ============ Vehicle Control ============

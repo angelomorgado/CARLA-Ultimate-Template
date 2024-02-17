@@ -21,8 +21,6 @@ import gymnasium as gym
 from gymnasium import spaces
 
 from src.world import World
-from src.vehicle import Vehicle
-from src.traffic_control import TrafficControl
 import configuration as config
 
 class Environment(gym.Env):
