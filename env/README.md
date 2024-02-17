@@ -90,9 +90,11 @@ The name of the scenario will be based on these attributes, then because there c
 - Medium
 - High
 
+TODO: Maybe separate densities for vehicles and pedestrians
+
 #### Available Situations
 
 - City Road
 - Roundabout
-- Junction (Still wondering if i'm to include this one)
+- Junction
 - Tunnel?
