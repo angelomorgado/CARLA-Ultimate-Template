@@ -29,7 +29,7 @@ Implement the `setup_carla_environment` method to configure the CARLA environmen
 
 ```json
 {
-  "0": {
+  "Town01-ClearNoon-Low-Roundabout-0": {
     "map_name": "Town01",
     "weather_condition": "ClearNoon",
     "traffic_density": "Low",
@@ -37,7 +37,7 @@ Implement the `setup_carla_environment` method to configure the CARLA environmen
     "initial_rotation": {"pitch": 0.0, "yaw": 90.0, "roll": 0.0},
     "situation": "Roundabout"
   },
-  // Add more scenarios as needed
+  // More scenarios
 }
 ```
 
@@ -49,24 +49,13 @@ The name of the scenario will be based on these attributes, then because there c
 
 (Choose only the most appropriate)
 
-- /Game/Carla/Maps/Town01
-- /Game/Carla/Maps/Town01_Opt
-- /Game/Carla/Maps/Town02
-- /Game/Carla/Maps/Town02_Opt
-- /Game/Carla/Maps/Town03
-- /Game/Carla/Maps/Town03_Opt
-- /Game/Carla/Maps/Town04
-- /Game/Carla/Maps/Town04_Opt
-- /Game/Carla/Maps/Town05
-- /Game/Carla/Maps/Town05_Opt
-- /Game/Carla/Maps/Town06
-- /Game/Carla/Maps/Town06_Opt
-- /Game/Carla/Maps/Town07
-- /Game/Carla/Maps/Town07_Opt
-- /Game/Carla/Maps/Town10HD
-- /Game/Carla/Maps/Town10HD_Opt
-- /Game/Carla/Maps/Town11/Town11
-- /Game/Carla/Maps/Town12/Town12
+- /Game/Carla/Maps/Town01 <- small city roads with junctions with lightpoles
+- /Game/Carla/Maps/Town02 <- Has city roads and junctions (neighborhood)
+- /Game/Carla/Maps/Town03 <- Big city with roundabouts lightpoles, big junctions and inclined roads, also has big road and even a tunnel.
+- /Game/Carla/Maps/Town04 <- Highway with small city in the center with lightpoles and junctions
+- /Game/Carla/Maps/Town05 <- Highway with big city in the center with big junctions, lightpoles
+- /Game/Carla/Maps/Town07 <- Village road with street signs and small intersections with lightpoles
+- /Game/Carla/Maps/Town10HD <- Default map, big city with intersections, lightpoles
 
 #### Available Weather Conditions
 
@@ -106,3 +95,4 @@ The name of the scenario will be based on these attributes, then because there c
 - City Road
 - Roundabout
 - Junction (Still wondering if i'm to include this one)
+- Tunnel?

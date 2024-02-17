@@ -11,8 +11,8 @@ class World:
         self.weather_control = WeatherControl(self.__world)
         self.traffic_control = TrafficControl(self.__world)
         self.weather_control = WeatherControl(self.__world)
-        self.available_maps = self.__client.get_available_maps()
-        self.active_map = 4
+        self.available_maps = [m for m in self.__client.get_available_maps() if 'Opt' not in m] # Took out the layered maps
+        self.active_map = 7 # Default map is Town10HD
 
     def get_client(self):
         return self.__client
@@ -44,6 +44,13 @@ class World:
     def set_active_map(self, map_idx):
         self.active_map = map_idx
         self.__client.load_world(self.available_maps[map_idx])
+    
+    def set_active_map_name(self, map_name):
+        for idx, m in enumerate(self.available_maps):
+            if map_name in m:
+                self.active_map = idx
+                self.__client.load_world(self.available_maps[idx])
+                return
     
     # Serves for debugging purposes
     def change_map(self):

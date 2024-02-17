@@ -92,8 +92,8 @@ def weather_main():
 
     while True:
         try:
-            world.choose_weather()
-            # world.change_map()
+            # world.choose_weather()
+            world.change_map()
             pass
         except KeyboardInterrupt:
             break
@@ -109,4 +109,5 @@ def test_main():
     world.print_all_weather_presets()
 
 if __name__ == '__main__':
-    test_main()
+    weather_main()
+
