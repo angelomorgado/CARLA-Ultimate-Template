@@ -17,20 +17,15 @@ It has the following attributes:
 
 import carla
 import numpy as np
-import gymnasium as gym
-from gymnasium import spaces
+# import gymnasium as gym
+# from gymnasium import spaces
 
 from src.world import World
 import configuration as config
 
-class Environment(gym.Env):
-    def __init__(self, client, vehicle):
-        super(Environment, self).__init__()
-
-        self.client = client
-        self.world = client.get_world()
-        self.map = self.world.get_map()
-        self.vehicle = vehicle
+class Environment():
+    def __init__(self, flag):
+        self.world = World()
 
         # Define the observation space
         # self.observation_space = spaces.Box(low=0, high=255, shape=(height, width, channels), dtype=np.uint8)
