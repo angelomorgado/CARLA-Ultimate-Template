@@ -53,10 +53,18 @@ class World:
             print(f'{idx}: {m}')
 
     def set_active_map(self, map_idx):
+        # Check if the map is already loaded
+        if map_idx == self.active_map:
+            return
+
         self.active_map = map_idx
         self.__client.load_world(self.available_maps[map_idx])
     
     def set_active_map_name(self, map_name):
+        # Check if the map is already loaded
+        if map_name in self.available_maps[self.active_map]:
+            return
+
         for idx, m in enumerate(self.available_maps):
             if map_name in m:
                 self.active_map = idx
