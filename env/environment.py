@@ -36,15 +36,10 @@ class CarlaEnv():
     def __init__(self, flag):
         # 1. Start the server
         self.server_process = CarlaServer.initialize_server(low_quality = config.SIM_LOW_QUALITY, offscreen_rendering = config.SIM_OFFSCREEN_RENDERING)
-
         # 2. Connect to the server
         self.world = World()
-
         # 3. Read the flag and get the appropriate situations
         self.is_continuous, self.situations_list = self.__read_flag(flag)
-
-        print(self.is_continuous, self.situations_list)
-
         # 4. Create the vehicle TODO: Change vehicle module to not spawn the vehicle in the constructor, only with a function
         self.vehicle = Vehicle(self.world.get_world())
 
@@ -62,7 +57,8 @@ class CarlaEnv():
         # else:
         #     self.action_space = np.array([4])
 
-
+        # Variables to store the current state
+        self.active_scenario = None
     
     # ===================================================== FLAG PARSING =====================================================
     # The flag is structured: "carla-rl-gym_{cont_disc}" <- for any situation or "carla-rl-gym_{cont_disc}_{situation}-{situation2}" <- for a specific situation(s) (It can contain 1 or more situations)
@@ -91,12 +87,10 @@ class CarlaEnv():
     # This reset loads a random scenario and returns the initial state plus information about the scenario
     def reset(self):
         # 1. Choose a random scenario
-        scenario_dict = self.__choose_random_situation()
+        self.active_scenario_dict = self.__choose_random_situation()
 
         # 2. Load the scenario
-        self.__load_map(scenario_dict['map_name'])
-        self.__load_weather(scenario_dict['weather_condition'])
-        self.__spawn_vehicle(scenario_dict)
+        self.load_scenario(self.active_scenario_dict)
 
         # 3. Get the initial state (Get the observation data)
 
@@ -118,19 +112,33 @@ class CarlaEnv():
         CarlaServer.close_server(self.server_process)
     
     # ===================================================== AUXILIARY METHODS =====================================================
-    # Gets the dictionary of the current situation and spawns the vehicle
+    def __choose_random_situation(self):
+        return self.situations_dict[np.random.choice(self.situations_list)]
+    
+    def load_scenario(self, scenario_name):
+        scenario_dict = self.situations_dict[scenario_name]
+        self.__load_map(scenario_dict['map_name'])
+        self.__load_weather(scenario_dict['weather_condition'])
+        self.__spawn_vehicle(scenario_dict)
+
     def __spawn_vehicle(self, s_dict):
         location = (s_dict['initial_position']['x'], s_dict['initial_position']['y'], s_dict['initial_position']['z'])
         rotation = (s_dict['initial_rotation']['pitch'], s_dict['initial_rotation']['yaw'], s_dict['initial_rotation']['roll'])
         self.vehicle.spawn_vehicle(location, rotation)
-    
-    def __choose_random_situation(self):
-        return self.situations_dict[np.random.choice(self.situations_list)]
     
     def __load_map(self, map_name):
         self.world.set_active_map_name('/Game/Carla/Maps/' + map_name)
 
     def __load_weather(self, weather_name):
         self.world.set_active_weather_preset(weather_name)
+    
+    def clean_scenario(self):
+        self.vehicle.destroy_vehicle()
+        self.world.destroy_vehicles()
+        self.world.destroy_pedestrians()
+    
+    def print_all_scenarios(self):
+        for idx, i in enumerate(self.situations_list):
+            print(idx, ": ", i)
     
 

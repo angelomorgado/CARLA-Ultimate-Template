@@ -13,7 +13,9 @@
     "initial_position": {"x": 362.0, "y": 330.8, "z": 0.3},
     "initial_rotation": {"pitch": 0.0, "yaw": 0.0, "roll": 0.0},
     "target_position": {"x": 396.3, "y": 290.8, "z": 0.3},
-    "situation": "Road"
+    "situation": "Road",
+    "spectator_position": {"x": 362.0, "y": 330.8, "z": 10.3},
+    "spectator_rotation": {"pitch": 0.0, "yaw": 0.0, "roll": 0.0}
   },
   "Town01-ClearNoon-Road-2": {
     "map_name": "Town01",
