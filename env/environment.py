@@ -23,22 +23,17 @@ import configuration as config
 class CarlaEnv():
     def __init__(self, flag):
         # 1. Start the server
-        # self.server_process = CarlaServer.initialize_server(low_quality = True, offscreen_rendering = False)
+        self.server_process = CarlaServer.initialize_server(low_quality = config.SIM_LOW_QUALITY, offscreen_rendering = config.SIM_OFFSCREEN_RENDERING)
 
         # 2. Connect to the server
-        # self.world = World()
+        self.world = World()
 
         # 3. Read the flag and get the appropriate situations
         self.is_continuous, self.situations_list = self.__read_flag(flag)
-
-        print(self.is_continuous)
-        print(self.situations_list)
-
     
     # ===================================================== FLAG PARSING =====================================================
     # The flag is structured: "carla-rl-gym_{cont_disc}" <- for any situation or "carla-rl-gym_{cont_disc}_{situation}-{situation2}" <- for a specific situation(s) (It can contain 1 or more situations)
     def __read_flag(self, flag):
-        
         # 1. Check if it is a continuous or discrete environment
         is_continuous = flag.split('_')[1] == 'cont'
         
@@ -50,6 +45,7 @@ class CarlaEnv():
         scenarios_list = flag.split('_')[2].split('-') if len(flag.split('_')) > 2 else []
         return is_continuous, list(self.__get_situations(self.situations_dict, scenarios_list))
     
+    # Filter the current situations based on the flag
     def __get_situations(self, scene_dict, scenarios=[]):
         if scenarios:
             filtered_dict = {key: value for key, value in scene_dict.items() if value['situation'] in scenarios}
