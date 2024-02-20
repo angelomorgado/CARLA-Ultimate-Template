@@ -2,6 +2,15 @@ import os
 import subprocess
 import time
 
+'''
+Server Module
+
+This module contains the CarlaServer class that is responsible for starting and stopping the Carla server.
+
+Requirements:
+    - Environment variable CARLA_SERVER that contains the path to the Carla server directory
+'''
+
 class CarlaServer:
     @staticmethod
     def initialize_server(low_quality = False, offscreen_rendering = False):

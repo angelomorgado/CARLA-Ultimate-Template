@@ -6,5 +6,13 @@
     "initial_rotation": {"pitch": 0.0, "yaw": 90.0, "roll": 0.0},
 		"target_position": {"x": 150.0, "y": 50.0, "z": 0.0},
     "situation": "Roundabout"
+  },
+  "Town01-ClearNoon-Tunnel-0": {
+    "map_name": "Town01",
+    "weather_condition": "ClearNoon",
+    "initial_position": {"x": 100.0, "y": 50.0, "z": 0.0},
+    "initial_rotation": {"pitch": 0.0, "yaw": 90.0, "roll": 0.0},
+		"target_position": {"x": 150.0, "y": 50.0, "z": 0.0},
+    "situation": "Tunnel"
   }
 }

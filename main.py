@@ -13,6 +13,8 @@ from src.display import Display
 from src.world import World
 from src.server import CarlaServer
 
+from env.environment import CarlaEnv
+
 def physics_main():
     # Carla client
     client = carla.Client('localhost', 2000)
@@ -113,7 +115,12 @@ def test_main():
     print('\n\n ========================================')
     world.print_all_weather_presets()
 
+def env_main():
+    CarlaEnv('carla-rl-gym_cont_Tunnel-Roundabout')
+
+
 if __name__ == '__main__':
     # weather_main()
-    server_main()
+    # server_main()
+    env_main()
 
