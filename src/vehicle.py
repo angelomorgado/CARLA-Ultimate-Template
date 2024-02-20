@@ -24,8 +24,6 @@ class Vehicle:
         self.__steering_angle = 0.0 # [-1.0, 1.0]
         self.__lights_on = False
 
-
-        
     def get_vehicle(self):
         return self.__vehicle
 

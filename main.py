@@ -116,7 +116,9 @@ def test_main():
     world.print_all_weather_presets()
 
 def env_main():
-    CarlaEnv('carla-rl-gym_cont_Tunnel-Roundabout')
+    env = CarlaEnv('carla-rl-gym_cont_tunnel-roundabout')
+
+    env.close()
 
 
 if __name__ == '__main__':

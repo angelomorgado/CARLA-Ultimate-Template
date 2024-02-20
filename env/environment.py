@@ -8,6 +8,15 @@ It implements the following methods:
  - step: takes an action and returns the next state, the reward, a flag indicating if the episode is done, and a dictionary with extra information
  - close: closes the environment
 
+Observation Space:
+    [RGB image, LiDAR point cloud, Current position, Target position, Current situation]
+
+Action Space:
+    Continuous:
+        [Steering (-1.0, 1.0), Speed(km/h)]
+    Discrete:
+        [Action] (0: Accelerate, 1: Decelerate, 2: Left, 3: Right) <- It's a number from 0 to 3
+
 '''
 
 import carla
@@ -30,6 +39,10 @@ class CarlaEnv():
 
         # 3. Read the flag and get the appropriate situations
         self.is_continuous, self.situations_list = self.__read_flag(flag)
+
+        # 4. Create the vehicle TODO: Change vehicle module to not spawn the vehicle in the constructor, only with a function
+
+        
     
     # ===================================================== FLAG PARSING =====================================================
     # The flag is structured: "carla-rl-gym_{cont_disc}" <- for any situation or "carla-rl-gym_{cont_disc}_{situation}-{situation2}" <- for a specific situation(s) (It can contain 1 or more situations)
@@ -43,6 +56,7 @@ class CarlaEnv():
         
         # 3. Get the scenarios in a list
         scenarios_list = flag.split('_')[2].split('-') if len(flag.split('_')) > 2 else []
+        scenarios_list = [s.capitalize() for s in scenarios_list]
         return is_continuous, list(self.__get_situations(self.situations_dict, scenarios_list))
     
     # Filter the current situations based on the flag
@@ -52,12 +66,20 @@ class CarlaEnv():
             return filtered_dict
         else:
             return scene_dict
-                
-    # This reset loads a random scenario
+        
+    # ===================================================== GYM METHODS =====================================================                
+    # This reset loads a random scenario and returns the initial state plus information about the scenario
     def reset(self):
-        pass
+        
 
     # Closes everything, more precisely, destroys the vehicle, along with its sensors, destroys every npc and then destroys the world
     def close(self):
-        pass
+        # 1. Destroy the vehicle
+        # TODO
+
+        # 2. Destroy the world
+        self.world.destroy_world()
+
+        # 3. Close the server
+        CarlaServer.close_server(self.server_process)
 

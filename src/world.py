@@ -8,11 +8,10 @@ import configuration as config
 class World:
     def __init__(self, client=None) -> None:
         self.__client = client
-        # TODO: Put the ip and port and timeout in a configuration file
         if self.__client is None:
             self.__client = carla.Client(config.SIM_HOST, config.SIM_PORT)
             self.__client.set_timeout(config.SIM_TIMEOUT)
-        self.__world = client.get_world()
+        self.__world = self.__client.get_world()
         self.weather_control = WeatherControl(self.__world)
         self.traffic_control = TrafficControl(self.__world)
         self.weather_control = WeatherControl(self.__world)
@@ -21,6 +20,10 @@ class World:
 
     def get_client(self):
         return self.__client
+
+    def destroy_world(self):
+        self.destroy_pedestrians()
+        self.destroy_vehicles()
 
     # ============ Weather Control ============
     # The output is a tuple (carla.WeatherPreset, Str: name of the weather preset)
