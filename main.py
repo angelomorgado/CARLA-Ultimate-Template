@@ -41,9 +41,14 @@ def physics_main():
 def control_main():
     # Carla client
     world = World()
+    world.set_active_map_name('/Game/Carla/Maps/Town01')
     
     # Create vehicle
     autonomous_vehicle = Vehicle(world=world.get_world())
+    # Location: Y (Latitude): -0.000439, X (Longitude): 0.000155, Z (Altitude): 0.001821
+    # Rotation: Pitch: 0.000000, Yaw: 0.000000, Roll: 0.000000
+    # autonomous_vehicle.spawn_vehicle()
+    autonomous_vehicle.spawn_vehicle((92.2, 485.9, 0.0), (0.0, 90.0, 0.0))
 
     # Create display
     display = Display('Carla Sensor feed', autonomous_vehicle)
@@ -53,7 +58,7 @@ def control_main():
 
     while True:
         try:
-            autonomous_vehicle.control_vehicle(action)
+            # autonomous_vehicle.control_vehicle(action)
             display.play_window_tick()
         except KeyboardInterrupt:
             autonomous_vehicle.destroy_vehicle()
@@ -104,7 +109,7 @@ def test_main():
     client.set_timeout(10.0)
     world = World(client)
 
-    world.print_available_maps()
+    print(client.get_available_maps())
     print('\n\n ========================================')
     world.print_all_weather_presets()
 
@@ -116,6 +121,7 @@ def env_main():
 
 if __name__ == '__main__':
     control_main()
+    # test_main()
     # weather_main()
     # server_main()
     # env_main()

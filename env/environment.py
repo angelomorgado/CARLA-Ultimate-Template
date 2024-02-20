@@ -29,6 +29,7 @@ import json
 
 from src.world import World
 from src.server import CarlaServer
+from src.vehicle import Vehicle
 import configuration as config
 
 class CarlaEnv():
@@ -43,6 +44,7 @@ class CarlaEnv():
         self.is_continuous, self.situations_list = self.__read_flag(flag)
 
         # 4. Create the vehicle TODO: Change vehicle module to not spawn the vehicle in the constructor, only with a function
+        self.vehicle = Vehicle(self.world.get_world())
 
         # 5. Create the observation space TODO: Make it gym compatible with the gym.spaces module
         self.observation_space = np.array([np.array((640, 360, 3), dtype=np.uint8), # RGB image

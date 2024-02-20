@@ -101,7 +101,7 @@ TODO: Maybe separate densities for vehicles and pedestrians
 
 #### Available Situations
 
-- City Road
+- Road
 - Roundabout
 - Junction
 - Tunnel?

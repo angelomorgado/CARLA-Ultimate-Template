@@ -1,18 +1,66 @@
 {
-  "Town01-ClearNoon-Roundabout-0": {
+  "Town01-ClearNoon-Road-0": {
     "map_name": "Town01",
     "weather_condition": "ClearNoon",
-    "initial_position": {"x": 100.0, "y": 50.0, "z": 0.0},
+    "initial_position": {"x": 392.2, "y": 285.9, "z": 0.0},
     "initial_rotation": {"pitch": 0.0, "yaw": 90.0, "roll": 0.0},
-		"target_position": {"x": 150.0, "y": 50.0, "z": 0.0},
-    "situation": "Roundabout"
+		"target_position": {"x": 365.3, "y": 326.6, "z": 0.0},
+    "situation": "Road"
   },
-  "Town01-ClearNoon-Tunnel-0": {
+  "Town01-ClearNoon-Road-1": {
     "map_name": "Town01",
     "weather_condition": "ClearNoon",
-    "initial_position": {"x": 100.0, "y": 50.0, "z": 0.0},
-    "initial_rotation": {"pitch": 0.0, "yaw": 90.0, "roll": 0.0},
-		"target_position": {"x": 150.0, "y": 50.0, "z": 0.0},
-    "situation": "Tunnel"
+    "initial_position": {"x": 362.0, "y": 330.8, "z": 0.0},
+    "initial_rotation": {"pitch": 0.0, "yaw": 0.0, "roll": 0.0},
+    "target_position": {"x": 396.3, "y": 290.8, "z": 0.0},
+    "situation": "Road"
+  },
+  "Town01-ClearNoon-Road-2": {
+    "map_name": "Town01",
+    "weather_condition": "ClearNoon",
+    "initial_position": {"x": 357.5, "y": 330.9, "z": 0.0},
+    "initial_rotation": {"pitch": 0.0, "yaw": 0.0, "roll": 0.0},
+    "target_position": {"x": 392.3, "y": 275.8, "z": 0.0},
+    "situation": "Road"
+  },
+  "Town01-ClearNoon-Road-3": {
+    "map_name": "Town01",
+    "weather_condition": "ClearNoon",
+    "initial_position": {"x": 107.7, "y": 133.7, "z": 0.0},
+    "initial_rotation": {"pitch": 0.0, "yaw": 0.0, "roll": 0.0},
+    "target_position": {"x": 285.6, "y": 133.8, "z": 0.0},
+    "situation": "Road"
+  },
+  "Town01-ClearNoon-Junction-0": {
+    "map_name": "Town01",
+    "weather_condition": "ClearNoon",
+    "initial_position": {"x": 370, "y": 326.7, "z": 0.0},
+    "initial_rotation": {"pitch": 0.0, "yaw": -180.0, "roll": 0.0},
+    "target_position": {"x": 306.0, "y": 326.7, "z": 0.0},
+    "situation": "Junction"
+  },
+  "Town01-ClearNoon-Junction-1": {
+    "map_name": "Town01",
+    "weather_condition": "ClearNoon",
+    "initial_position": {"x": 370.0, "y": 326.7, "z": 0.0},
+    "initial_rotation": {"pitch": 0.0, "yaw": -180.0, "roll": 0.0},
+    "target_position": {"x": 339.0, "y": 300.8, "z": 0.0},
+    "situation": "Junction"
+  },
+  "Town01-ClearNoon-Junction-2": {
+    "map_name": "Town01",
+    "weather_condition": "ClearNoon",
+    "initial_position": {"x": 304.2, "y": 199.5, "z": 0.0},
+    "initial_rotation": {"pitch": 0.0, "yaw": 0.0, "roll": 0.0},
+    "target_position": {"x": 334.6, "y": 220.6, "z": 0.0},
+    "situation": "Junction"
+  },
+  "Town01-ClearNoon-Junction-3": {
+    "map_name": "Town01",
+    "weather_condition": "ClearNoon",
+    "initial_position": {"x": 304.2, "y": 199.5, "z": 0.0},
+    "initial_rotation": {"pitch": 0.0, "yaw": 0.0, "roll": 0.0},
+    "target_position": {"x": 338.9, "y": 170.3, "z": 0.0},
+    "situation": "Junction"
   }
 }

@@ -17,7 +17,7 @@ class Vehicle:
     def __init__(self, world):
         self.__vehicle = None
         self.__sensor_dict = {}
-        self.create_vehicle(world)
+        self.__world = world
 
         # Vehicle Control attributes
         self.__speed = 0.0 # Km/h
@@ -30,27 +30,36 @@ class Vehicle:
     def set_autopilot(self, boolean):
         self.__vehicle.set_autopilot(boolean)
 
-    def create_vehicle(self, world):
+    def spawn_vehicle(self, location=None, rotation=None):
         vehicle_id = self.read_vehicle_file(configuration.VEHICLE_PHYSICS_FILE)["id"]
 
-        vehicle_bp = world.get_blueprint_library().filter(vehicle_id)
-        spawn_points = world.get_map().get_spawn_points()
+        vehicle_bp = self.__world.get_blueprint_library().filter(vehicle_id)
         
-        while self.__vehicle is None:
-            spawn_point = random.choice(spawn_points)
+        # If location is not provided, spawn the vehicle in a random location
+        if location is None:
+            spawn_points = self.__world.get_map().get_spawn_points()
+            while self.__vehicle is None:
+                spawn_point = random.choice(spawn_points)
+                transform = carla.Transform(
+                    spawn_point.location,
+                    spawn_point.rotation
+                )
+                try:
+                    self.__vehicle = self.__world.try_spawn_actor(random.choice(vehicle_bp), transform)
+                except:
+                    # try again if failed to spawn vehicle
+                    pass
+        # If location is provided, spawn the vehicle in the provided location and rotation
+        else:
             transform = carla.Transform(
-                spawn_point.location,
-                spawn_point.rotation
+                carla.Location(location[0], location[1], location[2]),
+                carla.Rotation(rotation[0], rotation[1], rotation[2])
             )
-            try:
-                self.__vehicle = world.try_spawn_actor(random.choice(vehicle_bp), transform)
-            except:
-                # try again if failed to spawn vehicle
-                pass
+            self.__vehicle = self.__world.try_spawn_actor(random.choice(vehicle_bp), transform)
         
         # Attach sensors
         vehicle_data = self.read_vehicle_file(configuration.VEHICLE_SENSORS_FILE)
-        self.attach_sensors(vehicle_data, world)
+        self.attach_sensors(vehicle_data, self.__world)
 
     def get_sensor_dict(self):
         return self.__sensor_dict
