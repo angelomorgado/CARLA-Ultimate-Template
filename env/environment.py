@@ -11,6 +11,15 @@ It implements the following methods:
 Observation Space:
     [RGB image, LiDAR point cloud, Current position, Target position, Current situation]
 
+    The current situation cannot be a string therefore it was converted to a numerical value using a dictionary to map the string to a number
+
+    Dict:{
+        Road:       0,
+        Roundabout: 1,
+        Junction:   2,
+        Tunnel:     3,
+    }
+
 Action Space:
     Continuous:
         [Steering (-1.0, 1.0), Speed(km/h)]
@@ -44,21 +53,24 @@ class CarlaEnv():
         self.vehicle = Vehicle(self.world.get_world())
 
         # 5. Create the observation space TODO: Make it gym compatible with the gym.spaces module
-        # self.observation_space = np.array([np.array((640, 360, 3), dtype=np.uint8), # RGB image
-        #                                    carla.LidarMeasurement,  # LiDAR point cloud
-        #                                    carla.GNSSMeasurement,   # Current position
-        #                                    carla.GNSSMeasurement,   # Target position
-        #                                    "default_situation"]     # Current situation
-        #                                    )
+        self.observation_space = None
 
         # # 6. Create the action space
-        # if self.is_continuous:
-        #     self.action_space = np.array([2])
-        # else:
-        #     self.action_space = np.array([4])
+        if self.is_continuous:
+            self.action_space = np.array([2])
+        else:
+            self.action_space = np.array([4])
 
         # Variables to store the current state
-        self.active_scenario = None
+        self.active_scenario_name = None
+        self.active_scenario_dict = None
+
+        self.situations_map = {
+            "Road": 0,
+            "Roundabout": 1,
+            "Junction": 2,
+            "Tunnel": 3
+        }
     
     # ===================================================== FLAG PARSING =====================================================
     # The flag is structured: "carla-rl-gym_{cont_disc}" <- for any situation or "carla-rl-gym_{cont_disc}_{situation}-{situation2}" <- for a specific situation(s) (It can contain 1 or more situations)
@@ -87,17 +99,20 @@ class CarlaEnv():
     # This reset loads a random scenario and returns the initial state plus information about the scenario
     def reset(self):
         # 1. Choose a random scenario
-        self.active_scenario_dict = self.__choose_random_situation()
+        self.active_scenario_name = self.__choose_random_situation()
+        self.active_scenario_dict = self.situations_dict[self.active_scenario_name]
 
         # 2. Load the scenario
-        self.load_scenario(self.active_scenario_dict)
+        self.load_scenario(self.active_scenario_name)
 
         # 3. Get the initial state (Get the observation data)
-
-        # 4. Process the observation data
+        self.__update_observation_space()
 
         # Return the observation and the scenario information
-        return "observation", "info"
+        return self.observation_space, []
+    
+    def step(self, action):
+        pass
         
 
     # Closes everything, more precisely, destroys the vehicle, along with its sensors, destroys every npc and then destroys the world
@@ -113,7 +128,7 @@ class CarlaEnv():
     
     # ===================================================== AUXILIARY METHODS =====================================================
     def __choose_random_situation(self):
-        return self.situations_dict[np.random.choice(self.situations_list)]
+        return np.random.choice(self.situations_list)
     
     def load_scenario(self, scenario_name):
         scenario_dict = self.situations_dict[scenario_name]
@@ -140,5 +155,21 @@ class CarlaEnv():
     def print_all_scenarios(self):
         for idx, i in enumerate(self.situations_list):
             print(idx, ": ", i)
-    
 
+    def __update_observation_space(self):
+        observation_space = self.vehicle.get_observation_data()
+        rgb_image = observation_space[0]
+        lidar_point_cloud = observation_space[1]
+        current_position = observation_space[2]
+        target_position = np.array([self.active_scenario_dict['target_position']['x'], self.active_scenario_dict['target_position']['y'], self.active_scenario_dict['target_position']['z']])
+        situation = np.array(self.situations_map[self.active_scenario_dict['situation']])
+
+        print("RGB Image: ", rgb_image.shape)
+        print("LiDAR Point Cloud: ", lidar_point_cloud.shape)
+        print("Current Position: ", current_position)
+        print("Target Position: ", target_position)
+        print("Situation: ", situation)
+
+        self.observation_space = np.hstack([rgb_image, lidar_point_cloud, current_position, target_position, situation])
+
+        print("Observation Space: ", self.observation_space.shape)

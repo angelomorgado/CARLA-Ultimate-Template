@@ -88,7 +88,6 @@ class Vehicle:
             self.__sensor_dict[sensor].destroy()
         self.__vehicle.destroy()
         print("Successfully destroyed the ego vehicle and its sensors.")
-    
 
     # ====================================== Vehicle Sensors ======================================
     def attach_sensors(self, vehicle_data, world):
@@ -112,6 +111,19 @@ class Vehicle:
                 self.__sensor_dict[sensor]    = sensors.Lane_Invasion(world=world, vehicle=self.__vehicle, sensor_dict=vehicle_data['lane_invasion'])
             else:
                 print('Error: Unknown sensor ', sensor)
+    
+    # This method returns the observation data from the used sensors in the environment (it excludes the collision and lane invasion sensors, which are used for the reward function only). If you're using a different environment, you should change this method to return the observation data that you need.
+    # TODO: Make it dynamic to each model.
+    # In this case [RGB image, LiDAR point cloud, Current position], the target position and the current situation are added in the environment module.
+    def get_observation_data(self):
+        rgb_data = self.__sensor_dict['rgb_camera'].get_data()
+        lidar_data = self.__sensor_dict['lidar'].get_data()
+        gnss_data = self.__sensor_dict['gnss'].get_data()
+
+        # Perform necessary processing on the data # TODO: Should the data be really flattened?
+        rgb_data = rgb_data.reshape(-1) # Flatten the image so it can be concatenated with the rest of the data point cloud
+
+        return [rgb_data, lidar_data, gnss_data]
 
     # ====================================== Vehicle Physics ======================================
 

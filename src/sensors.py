@@ -31,6 +31,7 @@ class RGB_Camera:
     def __init__(self, world, vehicle, sensor_dict):
         self.sensor = self.attach_rgb_camera(world, vehicle, sensor_dict)
         self.last_data = None
+        self.raw_data = None
         self.sensor.listen(lambda data: self.callback(data))
 
     def attach_rgb_camera(self, world, vehicle, sensor_dict):
@@ -55,6 +56,7 @@ class RGB_Camera:
 
         # Convert the image to a NumPy array
         image_array = np.array(image)
+        self.raw_data = image_array
 
         # Ensure the array is contiguous in memory
         image_array = np.ascontiguousarray(image_array)
@@ -71,6 +73,9 @@ class RGB_Camera:
     
     def get_last_data(self):
         return self.last_data
+
+    def get_data(self):
+        return self.raw_data
     
     def destroy(self):
         self.sensor.destroy()
@@ -80,6 +85,7 @@ class Lidar:
     def __init__(self, world, vehicle, sensor_dict):
         self.sensor = self.attach_lidar(world, vehicle, sensor_dict)
         self.last_data = None
+        self.raw_data = None
         self.sensor.listen(lambda data: self.callback(data))
 
     def attach_lidar(self, world, vehicle, sensor_dict):
@@ -105,6 +111,7 @@ class Lidar:
         # Get the LiDAR point cloud from the data
         lidar_data = data.raw_data
         lidar_data = np.frombuffer(lidar_data, dtype=np.dtype('f4'))
+        self.raw_data = lidar_data
         lidar_data = np.reshape(lidar_data, (int(lidar_data.shape[0] / 4), 4))
 
         # Extract X, Y, Z coordinates and intensity values
@@ -147,6 +154,9 @@ class Lidar:
     def get_last_data(self):
         return self.last_data
     
+    def get_data(self):
+        return self.raw_data
+    
     def destroy(self):
         self.sensor.destroy()
 
@@ -155,6 +165,7 @@ class Radar:
     def __init__(self, world, vehicle, sensor_dict):
         self.sensor = self.attach_radar(world, vehicle, sensor_dict)
         self.last_data = None
+        self.raw_data = None
         self.sensor.listen(lambda data: self.callback(data))
 
     def attach_radar(self, world, vehicle, sensor_dict):
@@ -177,7 +188,9 @@ class Radar:
 
         # Get the radar data
         radar_data = data.raw_data
+
         points = np.frombuffer(radar_data, dtype=np.dtype('f4'))
+        self.raw_data = points
         points = np.reshape(points, (len(data), 4))
 
         # Extract information from radar points
@@ -215,6 +228,9 @@ class Radar:
     def get_last_data(self):
         return self.last_data
 
+    def get_data(self):
+        return self.raw_data
+
     def destroy(self):
         self.sensor.destroy()
 
@@ -242,6 +258,9 @@ class GNSS:
 
     def get_last_data(self):
         return self.last_data
+    
+    def get_data(self):
+        return np.array([self.last_data.latitude, self.last_data.longitude, self.last_data.altitude])
 
     def destroy(self):
         self.sensor.destroy()

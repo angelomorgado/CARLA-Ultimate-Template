@@ -115,6 +115,7 @@ def test_main():
 def env_main():
     env = CarlaEnv('carla-rl-gym_cont')
     obs, info = env.reset()
+    print(obs)
     time.sleep(30)
 
     env.close()
@@ -145,6 +146,6 @@ if __name__ == '__main__':
     # test_main()
     # weather_main()
     # server_main()
-    # env_main()
-    env_test()
+    env_main()
+    # env_test()
 
