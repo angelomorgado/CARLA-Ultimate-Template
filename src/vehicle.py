@@ -28,7 +28,10 @@ class Vehicle:
         return self.__vehicle
 
     def set_autopilot(self, boolean):
-        self.__vehicle.set_autopilot(boolean)
+        if self.__vehicle:
+            self.__vehicle.set_autopilot(boolean)
+        else:
+            print("Error: No vehicle to set autopilot. Try spawning the vehicle first.")
 
     def spawn_vehicle(self, location=None, rotation=None):
         vehicle_id = self.read_vehicle_file(configuration.VEHICLE_PHYSICS_FILE)["id"]
@@ -49,13 +52,21 @@ class Vehicle:
                 except:
                     # try again if failed to spawn vehicle
                     pass
+            print("Spawning vehicle at random location: ", spawn_point.location, " and rotation: ", spawn_point.rotation, " Spawn point: ", spawn_point)
         # If location is provided, spawn the vehicle in the provided location and rotation
         else:
+            carla_location = carla.Location(x=location[0], y=location[1], z=location[2])
+            carla_rotation = carla.Rotation(pitch=rotation[0], yaw=rotation[1], roll=rotation[2])
             transform = carla.Transform(
-                carla.Location(location[0], location[1], location[2]),
-                carla.Rotation(rotation[0], rotation[1], rotation[2])
+                carla_location,
+                carla_rotation
             )
-            self.__vehicle = self.__world.try_spawn_actor(random.choice(vehicle_bp), transform)
+            print("Spawning vehicle at location: ", carla_location, " and rotation: ", carla_rotation, " Transform: ", transform)
+            try:
+                self.__vehicle = self.__world.try_spawn_actor(random.choice(vehicle_bp), transform)
+            except:
+                print("Error: Failed to spawn vehicle. Check the location and rotation provided.")
+                return
         
         # Attach sensors
         vehicle_data = self.read_vehicle_file(configuration.VEHICLE_SENSORS_FILE)
@@ -71,7 +82,7 @@ class Vehicle:
         return vehicle_data
     
     def destroy_vehicle(self):
-        self.__vehicle.set_autopilot(False)
+        self.set_autopilot(False)
 
         # Destroy sensors
         for sensor in self.__sensor_dict:

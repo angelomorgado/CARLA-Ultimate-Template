@@ -89,15 +89,19 @@ class CarlaEnv():
     # This reset loads a random scenario and returns the initial state plus information about the scenario
     def reset(self):
         # 1. Choose a random scenario
+        scenario_dict = self.__choose_random_situation()
 
         # 2. Load the scenario
+        self.__load_map(scenario_dict['map'])
+        self.__load_weather(scenario_dict['weather'])
+        self.__spawn_vehicle(scenario_dict)
 
         # 3. Get the initial state (Get the observation data)
 
         # 4. Process the observation data
 
         # Return the observation and the scenario information
-        pass
+        return None, None
         
 
     # Closes everything, more precisely, destroys the vehicle, along with its sensors, destroys every npc and then destroys the world
@@ -110,4 +114,21 @@ class CarlaEnv():
 
         # 3. Close the server
         CarlaServer.close_server(self.server_process)
+    
+    # ===================================================== AUXILIARY METHODS =====================================================
+    # Gets the dictionary of the current situation and spawns the vehicle
+    def __spawn_vehicle(self, s_dict):
+        location = (s_dict['initial_position']['x'], s_dict['initial_position']['y'], s_dict['initial_position']['z'])
+        rotation = (s_dict['initial_rotation']['pitch'], s_dict['initial_rotation']['yaw'], s_dict['initial_rotation']['roll'])
+        self.vehicle.spawn_vehicle(location, rotation)
+    
+    def __choose_random_situation(self):
+        return self.situations_dict[np.random.choice(self.situations_list)]
+    
+    def __load_map(self, map_name):
+        self.world.set_active_map_name('/Game/Carla/Maps/' + map_name)
+
+    def __load_weather(self, weather_name):
+        self.world.set_active_weather_preset(weather_name)
+    
 
