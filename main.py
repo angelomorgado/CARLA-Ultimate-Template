@@ -6,6 +6,7 @@ Main window:
 '''
 
 import carla
+import time
 
 from src.vehicle import Vehicle
 import configuration
@@ -112,15 +113,17 @@ def test_main():
     world.print_all_weather_presets()
 
 def env_main():
-    env = CarlaEnv('carla-rl-gym_cont_tunnel-roundabout')
+    env = CarlaEnv('carla-rl-gym_cont')
+    obs, info = env.reset()
+    time.sleep(30)
 
     env.close()
 
 
 if __name__ == '__main__':
-    control_main()
+    # control_main()
     # test_main()
     # weather_main()
     # server_main()
-    # env_main()
+    env_main()
 

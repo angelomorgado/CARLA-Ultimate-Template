@@ -83,12 +83,11 @@ class Vehicle:
     
     def destroy_vehicle(self):
         self.set_autopilot(False)
-
         # Destroy sensors
         for sensor in self.__sensor_dict:
             self.__sensor_dict[sensor].destroy()
-
         self.__vehicle.destroy()
+        print("Successfully destroyed the ego vehicle and its sensors.")
     
 
     # ====================================== Vehicle Sensors ======================================

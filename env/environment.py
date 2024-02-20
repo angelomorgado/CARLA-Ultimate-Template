@@ -43,22 +43,24 @@ class CarlaEnv():
         # 3. Read the flag and get the appropriate situations
         self.is_continuous, self.situations_list = self.__read_flag(flag)
 
+        print(self.is_continuous, self.situations_list)
+
         # 4. Create the vehicle TODO: Change vehicle module to not spawn the vehicle in the constructor, only with a function
         self.vehicle = Vehicle(self.world.get_world())
 
         # 5. Create the observation space TODO: Make it gym compatible with the gym.spaces module
-        self.observation_space = np.array([np.array((640, 360, 3), dtype=np.uint8), # RGB image
-                                           carla.LidarMeasurement,  # LiDAR point cloud
-                                           carla.GNSSMeasurement,   # Current position
-                                           carla.GNSSMeasurement,   # Target position
-                                           "default_situation"]     # Current situation
-                                           )
+        # self.observation_space = np.array([np.array((640, 360, 3), dtype=np.uint8), # RGB image
+        #                                    carla.LidarMeasurement,  # LiDAR point cloud
+        #                                    carla.GNSSMeasurement,   # Current position
+        #                                    carla.GNSSMeasurement,   # Target position
+        #                                    "default_situation"]     # Current situation
+        #                                    )
 
-        # 6. Create the action space
-        if self.is_continuous:
-            self.action_space = np.array([2])
-        else:
-            self.action_space = np.array([4])
+        # # 6. Create the action space
+        # if self.is_continuous:
+        #     self.action_space = np.array([2])
+        # else:
+        #     self.action_space = np.array([4])
 
 
     
@@ -92,8 +94,8 @@ class CarlaEnv():
         scenario_dict = self.__choose_random_situation()
 
         # 2. Load the scenario
-        self.__load_map(scenario_dict['map'])
-        self.__load_weather(scenario_dict['weather'])
+        self.__load_map(scenario_dict['map_name'])
+        self.__load_weather(scenario_dict['weather_condition'])
         self.__spawn_vehicle(scenario_dict)
 
         # 3. Get the initial state (Get the observation data)
@@ -101,13 +103,13 @@ class CarlaEnv():
         # 4. Process the observation data
 
         # Return the observation and the scenario information
-        return None, None
+        return "observation", "info"
         
 
     # Closes everything, more precisely, destroys the vehicle, along with its sensors, destroys every npc and then destroys the world
     def close(self):
         # 1. Destroy the vehicle
-        # TODO
+        self.vehicle.destroy_vehicle()
 
         # 2. Destroy the world
         self.world.destroy_world()
