@@ -12,3 +12,8 @@ VERBOSE              = False
 VEHICLE_SENSORS_FILE = 'test_sensors.json'
 VEHICLE_PHYSICS_FILE = 'test_vehicle_physics.json'
 VEHICLE_MODEL        = "vehicle.tesla.model3"
+
+# Simulation attributes
+SIM_HOST            = 'localhost'
+SIM_PORT            = 2000
+SIM_TIMEOUT         = 10.0

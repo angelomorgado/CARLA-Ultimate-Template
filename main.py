@@ -11,6 +11,7 @@ from src.vehicle import Vehicle
 import configuration
 from src.display import Display
 from src.world import World
+from src.server import CarlaServer
 
 def physics_main():
     # Carla client
@@ -98,6 +99,10 @@ def weather_main():
         except KeyboardInterrupt:
             break
 
+def server_main():
+    CarlaServer.initialize_server(low_quality=True)
+    # CarlaServer.close_server()
+
 def test_main():
     # Carla client
     client = carla.Client('localhost', 2000)
@@ -109,5 +114,6 @@ def test_main():
     world.print_all_weather_presets()
 
 if __name__ == '__main__':
-    weather_main()
+    # weather_main()
+    server_main()
 
