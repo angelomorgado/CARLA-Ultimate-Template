@@ -100,8 +100,8 @@ def weather_main():
             break
 
 def server_main():
-    CarlaServer.initialize_server(low_quality=True)
-    # CarlaServer.close_server()
+    process = CarlaServer.initialize_server(low_quality=True)
+    CarlaServer.close_server(process)
 
 def test_main():
     # Carla client
