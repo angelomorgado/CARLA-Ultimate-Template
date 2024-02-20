@@ -20,6 +20,9 @@ class World:
 
     def get_client(self):
         return self.__client
+    
+    def get_world(self):
+        return self.__world
 
     def destroy_world(self):
         self.destroy_pedestrians()

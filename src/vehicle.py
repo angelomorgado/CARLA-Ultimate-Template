@@ -147,25 +147,27 @@ class Vehicle:
 
     # ====================================== Vehicle Control ======================================
     # Control the vehicle based on the continuous action space provided by the environment. The action space is steering_angle,throttle,brake,lights_on]. The first three are continuous values normalized between [-1, 1] for the steering angle and [0, 1] for the throttle and brake and the last one is a boolean.
+    # For now I disabled the brake and light control which are not used in the environment.
     def control_vehicle(self, action):
-        control = carla.VehicleControl()
+        # control = carla.VehicleControl()
         ackermann_control = carla.VehicleAckermannControl()
         ackermann_control.steer = action[0]
         # control.throttle = action[1]
         ackermann_control.speed = action[1]
-        control.brake = action[2]
-        control.lights = carla.VehicleLightState.NONE
+        # control.brake = action[2]
+        # control.lights = carla.VehicleLightState.NONE
 
-        if action[3] == True:
-            control.lights = carla.VehicleLightState.Position
+        # if action[3] == True:
+        #     control.lights = carla.VehicleLightState.Position
 
         
-        self.__vehicle.apply_control(control)
+        # self.__vehicle.apply_control(control)
         self.__vehicle.apply_ackermann_control(ackermann_control)
 
     # Control the vehicle based on the discrete action space provided by the environment. The action space is [accelerate, decelerate, left, right, lights_on]. Out of these, only one action can be taken at a time.
+    # For now i disabled light control which is not used in the environment.
     def control_vehicle_discrete(self, action):
-        control = carla.VehicleControl()
+        # control = carla.VehicleControl()
         ackermann_control = carla.VehicleAckermannControl()
 
         # Accelerate
@@ -181,23 +183,18 @@ class Vehicle:
         elif action == 3:
             self.__steering_angle = min(1.0, self.__steering_angle + 0.1)
         # Lights
-        elif action == 4:
-            self.__lights_on = not self.__lights_on
+        # elif action == 4:
+        #     self.__lights_on = not self.__lights_on
         
         ackermann_control.steer = self.__steering_angle 
         ackermann_control.speed = self.__speed / 3.6
-        control.lights = carla.VehicleLightState.NONE
+        # # control.lights = carla.VehicleLightState.NONE
 
-        if self.__lights_on:
-            control.lights = carla.VehicleLightState.Position
+        # if self.__lights_on:
+        #     control.lights = carla.VehicleLightState.Position
         
-        self.__vehicle.apply_control(control)
+        # self.__vehicle.apply_control(control)
         self.__vehicle.apply_ackermann_control(ackermann_control)
             
-    
-    def normalize_action(self, action):
-        # Normalize speed from km/h to m/s
-        action[1] = action[1] / 3.6
-    
     # TODO: Add debug to vehicle through world.debug
 

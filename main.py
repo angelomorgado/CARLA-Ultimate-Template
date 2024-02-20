@@ -40,23 +40,16 @@ def physics_main():
 
 def control_main():
     # Carla client
-    client = carla.Client('localhost', 2000)
-    client.set_timeout(10.0)
-    world = client.get_world()
-
-    if world is None:
-        print('Failed to load world')
-        return
+    world = World()
     
     # Create vehicle
-    autonomous_vehicle = Vehicle(world=world)
-    autonomous_vehicle.set_autopilot(False)
+    autonomous_vehicle = Vehicle(world=world.get_world())
 
     # Create display
     display = Display('Carla Sensor feed', autonomous_vehicle)
 
-    # [Steer (-1.0, 1.0), Speed (km/h), Brake (0.0, 1.0), Lights (True, False)]
-    action = [0.0, 10.0, 0.0, True]
+    # [Steer (-1.0, 1.0), Speed (km/h)]
+    action = [0.0, 50.0]
 
     while True:
         try:
@@ -122,7 +115,8 @@ def env_main():
 
 
 if __name__ == '__main__':
+    control_main()
     # weather_main()
     # server_main()
-    env_main()
+    # env_main()
 

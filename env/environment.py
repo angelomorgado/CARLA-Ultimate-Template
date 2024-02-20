@@ -22,6 +22,8 @@ Action Space:
 import carla
 import numpy as np
 import json
+
+# TODO: Incorporate the environment into a proper gym environment
 # import gymnasium as gym
 # from gymnasium import spaces
 
@@ -42,7 +44,21 @@ class CarlaEnv():
 
         # 4. Create the vehicle TODO: Change vehicle module to not spawn the vehicle in the constructor, only with a function
 
-        
+        # 5. Create the observation space TODO: Make it gym compatible with the gym.spaces module
+        self.observation_space = np.array([np.array((640, 360, 3), dtype=np.uint8), # RGB image
+                                           carla.LidarMeasurement,  # LiDAR point cloud
+                                           carla.GNSSMeasurement,   # Current position
+                                           carla.GNSSMeasurement,   # Target position
+                                           "default_situation"]     # Current situation
+                                           )
+
+        # 6. Create the action space
+        if self.is_continuous:
+            self.action_space = np.array([2])
+        else:
+            self.action_space = np.array([4])
+
+
     
     # ===================================================== FLAG PARSING =====================================================
     # The flag is structured: "carla-rl-gym_{cont_disc}" <- for any situation or "carla-rl-gym_{cont_disc}_{situation}-{situation2}" <- for a specific situation(s) (It can contain 1 or more situations)
@@ -70,6 +86,16 @@ class CarlaEnv():
     # ===================================================== GYM METHODS =====================================================                
     # This reset loads a random scenario and returns the initial state plus information about the scenario
     def reset(self):
+        # 1. Choose a random scenario
+
+        # 2. Load the scenario
+
+        # 3. Get the initial state (Get the observation data)
+
+        # 4. Process the observation data
+
+        # Return the observation and the scenario information
+        pass
         
 
     # Closes everything, more precisely, destroys the vehicle, along with its sensors, destroys every npc and then destroys the world
