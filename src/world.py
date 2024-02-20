@@ -5,8 +5,12 @@ from src.traffic_control import TrafficControl
 from src.weather_control import WeatherControl
 
 class World:
-    def __init__(self, client) -> None:
+    def __init__(self, client=None) -> None:
         self.__client = client
+        # TODO: Put the ip and port and timeout in a configuration file
+        if self.__client is None:
+            self.__client = carla.Client('localhost', 2000)
+            self.__client.set_timeout(10.0)
         self.__world = client.get_world()
         self.weather_control = WeatherControl(self.__world)
         self.traffic_control = TrafficControl(self.__world)

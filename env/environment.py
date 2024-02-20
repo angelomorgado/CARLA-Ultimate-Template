@@ -12,15 +12,15 @@ It implements the following methods:
 
 import carla
 import numpy as np
+# import gymnasium as gym
+# from gymnasium import spaces
 
 from src.world import World
 import configuration as config
 
 class Environment():
-    def __init__(self, client, vehicle):
-        self.client = client
-        self.world = World(client)
-        self.vehicle = vehicle
+    def __init__(self, flag):
+        self.world = World()
 
 
     # This reset loads a random scenario
