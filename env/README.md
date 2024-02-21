@@ -178,3 +178,7 @@ self.action_space = spaces.Discrete(4)
       - `"carla-rl-gym_{cont/disc}_{situation}-{situation2}"` <- for a specific situation(s) (It can contain 1 or more situations)
 
 - reset(): Resets the environment to the initial state and returns the initial observation. Returns the observation space and the scenario dictionary (info).
+
+## Training
+
+To train the weather is random for testing it uses the specified in the scenarios JSON file.

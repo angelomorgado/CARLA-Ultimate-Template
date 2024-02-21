@@ -42,5 +42,5 @@ class CarlaServer:
             print('Carla server closed')
         else:
             # On Windows, use taskkill to terminate the process and all its children
-            subprocess.run(['taskkill', '/F', '/T', '/PID', str(process.pid)])
+            subprocess.run(['taskkill', '/F', '/T', '/PID', str(process.pid)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             print('Carla server closed')

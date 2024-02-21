@@ -21,7 +21,7 @@
         "location_z": 1.7
     },
     "gnss":{
-        "sensor_tick": 0.1,
+        "sensor_tick": 0.0,
         "location_x": 0.0,
         "location_y": 0.0,
         "location_z": 0.0

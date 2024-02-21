@@ -42,13 +42,14 @@ from src.vehicle import Vehicle
 import configuration as config
 
 class CarlaEnv():
-    def __init__(self, flag, time_limit=10):
+    def __init__(self, name, continuous=True, scenarios=[], time_limit=10):
         # 1. Start the server
         self.server_process = CarlaServer.initialize_server(low_quality = config.SIM_LOW_QUALITY, offscreen_rendering = config.SIM_OFFSCREEN_RENDERING)
         # 2. Connect to the server
         self.world = World()
         # 3. Read the flag and get the appropriate situations
-        self.is_continuous, self.situations_list = self.__read_flag(flag)
+        self.is_continuous = continuous
+        self.__get_situations(scenarios)
         # 4. Create the vehicle TODO: Change vehicle module to not spawn the vehicle in the constructor, only with a function
         self.vehicle = Vehicle(self.world.get_world())
 
@@ -99,6 +100,7 @@ class CarlaEnv():
     def reset(self):
         # 1. Choose a random scenario
         self.active_scenario_name = self.__choose_random_situation()
+        print(f"Chosen scenario: {self.active_scenario_name}")
         self.active_scenario_dict = self.situations_dict[self.active_scenario_name]
         # 2. Load the scenario
         self.load_scenario(self.active_scenario_name)
@@ -188,29 +190,18 @@ class CarlaEnv():
     def __choose_random_situation(self):
         return np.random.choice(self.situations_list)
     
-    # ===================================================== FLAG PARSING =====================================================
-    # The flag is structured: "carla-rl-gym_{cont_disc}" <- for any situation or "carla-rl-gym_{cont_disc}_{situation}-{situation2}" <- for a specific situation(s) (It can contain 1 or more situations)
-    def __read_flag(self, flag):
-        # 1. Check if it is a continuous or discrete environment
-        is_continuous = flag.split('_')[1] == 'cont'
-        
-        # 2. Get the scenarios dictionary
+    # ===================================================== SITUATIONS PARSING =====================================================
+    # Filter the current situations based on the flag
+    def __get_situations(self, scenarios):
         with open(config.ENV_SCENARIOS_FILE, 'r') as f:
             self.situations_dict = json.load(f)
-        
-        # 3. Get the scenarios in a list
-        scenarios_list = flag.split('_')[2].split('-') if len(flag.split('_')) > 2 else []
-        scenarios_list = [s.capitalize() for s in scenarios_list]
-        return is_continuous, list(self.__get_situations(self.situations_dict, scenarios_list))
-    
-    # Filter the current situations based on the flag
-    def __get_situations(self, scene_dict, scenarios=[]):
-        if scenarios:
-            filtered_dict = {key: value for key, value in scene_dict.items() if value['situation'] in scenarios}
-            return filtered_dict
-        else:
-            return scene_dict
 
+        if scenarios:
+            self.situations_dict = {key: value for key, value in self.situations_dict.items() if value['situation'] in scenarios}
+
+        self.situations_list = list(self.situations_dict.keys())
+
+            
     # ===================================================== AUX METHODS =====================================================
     def __control_vehicle(self, action):
         if self.is_continuous:
