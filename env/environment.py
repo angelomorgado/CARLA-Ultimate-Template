@@ -61,18 +61,20 @@ class CarlaEnv():
 
         # Combine spaces into a single observation space
         self.observation_space = spaces.Dict({
-            'image': self.image_space,
-            'lidar': self.lidar_space,
-            'position': self.position_space,
-            'target': self.target_space,
+            'rgb_data': self.image_space,
+            'lidar_data': self.lidar_space,
+            'initial_position': self.position_space,
+            'target_position': self.target_space,
             'situation': self.situation_space
         })
 
         # Action space
-        # For continuous actions
-        self.continuous_action_space = spaces.Box(low=np.array([-1.0, 0.0, 0.0]), high=np.array([1.0, 1.0, 1.0]), dtype=np.float32)
-        # For discrete actions
-        self.discrete_action_space = spaces.Discrete(4)  # Assuming 4 discrete actions
+        if self.is_continuous:
+            # For continuous actions
+            self.action_space = spaces.Box(low=np.array([-1.0, 0.0, 0.0]), high=np.array([1.0, 1.0, 1.0]), dtype=np.float32)
+        else:
+            # For discrete actions
+            self.action_space = spaces.Discrete(4)
 
         # Variables to store the current state
         self.active_scenario_name = None
@@ -153,14 +155,22 @@ class CarlaEnv():
         target_position = np.array([self.active_scenario_dict['target_position']['x'], self.active_scenario_dict['target_position']['y'], self.active_scenario_dict['target_position']['z']])
         situation = self.situations_map[self.active_scenario_dict['situation']]
 
-        print("RGB image shape: ", rgb_image.shape)
-        print("LiDAR point cloud shape: ", lidar_point_cloud.shape)
-        print("Current position: ", current_position)
-        print("Target position: ", target_position)
-        print("Situation: ", situation)
+        # Construct the observation space dictionary
+        observation_space_dict = {
+            'rgb_data': rgb_image,
+            'lidar_data': lidar_point_cloud,
+            'initial_position': current_position,
+            'target_position': target_position,
+            'situation': situation
+        }
 
-        # TODO: This data isn't suitable to be fed into a neural network, it needs to be preprocessed
-        self.observation_space = [rgb_image, lidar_point_cloud, current_position, target_position, situation]
+        # Update the observation space with spaces.Box or spaces.Discrete
+        self.observation_space.spaces['rgb_data'] = spaces.Box(low=0, high=255, shape=(360, 640, 4), dtype=np.uint8)
+        self.observation_space.spaces['lidar_data'] = spaces.Box(low=-np.inf, high=np.inf, shape=(5316, 4), dtype=np.float32)
+        self.observation_space.spaces['initial_position'] = spaces.Box(low=-np.inf, high=np.inf, shape=(3,), dtype=np.float32)
+        self.observation_space.spaces['target_position'] = spaces.Box(low=-np.inf, high=np.inf, shape=(3,), dtype=np.float32)
+        self.observation_space.spaces['situation'] = spaces.Discrete(4)
+
 
     # ===================================================== SCENARIO METHODS =====================================================
     
