@@ -28,9 +28,9 @@ Action Space:
 
 '''
 
-import carla
 import numpy as np
 import json
+import time
 
 # TODO: Incorporate the environment into a proper gym environment
 # import gymnasium as gym
@@ -42,7 +42,7 @@ from src.vehicle import Vehicle
 import configuration as config
 
 class CarlaEnv():
-    def __init__(self, flag):
+    def __init__(self, flag, time_limit=10):
         # 1. Start the server
         self.server_process = CarlaServer.initialize_server(low_quality = config.SIM_LOW_QUALITY, offscreen_rendering = config.SIM_OFFSCREEN_RENDERING)
         # 2. Connect to the server
@@ -53,9 +53,8 @@ class CarlaEnv():
         self.vehicle = Vehicle(self.world.get_world())
 
         # 5. Create the observation space: TODO: Make the observation space more dynamic.
-        # Change this according to the needs.
-
         # Lidar: (122,4) for default settings
+        # Change this according to your needs.
         self.rgb_image_shape = (369, 640, 3)
         self.lidar_point_cloud_shape = (122, 4)
         self.current_position_shape = (3,)
@@ -79,6 +78,10 @@ class CarlaEnv():
         else:
             # For discrete actions
             self.action_space = spaces.Discrete(4)
+        
+        # Truncated flag
+        self.time_limit = time_limit
+        self.truncated = False  # Used for an episode that was terminated due to a time limit or errors
 
         # Variables to store the current state
         self.active_scenario_name = None
@@ -90,29 +93,6 @@ class CarlaEnv():
             "Junction": 2,
             "Tunnel": 3
         }
-    
-    # ===================================================== FLAG PARSING =====================================================
-    # The flag is structured: "carla-rl-gym_{cont_disc}" <- for any situation or "carla-rl-gym_{cont_disc}_{situation}-{situation2}" <- for a specific situation(s) (It can contain 1 or more situations)
-    def __read_flag(self, flag):
-        # 1. Check if it is a continuous or discrete environment
-        is_continuous = flag.split('_')[1] == 'cont'
-        
-        # 2. Get the scenarios dictionary
-        with open(config.ENV_SCENARIOS_FILE, 'r') as f:
-            self.situations_dict = json.load(f)
-        
-        # 3. Get the scenarios in a list
-        scenarios_list = flag.split('_')[2].split('-') if len(flag.split('_')) > 2 else []
-        scenarios_list = [s.capitalize() for s in scenarios_list]
-        return is_continuous, list(self.__get_situations(self.situations_dict, scenarios_list))
-    
-    # Filter the current situations based on the flag
-    def __get_situations(self, scene_dict, scenarios=[]):
-        if scenarios:
-            filtered_dict = {key: value for key, value in scene_dict.items() if value['situation'] in scenarios}
-            return filtered_dict
-        else:
-            return scene_dict
         
     # ===================================================== GYM METHODS =====================================================                
     # This reset loads a random scenario and returns the initial state plus information about the scenario
@@ -120,34 +100,45 @@ class CarlaEnv():
         # 1. Choose a random scenario
         self.active_scenario_name = self.__choose_random_situation()
         self.active_scenario_dict = self.situations_dict[self.active_scenario_name]
-
         # 2. Load the scenario
         self.load_scenario(self.active_scenario_name)
-
         # 3. Get the initial state (Get the observation data)
         self.__update_observation()
-
+        # 4. Start the timer
+        self.__start_timer()
+        print("Episode started!")
         # Return the observation and the scenario information
         return self.observation, self.active_scenario_dict
     
     def step(self, action):
-        pass
-        
+        # 1. Control the vehicle
+        self.__control_vehicle(action)
+        # 2. Update the observation
+        self.__update_observation()
+        # 3. Calculate the reward
+        reward = self.__calculate_reward()
+        # 4. Check if the episode is terminated
+        terminated = self.__is_done()
+        # 5. Check if the episode is truncated
+        self.truncated = self.__timer_truncated()
+        # 5. Return the observation, the reward, the terminated flag and the scenario information
+        return self.observation, reward, terminated, self.truncated, self.active_scenario_dict
 
     # Closes everything, more precisely, destroys the vehicle, along with its sensors, destroys every npc and then destroys the world
     def close(self):
         # 1. Destroy the vehicle
         self.vehicle.destroy_vehicle()
-
         # 2. Destroy the world
         self.world.destroy_world()
-
         # 3. Close the server
         CarlaServer.close_server(self.server_process)
     
     # ===================================================== REWARD METHODS =====================================================
     def __calculate_reward(self):
-        return 0
+        return 0 # Placeholder
+    
+    def __is_done(self):
+        return False # Placeholder
 
 
     # ===================================================== OBSERVATION/ACTION METHODS =====================================================
@@ -167,9 +158,7 @@ class CarlaEnv():
             'situation': situation
         }
 
-
     # ===================================================== SCENARIO METHODS =====================================================
-    
     def load_scenario(self, scenario_name):
         scenario_dict = self.situations_dict[scenario_name]
         self.__load_map(scenario_dict['map_name'])
@@ -198,11 +187,39 @@ class CarlaEnv():
     
     def __choose_random_situation(self):
         return np.random.choice(self.situations_list)
+    
+    # ===================================================== FLAG PARSING =====================================================
+    # The flag is structured: "carla-rl-gym_{cont_disc}" <- for any situation or "carla-rl-gym_{cont_disc}_{situation}-{situation2}" <- for a specific situation(s) (It can contain 1 or more situations)
+    def __read_flag(self, flag):
+        # 1. Check if it is a continuous or discrete environment
+        is_continuous = flag.split('_')[1] == 'cont'
+        
+        # 2. Get the scenarios dictionary
+        with open(config.ENV_SCENARIOS_FILE, 'r') as f:
+            self.situations_dict = json.load(f)
+        
+        # 3. Get the scenarios in a list
+        scenarios_list = flag.split('_')[2].split('-') if len(flag.split('_')) > 2 else []
+        scenarios_list = [s.capitalize() for s in scenarios_list]
+        return is_continuous, list(self.__get_situations(self.situations_dict, scenarios_list))
+    
+    # Filter the current situations based on the flag
+    def __get_situations(self, scene_dict, scenarios=[]):
+        if scenarios:
+            filtered_dict = {key: value for key, value in scene_dict.items() if value['situation'] in scenarios}
+            return filtered_dict
+        else:
+            return scene_dict
 
     # ===================================================== AUX METHODS =====================================================
-
     def __control_vehicle(self, action):
         if self.is_continuous:
             self.vehicle.control_vehicle(action)
         else:
             self.vehicle.control_vehicle_discrete(action)
+
+    def __timer_truncated(self):
+        return time.time() - self.start_time > self.time_limit
+    
+    def __start_timer(self):
+        self.start_time = time.time()

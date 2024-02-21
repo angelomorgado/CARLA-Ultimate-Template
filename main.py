@@ -9,10 +9,19 @@ import time
 from env.environment import CarlaEnv
 
 def env_main():
-    env = CarlaEnv('carla-rl-gym_cont')
+    env = CarlaEnv('carla-rl-gym_cont', time_limit=10)
     obs, info = env.reset()
-    print(env.action_space.sample())
-    # time.sleep(20)
+    
+    # 1 episode
+    while True:
+        # Random action
+        # action = env.action_space.sample()
+        # Empty action
+        action = [0.0, 0.0, 0.0]
+        obs, reward, terminated, truncated, info = env.step(action)
+        if terminated or truncated:
+            print('Episode terminated closing environment')
+            break
 
     env.close()
 
