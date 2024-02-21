@@ -52,20 +52,16 @@ class CarlaEnv():
         # 4. Create the vehicle TODO: Change vehicle module to not spawn the vehicle in the constructor, only with a function
         self.vehicle = Vehicle(self.world.get_world())
 
-        # 5. Create the observation space:
-        self.image_space = spaces.Box(low=0, high=255, shape=(360, 640, 4), dtype=np.uint8)
-        self.lidar_space = spaces.Box(low=-np.inf, high=np.inf, shape=(5301, 4), dtype=np.float32)
-        self.position_space = spaces.Box(low=-np.inf, high=np.inf, shape=(3,), dtype=np.float32)
-        self.target_space = spaces.Box(low=-np.inf, high=np.inf, shape=(3,), dtype=np.float32)
-        self.situation_space = spaces.Discrete(4)
+        # 5. Create the observation space: TODO: Make the observation space more dynamic.
+        # Change this according to the needs.
 
-        # Combine spaces into a single observation space
+        # Lidar: (122,4) (184, 3) for default settings
         self.observation_space = spaces.Dict({
-            'rgb_data': self.image_space,
-            'lidar_data': self.lidar_space,
-            'initial_position': self.position_space,
-            'target_position': self.target_space,
-            'situation': self.situation_space
+            'rgb_data': spaces.Box(low=0, high=255, shape=(369, 640, 3), dtype=np.uint8),
+            'lidar_data': spaces.Box(low=-np.inf, high=np.inf, shape=(184, 3), dtype=np.float32),
+            'position': spaces.Box(low=-np.inf, high=np.inf, shape=(3,), dtype=np.float32),
+            'target_position': spaces.Box(low=-np.inf, high=np.inf, shape=(3,), dtype=np.float32),
+            'situation': spaces.Discrete(4)
         })
 
         # Action space
@@ -159,7 +155,7 @@ class CarlaEnv():
         observation_space_dict = {
             'rgb_data': rgb_image,
             'lidar_data': lidar_point_cloud,
-            'initial_position': current_position,
+            'position': current_position,
             'target_position': target_position,
             'situation': situation
         }
@@ -167,9 +163,11 @@ class CarlaEnv():
         # Update the observation space with spaces.Box or spaces.Discrete
         self.observation_space.spaces['rgb_data'] = spaces.Box(low=0, high=255, shape=(360, 640, 4), dtype=np.uint8)
         self.observation_space.spaces['lidar_data'] = spaces.Box(low=-np.inf, high=np.inf, shape=(5316, 4), dtype=np.float32)
-        self.observation_space.spaces['initial_position'] = spaces.Box(low=-np.inf, high=np.inf, shape=(3,), dtype=np.float32)
+        self.observation_space.spaces['position'] = spaces.Box(low=-np.inf, high=np.inf, shape=(3,), dtype=np.float32)
         self.observation_space.spaces['target_position'] = spaces.Box(low=-np.inf, high=np.inf, shape=(3,), dtype=np.float32)
         self.observation_space.spaces['situation'] = spaces.Discrete(4)
+
+        # NOT UPDATING
 
 
     # ===================================================== SCENARIO METHODS =====================================================
@@ -204,4 +202,5 @@ class CarlaEnv():
         return np.random.choice(self.situations_list)
 
     # ===================================================== AUX METHODS =====================================================
+
 

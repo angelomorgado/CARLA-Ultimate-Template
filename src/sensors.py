@@ -112,7 +112,10 @@ class Lidar:
         lidar_data = data.raw_data
         lidar_data = np.frombuffer(lidar_data, dtype=np.dtype('f4'))
         lidar_data = np.reshape(lidar_data, (int(lidar_data.shape[0] / 4), 4))
-        self.raw_data = lidar_data
+        self.raw_data = np.reshape(lidar_data, (int(lidar_data.shape[0] / 3), 3))
+
+        print(f"AQUIIIIIII {lidar_data.shape}")
+        exit()
 
         # Extract X, Y, Z coordinates and intensity values
         points_xyz = lidar_data[:, :3]

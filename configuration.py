@@ -9,7 +9,7 @@ BORDER_WIDTH            = 5
 # Vehicle and Sensors attributes
 SENSOR_FPS              = 30
 VERBOSE                 = False
-VEHICLE_SENSORS_FILE    = 'test_sensors.json'
+VEHICLE_SENSORS_FILE    = 'env/train_sensors.json'
 VEHICLE_PHYSICS_FILE    = 'test_vehicle_physics.json'
 VEHICLE_MODEL           = "vehicle.tesla.model3"
 

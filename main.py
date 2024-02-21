@@ -10,12 +10,9 @@ from env.environment import CarlaEnv
 
 def env_main():
     env = CarlaEnv('carla-rl-gym_cont')
-
-    print(env.action_space.n)
     obs, info = env.reset()
-    # print(obs)
     # time.sleep(20)
-    
+
     env.close()
 
 if __name__ == '__main__':
