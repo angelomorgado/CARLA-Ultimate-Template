@@ -70,6 +70,8 @@ class CarlaEnv():
             'situation': spaces.Discrete(self.number_of_situations)
         })
 
+        self.observation = None
+
         # Action space
         if self.is_continuous:
             # For continuous actions
@@ -123,10 +125,10 @@ class CarlaEnv():
         self.load_scenario(self.active_scenario_name)
 
         # 3. Get the initial state (Get the observation data)
-        self.__update_observation_space()
+        self.__update_observation()
 
         # Return the observation and the scenario information
-        return self.observation_space, self.active_scenario_dict
+        return self.observation, self.active_scenario_dict
     
     def step(self, action):
         pass
@@ -149,7 +151,7 @@ class CarlaEnv():
 
 
     # ===================================================== OBSERVATION/ACTION METHODS =====================================================
-    def __update_observation_space(self):
+    def __update_observation(self):
         observation_space = self.vehicle.get_observation_data()
         rgb_image = observation_space[0]
         lidar_point_cloud = observation_space[1]
@@ -157,23 +159,13 @@ class CarlaEnv():
         target_position = np.array([self.active_scenario_dict['target_position']['x'], self.active_scenario_dict['target_position']['y'], self.active_scenario_dict['target_position']['z']])
         situation = self.situations_map[self.active_scenario_dict['situation']]
 
-        # Construct the observation space dictionary
-        observation_space_dict = {
+        self.observation = {
             'rgb_data': rgb_image,
             'lidar_data': lidar_point_cloud,
             'position': current_position,
             'target_position': target_position,
             'situation': situation
         }
-
-        # Update the observation space with spaces.Box or spaces.Discrete
-        self.observation_space.spaces['rgb_data'] = spaces.Box(low=0, high=255, shape=self.rgb_image_shape, dtype=np.uint8)
-        self.observation_space.spaces['lidar_data'] = spaces.Box(low=-np.inf, high=np.inf, shape=self.lidar_point_cloud_shape, dtype=np.float32)
-        self.observation_space.spaces['position'] = spaces.Box(low=-np.inf, high=np.inf, shape=self.current_position_shape, dtype=np.float32)
-        self.observation_space.spaces['target_position'] = spaces.Box(low=-np.inf, high=np.inf, shape=self.target_position_shape, dtype=np.float32)
-        self.observation_space.spaces['situation'] = spaces.Discrete(self.number_of_situations)
-
-        # NOT UPDATING
 
 
     # ===================================================== SCENARIO METHODS =====================================================
