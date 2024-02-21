@@ -38,8 +38,7 @@ class CarlaServer:
     @staticmethod
     def close_server(process):
         if os.name == 'posix':
-            process.terminate()  # Terminate the process
-            process.wait()  # Wait for it to complete
+            os.killpg(os.getpgid(process.pid), 15)
             print('Carla server closed')
         else:
             # On Windows, use taskkill to terminate the process and all its children
