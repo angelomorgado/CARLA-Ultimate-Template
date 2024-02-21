@@ -34,7 +34,7 @@ import json
 
 # TODO: Incorporate the environment into a proper gym environment
 # import gymnasium as gym
-# from gymnasium import spaces
+from gymnasium import spaces
 
 from src.world import World
 from src.server import CarlaServer
@@ -109,7 +109,7 @@ class CarlaEnv():
         self.__update_observation_space()
 
         # Return the observation and the scenario information
-        return self.observation_space, []
+        return self.observation_space, self.active_scenario_dict
     
     def step(self, action):
         pass
@@ -131,9 +131,19 @@ class CarlaEnv():
         return 0
 
 
-    # ===================================================== AUXILIARY METHODS =====================================================
-    def __choose_random_situation(self):
-        return np.random.choice(self.situations_list)
+    # ===================================================== OBSERVATION/ACTION METHODS =====================================================
+    def __update_observation_space(self):
+        observation_space = self.vehicle.get_observation_data()
+        rgb_image = observation_space[0]
+        lidar_point_cloud = observation_space[1]
+        current_position = observation_space[2]
+        target_position = np.array([self.active_scenario_dict['target_position']['x'], self.active_scenario_dict['target_position']['y'], self.active_scenario_dict['target_position']['z']])
+        situation = self.situations_map[self.active_scenario_dict['situation']]
+
+        # TODO: This data isn't suitable to be fed into a neural network, it needs to be preprocessed
+        self.observation_space = [rgb_image, lidar_point_cloud, current_position, target_position, situation]
+
+    # ===================================================== SCENARIO METHODS =====================================================
     
     def load_scenario(self, scenario_name):
         scenario_dict = self.situations_dict[scenario_name]
@@ -141,6 +151,15 @@ class CarlaEnv():
         self.__load_weather(scenario_dict['weather_condition'])
         self.__spawn_vehicle(scenario_dict)
 
+    def clean_scenario(self):
+        self.vehicle.destroy_vehicle()
+        self.world.destroy_vehicles()
+        self.world.destroy_pedestrians()
+    
+    def print_all_scenarios(self):
+        for idx, i in enumerate(self.situations_list):
+            print(idx, ": ", i)
+    
     def __spawn_vehicle(self, s_dict):
         location = (s_dict['initial_position']['x'], s_dict['initial_position']['y'], s_dict['initial_position']['z'])
         rotation = (s_dict['initial_rotation']['pitch'], s_dict['initial_rotation']['yaw'], s_dict['initial_rotation']['roll'])
@@ -152,23 +171,8 @@ class CarlaEnv():
     def __load_weather(self, weather_name):
         self.world.set_active_weather_preset(weather_name)
     
-    def clean_scenario(self):
-        self.vehicle.destroy_vehicle()
-        self.world.destroy_vehicles()
-        self.world.destroy_pedestrians()
-    
-    def print_all_scenarios(self):
-        for idx, i in enumerate(self.situations_list):
-            print(idx, ": ", i)
+    def __choose_random_situation(self):
+        return np.random.choice(self.situations_list)
 
-    def __update_observation_space(self):
-        observation_space = self.vehicle.get_observation_data()
-        rgb_image = observation_space[0]
-        lidar_point_cloud = observation_space[1]
-        current_position = observation_space[2]
-        target_position = np.array([self.active_scenario_dict['target_position']['x'], self.active_scenario_dict['target_position']['y'], self.active_scenario_dict['target_position']['z']])
-        situation = self.situations_map[self.active_scenario_dict['situation']]
-
-        # TODO: This data isn't suitable to be fed into a neural network, it needs to be preprocessed
-        self.observation_space = [rgb_image, lidar_point_cloud, current_position, target_position, situation]
+    # ===================================================== AUX METHODS =====================================================
 

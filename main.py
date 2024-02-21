@@ -115,6 +115,7 @@ def test_main():
 def env_main():
     env = CarlaEnv('carla-rl-gym_cont')
     obs, info = env.reset()
+    print(obs)
     time.sleep(20)
 
     env.close()
