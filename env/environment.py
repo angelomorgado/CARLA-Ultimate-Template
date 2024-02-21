@@ -22,7 +22,7 @@ Observation Space:
 
 Action Space:
     Continuous:
-        [Steering (-1.0, 1.0), Speed(km/h)]
+        [Steering (-1.0, 1.0), Throttle (0.0, 1.0), Brake (0.0, 1.0)]
     Discrete:
         [Action] (0: Accelerate, 1: Decelerate, 2: Left, 3: Right) <- It's a number from 0 to 3
 
@@ -52,14 +52,27 @@ class CarlaEnv():
         # 4. Create the vehicle TODO: Change vehicle module to not spawn the vehicle in the constructor, only with a function
         self.vehicle = Vehicle(self.world.get_world())
 
-        # 5. Create the observation space TODO: Make it gym compatible with the gym.spaces module
-        self.observation_space = None
+        # 5. Create the observation space:
+        self.image_space = spaces.Box(low=0, high=255, shape=(360, 640, 4), dtype=np.uint8)
+        self.lidar_space = spaces.Box(low=-np.inf, high=np.inf, shape=(5301, 4), dtype=np.float32)
+        self.position_space = spaces.Box(low=-np.inf, high=np.inf, shape=(3,), dtype=np.float32)
+        self.target_space = spaces.Box(low=-np.inf, high=np.inf, shape=(3,), dtype=np.float32)
+        self.situation_space = spaces.Discrete(4)
 
-        # # 6. Create the action space
-        if self.is_continuous:
-            self.action_space = np.array([2])
-        else:
-            self.action_space = np.array([4])
+        # Combine spaces into a single observation space
+        self.observation_space = spaces.Dict({
+            'image': self.image_space,
+            'lidar': self.lidar_space,
+            'position': self.position_space,
+            'target': self.target_space,
+            'situation': self.situation_space
+        })
+
+        # Action space
+        # For continuous actions
+        self.continuous_action_space = spaces.Box(low=np.array([-1.0, 0.0, 0.0]), high=np.array([1.0, 1.0, 1.0]), dtype=np.float32)
+        # For discrete actions
+        self.discrete_action_space = spaces.Discrete(4)  # Assuming 4 discrete actions
 
         # Variables to store the current state
         self.active_scenario_name = None
@@ -139,6 +152,12 @@ class CarlaEnv():
         current_position = observation_space[2]
         target_position = np.array([self.active_scenario_dict['target_position']['x'], self.active_scenario_dict['target_position']['y'], self.active_scenario_dict['target_position']['z']])
         situation = self.situations_map[self.active_scenario_dict['situation']]
+
+        print("RGB image shape: ", rgb_image.shape)
+        print("LiDAR point cloud shape: ", lidar_point_cloud.shape)
+        print("Current position: ", current_position)
+        print("Target position: ", target_position)
+        print("Situation: ", situation)
 
         # TODO: This data isn't suitable to be fed into a neural network, it needs to be preprocessed
         self.observation_space = [rgb_image, lidar_point_cloud, current_position, target_position, situation]

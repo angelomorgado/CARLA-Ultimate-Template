@@ -19,10 +19,9 @@ class Vehicle:
         self.__sensor_dict = {}
         self.__world = world
 
-        # Vehicle Control attributes
-        self.__speed = 0.0 # Km/h
+        # Vehicle Control attributes for discrete action space
+        self.__speed = 0.0 # [km/h]
         self.__steering_angle = 0.0 # [-1.0, 1.0]
-        self.__lights_on = False
 
     def get_vehicle(self):
         return self.__vehicle
@@ -129,7 +128,6 @@ class Vehicle:
 
     # Change the vehicle physics to a determined weather that is stated in the JSON file.
     def change_vehicle_physics(self, weather_condition):
-
         # Read JSON file
         physics_data = self.read_vehicle_file(configuration.VEHICLE_PHYSICS_FILE)
 
@@ -177,26 +175,18 @@ class Vehicle:
         print(f"long_stiff_value: {vehicle_physics.wheels[1].long_stiff_value}")
 
     # ====================================== Vehicle Control ======================================
-    # Control the vehicle based on the continuous action space provided by the environment. The action space is steering_angle,throttle,brake,lights_on]. The first three are continuous values normalized between [-1, 1] for the steering angle and [0, 1] for the throttle and brake and the last one is a boolean.
-    # For now I disabled the brake and light control which are not used in the environment.
+    # Control the vehicle based on the continuous action space provided by the environment. The action space is steering_angle,throttle,brake,lights_on]. The first three are continuous values normalized between [-1, 1] for the steering angle and [0, 1] for the throttle and brake.
     def control_vehicle(self, action):
-        # control = carla.VehicleControl()
+        control = carla.VehicleControl()
         ackermann_control = carla.VehicleAckermannControl()
         ackermann_control.steer = action[0]
-        # control.throttle = action[1]
-        ackermann_control.speed = action[1]
-        # control.brake = action[2]
-        # control.lights = carla.VehicleLightState.NONE
-
-        # if action[3] == True:
-        #     control.lights = carla.VehicleLightState.Position
-
+        control.throttle = action[1]
+        control.brake = action[2]
         
-        # self.__vehicle.apply_control(control)
+        self.__vehicle.apply_control(control)
         self.__vehicle.apply_ackermann_control(ackermann_control)
 
-    # Control the vehicle based on the discrete action space provided by the environment. The action space is [accelerate, decelerate, left, right, lights_on]. Out of these, only one action can be taken at a time.
-    # For now i disabled light control which is not used in the environment.
+    # Control the vehicle based on the discrete action space provided by the environment. The action space is [accelerate, decelerate, left, right]. Out of these, only one action can be taken at a time.
     def control_vehicle_discrete(self, action):
         # control = carla.VehicleControl()
         ackermann_control = carla.VehicleAckermannControl()
@@ -213,18 +203,10 @@ class Vehicle:
         # Right
         elif action == 3:
             self.__steering_angle = min(1.0, self.__steering_angle + 0.1)
-        # Lights
-        # elif action == 4:
-        #     self.__lights_on = not self.__lights_on
-        
+
         ackermann_control.steer = self.__steering_angle 
         ackermann_control.speed = self.__speed / 3.6
-        # # control.lights = carla.VehicleLightState.NONE
 
-        # if self.__lights_on:
-        #     control.lights = carla.VehicleLightState.Position
-        
-        # self.__vehicle.apply_control(control)
         self.__vehicle.apply_ackermann_control(ackermann_control)
             
     # TODO: Add debug to vehicle through world.debug
