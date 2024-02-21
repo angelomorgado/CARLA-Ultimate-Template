@@ -201,4 +201,8 @@ class CarlaEnv():
 
     # ===================================================== AUX METHODS =====================================================
 
-
+    def __control_vehicle(self, action):
+        if self.is_continuous:
+            self.vehicle.control_vehicle(action)
+        else:
+            self.vehicle.control_vehicle_discrete(action)

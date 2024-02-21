@@ -11,7 +11,7 @@ from env.environment import CarlaEnv
 def env_main():
     env = CarlaEnv('carla-rl-gym_cont')
     obs, info = env.reset()
-    print(obs)
+    print(env.action_space.sample())
     # time.sleep(20)
 
     env.close()
