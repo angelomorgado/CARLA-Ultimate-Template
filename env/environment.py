@@ -112,7 +112,8 @@ class CarlaEnv():
         # 4. Start the timer
         self.__start_timer()
         print("Episode started!")
-        print(self.vehicle)
+        # 5. Place the spectator
+        self.world.place_spectator_above_vehicle(self.vehicle.get_vehicle())
         # Return the observation and the scenario information
         return self.observation, self.active_scenario_dict
     

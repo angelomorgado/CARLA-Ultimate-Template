@@ -107,6 +107,11 @@ class World:
     
     def choose_weather(self):
         self.weather_control.choose_weather()
-
-
+    
+    # ============ Spectator Control ============
+    def place_spectator_above_vehicle(self, vehicle):
+        spectator = self.__world.get_spectator()
+        transform = vehicle.get_transform()
+        spectator.set_transform(carla.Transform(transform.location + carla.Location(z=50),
+        carla.Rotation(pitch=-90)))
     
