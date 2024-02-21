@@ -55,13 +55,19 @@ class CarlaEnv():
         # 5. Create the observation space: TODO: Make the observation space more dynamic.
         # Change this according to the needs.
 
-        # Lidar: (122,4) (184, 3) for default settings
+        # Lidar: (122,4) for default settings
+        self.rgb_image_shape = (369, 640, 3)
+        self.lidar_point_cloud_shape = (122, 4)
+        self.current_position_shape = (3,)
+        self.target_position_shape = (3,)
+        self.number_of_situations = 4
+
         self.observation_space = spaces.Dict({
-            'rgb_data': spaces.Box(low=0, high=255, shape=(369, 640, 3), dtype=np.uint8),
-            'lidar_data': spaces.Box(low=-np.inf, high=np.inf, shape=(184, 3), dtype=np.float32),
-            'position': spaces.Box(low=-np.inf, high=np.inf, shape=(3,), dtype=np.float32),
-            'target_position': spaces.Box(low=-np.inf, high=np.inf, shape=(3,), dtype=np.float32),
-            'situation': spaces.Discrete(4)
+            'rgb_data': spaces.Box(low=0, high=255, shape=self.rgb_image_shape, dtype=np.uint8),
+            'lidar_data': spaces.Box(low=-np.inf, high=np.inf, shape=self.lidar_point_cloud_shape, dtype=np.float32),
+            'position': spaces.Box(low=-np.inf, high=np.inf, shape=self.current_position_shape, dtype=np.float32),
+            'target_position': spaces.Box(low=-np.inf, high=np.inf, shape=self.target_position_shape, dtype=np.float32),
+            'situation': spaces.Discrete(self.number_of_situations)
         })
 
         # Action space
@@ -161,11 +167,11 @@ class CarlaEnv():
         }
 
         # Update the observation space with spaces.Box or spaces.Discrete
-        self.observation_space.spaces['rgb_data'] = spaces.Box(low=0, high=255, shape=(360, 640, 4), dtype=np.uint8)
-        self.observation_space.spaces['lidar_data'] = spaces.Box(low=-np.inf, high=np.inf, shape=(5316, 4), dtype=np.float32)
-        self.observation_space.spaces['position'] = spaces.Box(low=-np.inf, high=np.inf, shape=(3,), dtype=np.float32)
-        self.observation_space.spaces['target_position'] = spaces.Box(low=-np.inf, high=np.inf, shape=(3,), dtype=np.float32)
-        self.observation_space.spaces['situation'] = spaces.Discrete(4)
+        self.observation_space.spaces['rgb_data'] = spaces.Box(low=0, high=255, shape=self.rgb_image_shape, dtype=np.uint8)
+        self.observation_space.spaces['lidar_data'] = spaces.Box(low=-np.inf, high=np.inf, shape=self.lidar_point_cloud_shape, dtype=np.float32)
+        self.observation_space.spaces['position'] = spaces.Box(low=-np.inf, high=np.inf, shape=self.current_position_shape, dtype=np.float32)
+        self.observation_space.spaces['target_position'] = spaces.Box(low=-np.inf, high=np.inf, shape=self.target_position_shape, dtype=np.float32)
+        self.observation_space.spaces['situation'] = spaces.Discrete(self.number_of_situations)
 
         # NOT UPDATING
 

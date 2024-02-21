@@ -56,12 +56,14 @@ class RGB_Camera:
 
         # Convert the image to a NumPy array
         image_array = np.array(image)
+
+        # Take out the alpha channel
+        image_array = image_array[:, :, :3]
+
         self.raw_data = image_array
 
         # Ensure the array is contiguous in memory
         image_array = np.ascontiguousarray(image_array)
-        # Convert to RGB using OpenCV function
-        image_array = cv2.cvtColor(image_array, cv2.COLOR_RGBA2RGB)
 
         # Display the processed image using Pygame
         self.last_data = image_array
@@ -112,10 +114,8 @@ class Lidar:
         lidar_data = data.raw_data
         lidar_data = np.frombuffer(lidar_data, dtype=np.dtype('f4'))
         lidar_data = np.reshape(lidar_data, (int(lidar_data.shape[0] / 4), 4))
-        self.raw_data = np.reshape(lidar_data, (int(lidar_data.shape[0] / 3), 3))
-
-        print(f"AQUIIIIIII {lidar_data.shape}")
-        exit()
+        self.raw_data = lidar_data
+        # self.raw_data = np.reshape(lidar_data, (int(lidar_data.shape[0] / 3), 3))
 
         # Extract X, Y, Z coordinates and intensity values
         points_xyz = lidar_data[:, :3]

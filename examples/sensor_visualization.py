@@ -19,6 +19,7 @@ def main():
     
     # Create vehicle
     autonomous_vehicle = Vehicle(world=world)
+    autonomous_vehicle.spawn_vehicle()
     autonomous_vehicle.set_autopilot(True)
 
     # Display the vehicle's sensors
