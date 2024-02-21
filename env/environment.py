@@ -126,6 +126,11 @@ class CarlaEnv():
         # 3. Close the server
         CarlaServer.close_server(self.server_process)
     
+    # ===================================================== REWARD METHODS =====================================================
+    def __calculate_reward(self):
+        return 0
+
+
     # ===================================================== AUXILIARY METHODS =====================================================
     def __choose_random_situation(self):
         return np.random.choice(self.situations_list)
@@ -162,14 +167,8 @@ class CarlaEnv():
         lidar_point_cloud = observation_space[1]
         current_position = observation_space[2]
         target_position = np.array([self.active_scenario_dict['target_position']['x'], self.active_scenario_dict['target_position']['y'], self.active_scenario_dict['target_position']['z']])
-        situation = np.array(self.situations_map[self.active_scenario_dict['situation']])
+        situation = self.situations_map[self.active_scenario_dict['situation']]
 
-        print("RGB Image: ", rgb_image.shape)
-        print("LiDAR Point Cloud: ", lidar_point_cloud.shape)
-        print("Current Position: ", current_position)
-        print("Target Position: ", target_position)
-        print("Situation: ", situation)
+        # TODO: This data isn't suitable to be fed into a neural network, it needs to be preprocessed
+        self.observation_space = [rgb_image, lidar_point_cloud, current_position, target_position, situation]
 
-        self.observation_space = np.hstack([rgb_image, lidar_point_cloud, current_position, target_position, situation])
-
-        print("Observation Space: ", self.observation_space.shape)

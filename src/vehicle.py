@@ -121,7 +121,7 @@ class Vehicle:
         gnss_data = self.__sensor_dict['gnss'].get_data()
 
         # Perform necessary processing on the data # TODO: Should the data be really flattened?
-        rgb_data = rgb_data.reshape(-1) # Flatten the image so it can be concatenated with the rest of the data point cloud
+        # rgb_data = rgb_data.reshape(-1) # Flatten the image so it can be concatenated with the rest of the data point cloud
 
         return [rgb_data, lidar_data, gnss_data]
 

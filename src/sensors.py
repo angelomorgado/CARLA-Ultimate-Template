@@ -111,8 +111,8 @@ class Lidar:
         # Get the LiDAR point cloud from the data
         lidar_data = data.raw_data
         lidar_data = np.frombuffer(lidar_data, dtype=np.dtype('f4'))
-        self.raw_data = lidar_data
         lidar_data = np.reshape(lidar_data, (int(lidar_data.shape[0] / 4), 4))
+        self.raw_data = lidar_data
 
         # Extract X, Y, Z coordinates and intensity values
         points_xyz = lidar_data[:, :3]
