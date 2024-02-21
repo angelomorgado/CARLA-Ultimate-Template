@@ -11,8 +11,10 @@ from env.environment import CarlaEnv
 def env_main():
     env = CarlaEnv('carla-rl-gym', time_limit=10)
     
-    for i in range(3):
+    for i in range(10):
+        print("================================ Episode", i, " ================================")
         obs, info = env.reset()
+        time.sleep(0.2)
         while True:
             # Random action
             # action = env.action_space.sample()

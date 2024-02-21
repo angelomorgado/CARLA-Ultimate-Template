@@ -33,6 +33,13 @@ class Vehicle:
             print("Error: No vehicle to set autopilot. Try spawning the vehicle first.")
 
     def spawn_vehicle(self, location=None, rotation=None):
+        # Check if the vehicle is already spawned
+        if self.__vehicle is not None:
+            if configuration.VERBOSE:
+                print("Error: Vehicle already spawned. Destroy the vehicle first.")
+            
+            self.destroy_vehicle()
+
         vehicle_id = self.read_vehicle_file(configuration.VEHICLE_PHYSICS_FILE)["id"]
 
         vehicle_bp = self.__world.get_blueprint_library().filter(vehicle_id)
@@ -81,12 +88,15 @@ class Vehicle:
         return vehicle_data
     
     def destroy_vehicle(self):
-        self.set_autopilot(False)
+        if self.__vehicle is None:
+            return
+
         # Destroy sensors
         for sensor in self.__sensor_dict:
             self.__sensor_dict[sensor].destroy()
         self.__vehicle.destroy()
-        print("Successfully destroyed the ego vehicle and its sensors.")
+        if configuration.VERBOSE:
+            print("Successfully destroyed the ego vehicle and its sensors.")
 
     # ====================================== Vehicle Sensors ======================================
     def attach_sensors(self, vehicle_data, world):

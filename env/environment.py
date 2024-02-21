@@ -97,9 +97,12 @@ class CarlaEnv():
         
     # ===================================================== GYM METHODS =====================================================                
     # This reset loads a random scenario and returns the initial state plus information about the scenario
-    def reset(self):
+    def reset(self, episode_name=None):
         # 1. Choose a random scenario
-        self.active_scenario_name = self.__choose_random_situation()
+        if episode_name:
+            self.active_scenario_name = episode_name
+        else:
+            self.active_scenario_name = self.__choose_random_situation()
         print(f"Chosen scenario: {self.active_scenario_name}")
         self.active_scenario_dict = self.situations_dict[self.active_scenario_name]
         # 2. Load the scenario
@@ -109,6 +112,7 @@ class CarlaEnv():
         # 4. Start the timer
         self.__start_timer()
         print("Episode started!")
+        print(self.vehicle)
         # Return the observation and the scenario information
         return self.observation, self.active_scenario_dict
     
