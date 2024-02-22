@@ -98,12 +98,9 @@ class CarlaEnv():
     # ===================================================== GYM METHODS =====================================================                
     # This reset loads a random scenario and returns the initial state plus information about the scenario
     def reset(self, episode_name=None):
-        # 1. Choose a random scenario
-        if episode_name:
-            self.active_scenario_name = episode_name
-        else:
-            self.active_scenario_name = self.__choose_random_situation()
-        print(f"Chosen scenario: {self.active_scenario_name}")
+        # 1. Choose a scenario
+        self.active_scenario_name = self.__chose_situation(episode_name)
+        print(f"Loading scenario {self.active_scenario_name}...")
         self.active_scenario_dict = self.situations_dict[self.active_scenario_name]
         # 2. Load the scenario
         self.load_scenario(self.active_scenario_name)
@@ -169,6 +166,7 @@ class CarlaEnv():
     def load_scenario(self, scenario_name):
         scenario_dict = self.situations_dict[scenario_name]
         self.__load_map(scenario_dict['map_name'])
+        time.sleep(1)
         self.__load_weather(scenario_dict['weather_condition'])
         self.__spawn_vehicle(scenario_dict)
 
@@ -194,6 +192,12 @@ class CarlaEnv():
     
     def __choose_random_situation(self):
         return np.random.choice(self.situations_list)
+
+    def __chose_situation(self, episode_name):
+        if episode_name:
+            return episode_name
+        else:
+            return self.__choose_random_situation()
     
     # ===================================================== SITUATIONS PARSING =====================================================
     # Filter the current situations based on the flag
