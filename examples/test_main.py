@@ -1,3 +1,6 @@
+import os, sys
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
 import carla
 import time
 
@@ -37,22 +40,23 @@ def control_main():
     
     # Create vehicle
     autonomous_vehicle = Vehicle(world=world.get_world())
-    # autonomous_vehicle.spawn_vehicle()
-    autonomous_vehicle.spawn_vehicle((370.0, 326.7, 0.3), (0.0, 179.9, 0.0))
+    autonomous_vehicle.spawn_vehicle()
+    # autonomous_vehicle.spawn_vehicle((370.0, 326.7, 0.3), (0.0, 179.9, 0.0))
 
     # Create display
     display = Display('Carla Sensor feed', autonomous_vehicle)
 
-    # [Steer (-1.0, 1.0), Speed (km/h)]
-    action = [0.0, 50.0]
+    # [Steer (-1.0, 1.0), Throttle (0.0, 1.0), Brake (0.0, 1.0)]
+    action = [0.0, 1.0, 0.0]
 
     while True:
         try:
-            # autonomous_vehicle.control_vehicle(action)
+            autonomous_vehicle.control_vehicle(action)
             display.play_window_tick()
         except KeyboardInterrupt:
             autonomous_vehicle.destroy_vehicle()
             display.close_window()
+            CarlaServer.close_server()
             break
 
 def traffic_main():
@@ -72,6 +76,7 @@ def traffic_main():
             print("Exiting...")
             world.destroy_vehicles()
             world.destroy_pedestrians()
+            CarlaServer.close_server()
             break
 
     
@@ -105,4 +110,6 @@ def test_main():
 
 
 if __name__ == '__main__':
+    CarlaServer.initialize_server(low_quality=True)
     control_main()
+    CarlaServer.close_server()

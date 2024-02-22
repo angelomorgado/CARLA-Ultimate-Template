@@ -75,7 +75,7 @@ class CarlaEnv():
         # Action space
         if self.is_continuous:
             # For continuous actions
-            self.action_space = spaces.Box(low=np.array([-1.0, 0.0, 0.0]), high=np.array([1.0, 1.0, 1.0]), dtype=np.float32)
+            self.action_space = spaces.Box(low=np.array([-1.0, 0.0, 0.0]), high=np.array([1.0, 1.0, 1.0]), dtype=float)
         else:
             # For discrete actions
             self.action_space = spaces.Discrete(4)
@@ -119,7 +119,7 @@ class CarlaEnv():
     
     def step(self, action):
         # 1. Control the vehicle
-        self.__control_vehicle(action)
+        self.__control_vehicle(np.array(action))
         # 2. Update the observation
         self.__update_observation()
         # 3. Calculate the reward

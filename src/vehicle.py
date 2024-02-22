@@ -189,6 +189,12 @@ class Vehicle:
     def control_vehicle(self, action):
         control = carla.VehicleControl()
         ackermann_control = carla.VehicleAckermannControl()
+        
+        # Standard values
+        control.hand_brake = False
+        control.manual_gear_shift = False
+        control.reverse = False
+        
         ackermann_control.steer = action[0]
         control.throttle = action[1]
         control.brake = action[2]

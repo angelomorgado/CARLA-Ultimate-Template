@@ -1238,12 +1238,12 @@ class CameraManager(object):
 # -- game_loop() ---------------------------------------------------------------
 # ==============================================================================
 
-
 def game_loop(args):
     pygame.init()
     pygame.font.init()
     world = None
     original_settings = None
+
 
     try:
         client = carla.Client(args.host, args.port)
@@ -1262,7 +1262,7 @@ def game_loop(args):
             '/Game/Carla/Maps/Town15' # 7
         ]
 
-        client.load_world(map_l[0])
+        # client.load_world(map_l[6])
 
         if args.sync:
             original_settings = sim_world.get_settings()
