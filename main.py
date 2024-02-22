@@ -9,9 +9,9 @@ import time
 from env.environment import CarlaEnv
 
 def env_main():
-    env = CarlaEnv('carla-rl-gym', time_limit=10)
+    env = CarlaEnv('carla-rl-gym', time_limit=5)
     
-    for i in range(2):
+    for i in range(10):
         print("================================ Episode", i, " ================================")
         obs, info = env.reset()
         time.sleep(0.2)
@@ -22,6 +22,7 @@ def env_main():
             action = [1.0, 1.0, 1.0]
             # print('Action:', action)
             obs, reward, terminated, truncated, info = env.step(action)
+            # print('Observation:', obs)
             if terminated or truncated:
                 print('Episode terminated closing environment')
                 break

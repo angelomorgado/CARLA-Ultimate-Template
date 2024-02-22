@@ -154,7 +154,7 @@ class CarlaEnv():
         rgb_image = observation_space[0]
         lidar_point_cloud = observation_space[1]
         current_position = observation_space[2]
-        target_position = np.array([self.active_scenario_dict['target_position']['x'], self.active_scenario_dict['target_position']['y'], self.active_scenario_dict['target_position']['z']])
+        target_position = np.array([self.active_scenario_dict['target_gnss']['lat'], self.active_scenario_dict['target_gnss']['lon'], self.active_scenario_dict['target_gnss']['alt']])
         situation = self.situations_map[self.active_scenario_dict['situation']]
 
         self.observation = {
