@@ -4,6 +4,11 @@
 
 The CARLA Episode Generator is a tool designed to facilitate the creation of diverse training scenarios for reinforcement learning (RL) models in the CARLA simulator. This tool allows you to define structured scenarios, controlling various environment parameters such as the map, weather conditions, traffic density, initial positions, and specific situations like roundabouts or junctions.
 
+## Known Issues
+
+- If the server quality level is set to "Low" the server might (most likely will) crash when trying to load the map. This is a known issue with the CARLA server and it's not related to the code.
+- Throttle and brake aren't working
+
 ## Usage
 
 ### Scenario Definition
