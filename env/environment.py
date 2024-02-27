@@ -31,6 +31,7 @@ Action Space:
 import numpy as np
 import json
 import time
+import random
 
 # TODO: Incorporate the environment into a proper gym environment
 # import gymnasium as gym
@@ -178,6 +179,8 @@ class CarlaEnv():
         self.__load_weather(scenario_dict['weather_condition'])
         self.__spawn_vehicle(scenario_dict)
         print("Vehicle spawned!")
+        self.__spawn_traffic()
+        print("Traffic spawned!")
 
     def clean_scenario(self):
         self.vehicle.destroy_vehicle()
@@ -237,4 +240,9 @@ class CarlaEnv():
     def __start_timer(self):
         self.start_time = time.time()
     
-    # ===================================================== DEBUG METHODS =====================================================
+    # ===================================================== TRAFFIC METHODS =====================================================
+    def __spawn_traffic(self):
+        random.seed(self.active_scenario_name)
+        num_vehicles = random.randint(1, 20)
+        # TODO: Send seed so that the same vehicles are spawned
+        self.world.spawn_vehicles_around_ego(self.vehicle.get_vehicle(), 100, num_vehicles)

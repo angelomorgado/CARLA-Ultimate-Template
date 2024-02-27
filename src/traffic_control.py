@@ -72,15 +72,11 @@ class TrafficControl:
             dis = math.sqrt((ego_location.x - spawn_point.location.x)**2 +
                             (ego_location.y - spawn_point.location.y)**2)
             # it also can include z-coordinate, but it is unnecessary
-            if dis < radius:
-                print(dis)
+            if dis < radius and dis > 5.0:
                 accessible_points.append(spawn_point)
 
         vehicle_bps = self.__world.get_blueprint_library().filter('vehicle.*.*')   # don't specify the type of vehicle
-        # vehicle_bps = [x for x in vehicle_bps if int(
-        #     x.get_attribute('number_of_wheels')) == 4]  # only choose car with 4 wheels
 
-        vehicle_list = []  # keep the spawned vehicle in vehicle_list, because we need to link them with traffic_manager
         if len(accessible_points) < num_vehicles_around_ego:
             # if your radius is relatively small,the satisfied points may be insufficient
             num_vehicles_around_ego = len(accessible_points)
@@ -90,7 +86,7 @@ class TrafficControl:
             vehicle_bp = np.random.choice(vehicle_bps)
             try:
                 vehicle = self.__world.spawn_actor(vehicle_bp, point)
-                vehicle_list.append(vehicle)
+                self.active_vehicles.append(vehicle)
             except:
                 print('failed')  # if failed, print the hints.
                 pass
