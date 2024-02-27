@@ -9,12 +9,12 @@ import time
 from env.environment import CarlaEnv
 
 def env_main():
-    env = CarlaEnv('carla-rl-gym', time_limit=5, initialize_server=True)
-    # l = ["Town10HD-ClearNoon-Junction-1", "Town01-ClearNoon-Junction-1"]
+    env = CarlaEnv('carla-rl-gym', time_limit=5, initialize_server=False, is_training=True)
+    l = ["Town01-ClearNoon-Road-0", "Town01-WetNight-Road-0"]
     
-    for i in range(10):
+    for i in range(2):
         print("================================ Episode", i, " ================================")
-        obs, info = env.reset()
+        obs, info = env.reset(l[i])
         while True:
             # Random action TODO: Test this
             # action = env.action_space.sample()

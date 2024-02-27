@@ -1,6 +1,7 @@
 import carla
 
 import re
+import random
 
 '''
 Currently available weather presets:
@@ -60,6 +61,10 @@ class WeatherControl:
                 self.active_weather = idx
                 self.__activate_weather_preset()
                 return
+    
+    def set_random_weather_preset(self):
+        self.active_weather = random.randint(0, len(self.weather_list) - 1)
+        self.__activate_weather_preset()
 
     # This method let's the user choose with numbers the active preset. It serves as more of a debug.
     def choose_weather(self):

@@ -42,7 +42,7 @@ from src.vehicle import Vehicle
 import configuration as config
 
 class CarlaEnv():
-    def __init__(self, name, continuous=True, scenarios=[], time_limit=10, initialize_server=True):
+    def __init__(self, name, continuous=True, scenarios=[], time_limit=10, initialize_server=True, is_training=False):
         # 1. Start the server
         self.automatic_server_initialization = initialize_server
         if self.automatic_server_initialization:
@@ -52,6 +52,7 @@ class CarlaEnv():
         self.__world = self.world.get_world()
         # 3. Read the flag and get the appropriate situations
         self.is_continuous = continuous
+        self.is_training = is_training
         self.__get_situations(scenarios)
         # 4. Create the vehicle TODO: Change vehicle module to not spawn the vehicle in the constructor, only with a function
         self.vehicle = Vehicle(self.world.get_world())
@@ -174,7 +175,7 @@ class CarlaEnv():
         scenario_dict = self.situations_dict[scenario_name]
         self.load_world(scenario_dict['map_name'])
         print("World loaded!")
-        # self.__load_weather(scenario_dict['weather_condition'])
+        self.__load_weather(scenario_dict['weather_condition'])
         self.__spawn_vehicle(scenario_dict)
         print("Vehicle spawned!")
 
@@ -197,7 +198,10 @@ class CarlaEnv():
         self.world.set_active_map(name)
 
     def __load_weather(self, weather_name):
-        self.world.set_active_weather_preset(weather_name)
+        if self.is_training:
+            self.world.set_random_weather()
+        else:
+            self.world.set_active_weather_preset(weather_name)
     
     def __choose_random_situation(self):
         return np.random.choice(self.situations_list)

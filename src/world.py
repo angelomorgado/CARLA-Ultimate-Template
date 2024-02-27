@@ -41,6 +41,9 @@ class World:
 
     def set_active_weather_preset(self, weather):
         self.weather_control.set_active_weather_preset(weather)
+    
+    def set_random_weather(self):
+        self.weather_control.set_random_weather_preset()
 
     # This method let's the user choose with numbers the active preset. It serves as more of a debug.
     def choose_weather(self):
