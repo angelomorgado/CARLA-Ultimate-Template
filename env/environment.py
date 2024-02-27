@@ -126,6 +126,8 @@ class CarlaEnv():
         terminated = self.__is_done()
         # 5. Check if the episode is truncated
         self.truncated = self.__timer_truncated()
+        if self.truncated or terminated:
+            self.clean_scenario()
         # 5. Return the observation, the reward, the terminated flag and the scenario information
         return self.observation, reward, terminated, self.truncated, self.active_scenario_dict
 

@@ -97,6 +97,7 @@ class Vehicle:
         self.__vehicle.destroy()
         if configuration.VERBOSE:
             print("Successfully destroyed the ego vehicle and its sensors.")
+        self.__vehicle = None
 
     # ====================================== Vehicle Sensors ======================================
     def attach_sensors(self, vehicle_data, world):
