@@ -42,11 +42,14 @@ from src.vehicle import Vehicle
 import configuration as config
 
 class CarlaEnv():
-    def __init__(self, name, continuous=True, scenarios=[], time_limit=10):
+    def __init__(self, name, continuous=True, scenarios=[], time_limit=10, initialize_server=True):
         # 1. Start the server
-        self.server_process = CarlaServer.initialize_server(low_quality = config.SIM_LOW_QUALITY, offscreen_rendering = config.SIM_OFFSCREEN_RENDERING)
+        self.automatic_server_initialization = initialize_server
+        if self.automatic_server_initialization:
+            self.server_process = CarlaServer.initialize_server(low_quality = config.SIM_LOW_QUALITY, offscreen_rendering = config.SIM_OFFSCREEN_RENDERING)
         # 2. Connect to the server
         self.world = World()
+        self.__world = self.world.get_world()
         # 3. Read the flag and get the appropriate situations
         self.is_continuous = continuous
         self.__get_situations(scenarios)
@@ -104,13 +107,13 @@ class CarlaEnv():
         self.active_scenario_dict = self.situations_dict[self.active_scenario_name]
         # 2. Load the scenario
         self.load_scenario(self.active_scenario_name)
-        # 3. Get the initial state (Get the observation data)
+        # 3. Place the spectator
+        self.world.place_spectator_above_vehicle(self.vehicle.get_vehicle())
+        # 4. Get the initial state (Get the observation data)
         self.__update_observation()
-        # 4. Start the timer
+        # 5. Start the timer
         self.__start_timer()
         print("Episode started!")
-        # 5. Place the spectator
-        self.world.place_spectator_above_vehicle(self.vehicle.get_vehicle())
         # Return the observation and the scenario information
         return self.observation, self.active_scenario_dict
     
@@ -138,7 +141,8 @@ class CarlaEnv():
         # 2. Destroy the world
         self.world.destroy_world()
         # 3. Close the server
-        CarlaServer.close_server(self.server_process)
+        if self.automatic_server_initialization:
+            CarlaServer.close_server(self.server_process)
     
     # ===================================================== REWARD METHODS =====================================================
     def __calculate_reward(self):

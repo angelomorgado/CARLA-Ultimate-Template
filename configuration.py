@@ -17,7 +17,7 @@ VEHICLE_MODEL           = "vehicle.tesla.model3"
 SIM_HOST                = 'localhost'
 SIM_PORT                = 2000
 SIM_TIMEOUT             = 100.0
-SIM_LOW_QUALITY         = True
+SIM_LOW_QUALITY         = False
 SIM_OFFSCREEN_RENDERING = False
 
 # Environment attributes
