@@ -29,14 +29,5 @@ def env_main():
 
     env.close()
 
-def main():
-    env = CarlaEnv('carla-rl-gym', time_limit=5)
-    l = ["Town01", "Town10HD", "Town2"]
-
-    for i in range(len(l)):
-        env.load_world(l[i])
-        print(f"World {l[i]} loaded")
-
 if __name__ == '__main__':
     env_main()
-    # main()

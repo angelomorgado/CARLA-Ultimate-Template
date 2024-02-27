@@ -75,8 +75,8 @@ class World:
     def spawn_vehicles(self, num_vehicles = 10, autopilot_on = False):
         self.traffic_control.spawn_vehicles(num_vehicles, autopilot_on)
     
-    def spawn_vehicles_around_ego(self, ego_vehicle, radius, num_vehicles_around_ego):
-        self.traffic_control.spawn_vehicles_around_ego(ego_vehicle, radius, num_vehicles_around_ego)
+    def spawn_vehicles_around_ego(self, ego_vehicle, radius, num_vehicles_around_ego, scene_name=None):
+        self.traffic_control.spawn_vehicles_around_ego(ego_vehicle, radius, num_vehicles_around_ego, scene_name)
     
     def destroy_vehicles(self):
         self.traffic_control.destroy_vehicles()

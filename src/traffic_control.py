@@ -62,9 +62,11 @@ class TrafficControl:
             vehicle.set_autopilot(autopilot_on)
     
 
-    def spawn_vehicles_around_ego(self, ego_vehicle, radius, num_vehicles_around_ego):
+    def spawn_vehicles_around_ego(self, ego_vehicle, radius, num_vehicles_around_ego, scene_name=None):
+        if scene_name is not None:
+            random.seed(scene_name)
+
         self.spawn_points = self.__world.get_map().get_spawn_points()
-        np.random.shuffle(self.spawn_points)  # shuffle all the spawn points
         ego_location = ego_vehicle.get_location()
         accessible_points = []
 
@@ -75,20 +77,19 @@ class TrafficControl:
             if dis < radius and dis > 5.0:
                 accessible_points.append(spawn_point)
 
-        vehicle_bps = self.__world.get_blueprint_library().filter('vehicle.*.*')   # don't specify the type of vehicle
+        vehicle_bps = self.__world.get_blueprint_library().filter('vehicle.*.*') 
 
         if len(accessible_points) < num_vehicles_around_ego:
-            # if your radius is relatively small,the satisfied points may be insufficient
             num_vehicles_around_ego = len(accessible_points)
 
-        for i in range(num_vehicles_around_ego):  # generate the free vehicle
+        for i in range(num_vehicles_around_ego):
             point = accessible_points[i]
-            vehicle_bp = np.random.choice(vehicle_bps)
+            vehicle_bp = random.choice(vehicle_bps)
             try:
                 vehicle = self.__world.spawn_actor(vehicle_bp, point)
                 self.active_vehicles.append(vehicle)
             except:
-                print('failed')  # if failed, print the hints.
+                print('Error: Failed to spawn a traffic vehicle.')
                 pass
 
     

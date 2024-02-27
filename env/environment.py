@@ -245,4 +245,4 @@ class CarlaEnv():
         random.seed(self.active_scenario_name)
         num_vehicles = random.randint(1, 20)
         # TODO: Send seed so that the same vehicles are spawned
-        self.world.spawn_vehicles_around_ego(self.vehicle.get_vehicle(), 100, num_vehicles)
+        self.world.spawn_vehicles_around_ego(self.vehicle.get_vehicle(), 100, num_vehicles, self.active_scenario_name)
