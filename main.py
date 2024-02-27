@@ -10,11 +10,11 @@ from env.environment import CarlaEnv
 
 def env_main():
     env = CarlaEnv('carla-rl-gym', time_limit=5)
+    l = ["Town10HD-ClearNoon-Junction-1", "Town01-ClearNoon-Junction-1"]
     
-    for i in range(10):
+    for i in range(2):
         print("================================ Episode", i, " ================================")
-        obs, info = env.reset()
-        time.sleep(0.2)
+        obs, info = env.reset(l[i])
         while True:
             # Random action TODO: Test this
             # action = env.action_space.sample()
@@ -29,5 +29,14 @@ def env_main():
 
     env.close()
 
+def main():
+    env = CarlaEnv('carla-rl-gym', time_limit=5)
+    l = ["Town01", "Town10HD", "Town2"]
+
+    for i in range(len(l)):
+        env.load_world(l[i])
+        print(f"World {l[i]} loaded")
+
 if __name__ == '__main__':
     env_main()
+    # main()

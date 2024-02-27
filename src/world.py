@@ -17,6 +17,8 @@ class World:
         self.weather_control = WeatherControl(self.__world)
         self.available_maps = [m for m in self.__client.get_available_maps() if 'Opt' not in m] # Took out the layered maps
         self.active_map = 7 # Default map is Town10HD
+        self.map_dict = {m.split("/")[-1]: idx for idx, m in enumerate(self.available_maps)}
+        print("World initialized!")
 
     def get_client(self):
         return self.__client
@@ -51,28 +53,15 @@ class World:
     def print_available_maps(self):
         for idx, m in enumerate(self.available_maps):
             print(f'{idx}: {m}')
-
-    def set_active_map(self, map_idx):
+    
+    def set_active_map(self, map_name):
         # Check if the map is already loaded
-        if map_idx == self.active_map:
+        if self.map_dict[map_name] == self.active_map:
             return
 
+        self.active_map = self.map_dict[map_name]
+        self.__client.load_world('/Game/Carla/Maps/' + map_name)
 
-        self.active_map = map_idx
-        self.__client.load_world(self.available_maps[map_idx])
-    
-    def set_active_map_name(self, map_name):
-        # Check if the map is already loaded
-        if map_name in self.available_maps[self.active_map]:
-            # self.__client.reload_world()
-            return
-
-        for idx, m in enumerate(self.available_maps):
-            if map_name in m:
-                self.active_map = idx
-                self.__client.load_world(self.available_maps[idx])
-                return
-    
     # Serves for debugging purposes
     def change_map(self):
         self.print_available_maps()

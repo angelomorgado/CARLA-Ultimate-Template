@@ -114,6 +114,7 @@ class CarlaEnv():
         # Return the observation and the scenario information
         return self.observation, self.active_scenario_dict
     
+
     def step(self, action):
         # 1. Control the vehicle
         self.__control_vehicle(np.array(action))
@@ -165,15 +166,17 @@ class CarlaEnv():
     # ===================================================== SCENARIO METHODS =====================================================
     def load_scenario(self, scenario_name):
         scenario_dict = self.situations_dict[scenario_name]
-        self.__load_map(scenario_dict['map_name'])
-        time.sleep(1)
-        self.__load_weather(scenario_dict['weather_condition'])
+        self.load_world(scenario_dict['map_name'])
+        print("World loaded!")
+        # self.__load_weather(scenario_dict['weather_condition'])
         self.__spawn_vehicle(scenario_dict)
+        print("Vehicle spawned!")
 
     def clean_scenario(self):
         self.vehicle.destroy_vehicle()
         self.world.destroy_vehicles()
         self.world.destroy_pedestrians()
+        print("Scenario cleaned!")
     
     def print_all_scenarios(self):
         for idx, i in enumerate(self.situations_list):
@@ -184,8 +187,8 @@ class CarlaEnv():
         rotation = (s_dict['initial_rotation']['pitch'], s_dict['initial_rotation']['yaw'], s_dict['initial_rotation']['roll'])
         self.vehicle.spawn_vehicle(location, rotation)
     
-    def __load_map(self, map_name):
-        self.world.set_active_map_name('/Game/Carla/Maps/' + map_name)
+    def load_world(self, name):
+        self.world.set_active_map(name)
 
     def __load_weather(self, weather_name):
         self.world.set_active_weather_preset(weather_name)
@@ -223,3 +226,5 @@ class CarlaEnv():
     
     def __start_timer(self):
         self.start_time = time.time()
+    
+    # ===================================================== DEBUG METHODS =====================================================
