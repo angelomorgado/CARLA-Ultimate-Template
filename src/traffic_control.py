@@ -2,6 +2,8 @@ import carla
 
 import random
 import time
+import numpy as np
+import math
 
 '''
 Traffic Controller module:
@@ -58,8 +60,42 @@ class TrafficControl:
     def toggle_autopilot(self, autopilot_on = True):
         for vehicle in self.active_vehicles:
             vehicle.set_autopilot(autopilot_on)
+    
 
-    # TODO: Implement generation of other types of vehicles (e.g, trucks, motorcycles, bicycles, etc.)
+    def spawn_vehicles_around_ego(self, ego_vehicle, radius, num_vehicles_around_ego):
+        self.spawn_points = self.__world.get_map().get_spawn_points()
+        np.random.shuffle(self.spawn_points)  # shuffle all the spawn points
+        ego_location = ego_vehicle.get_location()
+        accessible_points = []
+
+        for spawn_point in self.spawn_points:
+            dis = math.sqrt((ego_location.x - spawn_point.location.x)**2 +
+                            (ego_location.y - spawn_point.location.y)**2)
+            # it also can include z-coordinate, but it is unnecessary
+            if dis < radius:
+                print(dis)
+                accessible_points.append(spawn_point)
+
+        vehicle_bps = self.__world.get_blueprint_library().filter('vehicle.*.*')   # don't specify the type of vehicle
+        # vehicle_bps = [x for x in vehicle_bps if int(
+        #     x.get_attribute('number_of_wheels')) == 4]  # only choose car with 4 wheels
+
+        vehicle_list = []  # keep the spawned vehicle in vehicle_list, because we need to link them with traffic_manager
+        if len(accessible_points) < num_vehicles_around_ego:
+            # if your radius is relatively small,the satisfied points may be insufficient
+            num_vehicles_around_ego = len(accessible_points)
+
+        for i in range(num_vehicles_around_ego):  # generate the free vehicle
+            point = accessible_points[i]
+            vehicle_bp = np.random.choice(vehicle_bps)
+            try:
+                vehicle = self.__world.spawn_actor(vehicle_bp, point)
+                vehicle_list.append(vehicle)
+            except:
+                print('failed')  # if failed, print the hints.
+                pass
+
+    
             
     # ============ Pedestrian Control ============
     def spawn_pedestrians(self, num_pedestrians=10):
