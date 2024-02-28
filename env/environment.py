@@ -43,7 +43,7 @@ from src.vehicle import Vehicle
 import configuration as config
 
 class CarlaEnv():
-    def __init__(self, name, continuous=True, scenarios=[], time_limit=10, initialize_server=True, is_training=False):
+    def __init__(self, name, continuous=True, scenarios=[], time_limit=10, initialize_server=True, random_weather=False, random_traffic=False):
         # 1. Start the server
         self.automatic_server_initialization = initialize_server
         if self.automatic_server_initialization:
@@ -51,9 +51,13 @@ class CarlaEnv():
         # 2. Connect to the server
         self.world = World()
         self.__world = self.world.get_world()
-        # 3. Read the flag and get the appropriate situations
+
+        # Read the environment settings
         self.is_continuous = continuous
-        self.is_training = is_training
+        self.random_weather = random_weather
+        self.random_traffic = random_traffic
+        
+        # 3. Read the flag and get the appropriate situations
         self.__get_situations(scenarios)
         # 4. Create the vehicle TODO: Change vehicle module to not spawn the vehicle in the constructor, only with a function
         self.vehicle = Vehicle(self.world.get_world())
@@ -201,7 +205,7 @@ class CarlaEnv():
         self.world.set_active_map(name)
 
     def __load_weather(self, weather_name):
-        if self.is_training:
+        if self.random_weather:
             self.world.set_random_weather()
         else:
             self.world.set_active_weather_preset(weather_name)
@@ -242,7 +246,9 @@ class CarlaEnv():
     
     # ===================================================== TRAFFIC METHODS =====================================================
     def __spawn_traffic(self):
-        random.seed(self.active_scenario_name)
+        name = None
+        if not self.random_traffic:
+            random.seed(self.active_scenario_name)
+            name = self.active_scenario_name
         num_vehicles = random.randint(1, 20)
-        # TODO: Send seed so that the same vehicles are spawned
-        self.world.spawn_vehicles_around_ego(self.vehicle.get_vehicle(), 100, num_vehicles, self.active_scenario_name)
+        self.world.spawn_vehicles_around_ego(self.vehicle.get_vehicle(), 100, num_vehicles, name)
