@@ -18,7 +18,8 @@ class World:
         self.available_maps = [m for m in self.__client.get_available_maps() if 'Opt' not in m] # Took out the layered maps
         self.active_map = 7 # Default map is Town10HD
         self.map_dict = {m.split("/")[-1]: idx for idx, m in enumerate(self.available_maps)}
-        if synchronous_mode:
+        self.synchronous_mode = synchronous_mode
+        if self.synchronous_mode:
             self.__settings = self.__world.get_settings()
             self.__settings.synchronous_mode = True
             self.__settings.fixed_delta_seconds = config.SIM_DELTA_SECONDS
