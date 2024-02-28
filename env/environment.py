@@ -24,7 +24,7 @@ Action Space:
     Continuous:
         [Steering (-1.0, 1.0), Throttle (0.0, 1.0), Brake (0.0, 1.0)]
     Discrete:
-        [Action] (0: Accelerate, 1: Decelerate, 2: Left, 3: Right) <- It's a number from 0 to 3
+        [Action] (0: Accelerate, 1: Decelerate, 2: Brake More, 3:Brake Less, 4: Left, 5: Right) <- It's a number from 0 to 5
 
 '''
 
@@ -40,15 +40,17 @@ from gymnasium import spaces
 from src.world import World
 from src.server import CarlaServer
 from src.vehicle import Vehicle
+from src.display import Display
 import configuration as config
 
 class CarlaEnv():
-    def __init__(self, name, continuous=True, scenarios=[], time_limit=10, initialize_server=True, random_weather=False, random_traffic=False, synchronous_mode=True):
+    def __init__(self, name, continuous=True, scenarios=[], time_limit=10, initialize_server=True, random_weather=False, random_traffic=False, synchronous_mode=True, show_sensor_data=False):
         # Read the environment settings
         self.is_continuous = continuous
         self.random_weather = random_weather
         self.random_traffic = random_traffic
         self.synchronous_mode = synchronous_mode
+        self.show_sensor_data = show_sensor_data
         
         # 1. Start the server
         self.automatic_server_initialization = initialize_server
@@ -88,7 +90,7 @@ class CarlaEnv():
             self.action_space = spaces.Box(low=np.array([-1.0, 0.0, 0.0]), high=np.array([1.0, 1.0, 1.0]), dtype=float)
         else:
             # For discrete actions
-            self.action_space = spaces.Discrete(4)
+            self.action_space = spaces.Discrete(6)
         
         # Truncated flag
         self.time_limit = time_limit
@@ -131,6 +133,9 @@ class CarlaEnv():
             self.world.tick()
         # 1. Control the vehicle
         self.__control_vehicle(np.array(action))
+        # 1.5 Tick the display if it is active
+        if self.show_sensor_data:
+            self.display.play_window_tick()
         # 2. Update the observation
         self.__update_observation()
         # 3. Calculate the reward
@@ -182,11 +187,18 @@ class CarlaEnv():
     # ===================================================== SCENARIO METHODS =====================================================
     def load_scenario(self, scenario_name):
         scenario_dict = self.situations_dict[scenario_name]
+        # World
         self.load_world(scenario_dict['map_name'])
         print("World loaded!")
+        # Weather
         self.__load_weather(scenario_dict['weather_condition'])
+        # Ego vehicle
         self.__spawn_vehicle(scenario_dict)
+        if self.show_sensor_data:   
+            self.display = Display('Ego Vehicle Sensor feed', self.vehicle)
+            self.display.play_window_tick()
         print("Vehicle spawned!")
+        # Traffic
         # self.world.spawn_pedestrians_around_ego(ego_vehicle=self.vehicle.get_vehicle(), num_pedestrians=10)
         self.__spawn_traffic()
         print("Traffic spawned!")

@@ -33,7 +33,7 @@ def main():
     # Traffic and pedestrians
     world.spawn_vehicles_around_ego(autonomous_vehicle.get_vehicle(), num_vehicles_around_ego=40, radius=150)
 
-    action = (0.0, 1.0, 0.0)
+    action = (0.0, 0.0, 0.0) # (steer, throttle, brake)
 
     while True:
         try:

@@ -198,7 +198,6 @@ class Vehicle:
         self.__vehicle.apply_control(self.__control)
 
     # Control the vehicle based on the discrete action space provided by the environment. The action space is [accelerate, decelerate, left, right]. Out of these, only one action can be taken at a time.
-    # TODO: Change to throttle and brakes
     def control_vehicle_discrete(self, action):
         # Accelerate
         if action == 0:
@@ -222,6 +221,5 @@ class Vehicle:
         self.__control.throttle = self.__throttle
         self.__control.steer = self.__steering_angle
         self.__vehicle.apply_control(self.__control)
-            
-    # TODO: Add debug to vehicle through world.debug
+        
 

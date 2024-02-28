@@ -9,7 +9,7 @@ import time
 from env.environment import CarlaEnv
 
 def env_main():
-    env = CarlaEnv('carla-rl-gym', time_limit=10, initialize_server=False, random_weather=True, synchronous_mode=True)
+    env = CarlaEnv('carla-rl-gym', time_limit=10, initialize_server=False, random_weather=True, synchronous_mode=True, continuous=False, show_sensor_data=False)
     # l = ["Town01-ClearNoon-Road-0", "Town01-WetNight-Road-0"]
     
     for i in range(10):
@@ -17,10 +17,10 @@ def env_main():
         obs, info = env.reset()
         while True:
             # Random action TODO: Test this
-            # action = env.action_space.sample()
+            action = env.action_space.sample()
             # Empty action
-            action = [1.0, 1.0, 0.0]
-            # print('Action:', action)
+            # action = [0.0, 0.3, 0.0]
+            print('Action:', action)
             obs, reward, terminated, truncated, info = env.step(action)
             # print('Observation:', obs)
             if terminated or truncated:
