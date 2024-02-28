@@ -138,6 +138,12 @@ class Vehicle:
 
         return [rgb_data, lidar_data, gnss_data]
 
+    def check_if_sensors_are_ready(self):
+        for sensor in self.__sensor_dict:
+            if not self.__sensor_dict[sensor].is_ready():
+                return False
+        return True
+
     # ====================================== Vehicle Physics ======================================
 
     # Change the vehicle physics to a determined weather that is stated in the JSON file.

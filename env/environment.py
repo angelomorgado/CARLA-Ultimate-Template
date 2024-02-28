@@ -68,7 +68,7 @@ class CarlaEnv():
         # 5. Create the observation space: TODO: Make the observation space more dynamic.
         # Lidar: (122,4) for default settings
         # Change this according to your needs.
-        self.rgb_image_shape = (369, 640, 3)
+        self.rgb_image_shape = (360, 640, 3)
         self.lidar_point_cloud_shape = (122, 4)
         self.current_position_shape = (3,)
         self.target_position_shape = (3,)
@@ -110,54 +110,45 @@ class CarlaEnv():
     # ===================================================== GYM METHODS =====================================================                
     # This reset loads a random scenario and returns the initial state plus information about the scenario
     def reset(self, episode_name=None):
-        try:
-            # 1. Choose a scenario
-            self.active_scenario_name = self.__chose_situation(episode_name)
-            print(f"Loading scenario {self.active_scenario_name}...")
-            self.active_scenario_dict = self.situations_dict[self.active_scenario_name]
-            # 2. Load the scenario
-            self.load_scenario(self.active_scenario_name)
-            # 3. Place the spectator
-            self.world.place_spectator_above_vehicle(self.vehicle.get_vehicle())
-            # 4. Get the initial state (Get the observation data)
-            time.sleep(0.5)
-            self.__update_observation()
-            # 5. Start the timer
-            self.__start_timer()
-            print("Episode started!")
-            # Return the observation and the scenario information
-            return self.observation, self.active_scenario_dict
-        except Exception as e:
-            self.close()
-            print("Environment closed due to a keyboard interrupt.")
-            return None, None
+        # 1. Choose a scenario
+        self.active_scenario_name = self.__chose_situation(episode_name)
+        print(f"Loading scenario {self.active_scenario_name}...")
+        self.active_scenario_dict = self.situations_dict[self.active_scenario_name]
+        # 2. Load the scenario
+        self.load_scenario(self.active_scenario_name)
+        # 3. Place the spectator
+        self.world.place_spectator_above_vehicle(self.vehicle.get_vehicle())
+        # 4. Get the initial state (Get the observation data)
+        time.sleep(0.5)
+        self.__update_observation()
+        # 5. Start the timer
+        self.__start_timer()
+        print("Episode started!")
+        # Return the observation and the scenario information
+        return self.observation, self.active_scenario_dict
+
 
     def step(self, action):
-        try:
-            # 0. Tick the world if in synchronous mode
-            if self.synchronous_mode:
-                self.world.tick()
-            # 1. Control the vehicle
-            self.__control_vehicle(np.array(action))
-            # 1.5 Tick the display if it is active
-            if self.show_sensor_data:
-                self.display.play_window_tick()
-            # 2. Update the observation
-            self.__update_observation()
-            # 3. Calculate the reward
-            reward = self.__calculate_reward()
-            # 4. Check if the episode is terminated
-            terminated = self.__is_done()
-            # 5. Check if the episode is truncated
-            self.truncated = self.__timer_truncated()
-            if self.truncated or terminated:
-                self.clean_scenario()
-            # 5. Return the observation, the reward, the terminated flag and the scenario information
-            return self.observation, reward, terminated, self.truncated, self.active_scenario_dict
-        except Exception as e:
-            self.close()
-            print("Environment closed due to a keyboard interrupt.")
-            return None, None, None, None, None
+        # 0. Tick the world if in synchronous mode
+        if self.synchronous_mode:
+            self.world.tick()
+        # 1. Control the vehicle
+        self.__control_vehicle(np.array(action))
+        # 1.5 Tick the display if it is active
+        if self.show_sensor_data:
+            self.display.play_window_tick()
+        # 2. Update the observation
+        self.__update_observation()
+        # 3. Calculate the reward
+        reward = self.__calculate_reward()
+        # 4. Check if the episode is terminated
+        terminated = self.__is_done()
+        # 5. Check if the episode is truncated
+        self.truncated = self.__timer_truncated()
+        if self.truncated or terminated:
+            self.clean_scenario()
+        # 5. Return the observation, the reward, the terminated flag and the scenario information
+        return self.observation, reward, terminated, self.truncated, self.active_scenario_dict
 
     # Closes everything, more precisely, destroys the vehicle, along with its sensors, destroys every npc and then destroys the world
     def close(self):
@@ -182,7 +173,16 @@ class CarlaEnv():
 
     # ===================================================== OBSERVATION/ACTION METHODS =====================================================
     def __update_observation(self):
-        observation_space = self.vehicle.get_observation_data()
+        try:
+            observation_space = self.vehicle.get_observation_data()
+        except AttributeError:
+            observation_space = [None, None, None, None, None]
+            observation_space[0] = np.zeros((360, 640, 3), dtype=np.uint8)
+            observation_space[1] = np.zeros((122, 4), dtype=float)
+            observation_space[2] = np.zeros(3, dtype=float)
+            observation_space[3] = np.zeros(3, dtype=float)
+            observation_space[4] = -1
+
         rgb_image = observation_space[0]
         lidar_point_cloud = observation_space[1]
         current_position = observation_space[2]
