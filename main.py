@@ -19,7 +19,7 @@ def env_main():
             # Random action TODO: Test this
             # action = env.action_space.sample()
             # Empty action
-            action = [1.0, 1.0, 1.0]
+            action = [1.0, 1.0, 0.0]
             # print('Action:', action)
             obs, reward, terminated, truncated, info = env.step(action)
             # print('Observation:', obs)

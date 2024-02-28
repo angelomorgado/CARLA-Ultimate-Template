@@ -5,12 +5,9 @@ This project can be seen as an engine of sorts, and acts as a starting point for
 
 All the modules are designed to be as modular as possible, so that they can be easily integrated into other projects and they are organized in classes and functions.
 
----
-
-# TODO
-
-- [ ] Add support for synchronous mode
-
+```
+I'll make a proper documentation and README once the project is finished.
+```
 
 ---
 

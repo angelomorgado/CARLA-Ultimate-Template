@@ -43,7 +43,7 @@ from src.vehicle import Vehicle
 import configuration as config
 
 class CarlaEnv():
-    def __init__(self, name, continuous=True, scenarios=[], time_limit=10, initialize_server=True, random_weather=False, random_traffic=False, synchronous_mode=False):
+    def __init__(self, name, continuous=True, scenarios=[], time_limit=10, initialize_server=True, random_weather=False, random_traffic=False, synchronous_mode=True):
         # Read the environment settings
         self.is_continuous = continuous
         self.random_weather = random_weather
@@ -130,7 +130,7 @@ class CarlaEnv():
         if self.synchronous_mode:
             self.world.tick()
         # 1. Control the vehicle
-        # self.__control_vehicle(np.array(action))
+        self.__control_vehicle(np.array(action))
         # 2. Update the observation
         self.__update_observation()
         # 3. Calculate the reward
