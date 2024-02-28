@@ -110,49 +110,62 @@ class CarlaEnv():
     # ===================================================== GYM METHODS =====================================================                
     # This reset loads a random scenario and returns the initial state plus information about the scenario
     def reset(self, episode_name=None):
-        # 1. Choose a scenario
-        self.active_scenario_name = self.__chose_situation(episode_name)
-        print(f"Loading scenario {self.active_scenario_name}...")
-        self.active_scenario_dict = self.situations_dict[self.active_scenario_name]
-        # 2. Load the scenario
-        self.load_scenario(self.active_scenario_name)
-        # 3. Place the spectator
-        self.world.place_spectator_above_vehicle(self.vehicle.get_vehicle())
-        # 4. Get the initial state (Get the observation data)
-        self.__update_observation()
-        # 5. Start the timer
-        self.__start_timer()
-        print("Episode started!")
-        # Return the observation and the scenario information
-        return self.observation, self.active_scenario_dict
-    
+        try:
+            # 1. Choose a scenario
+            self.active_scenario_name = self.__chose_situation(episode_name)
+            print(f"Loading scenario {self.active_scenario_name}...")
+            self.active_scenario_dict = self.situations_dict[self.active_scenario_name]
+            # 2. Load the scenario
+            self.load_scenario(self.active_scenario_name)
+            # 3. Place the spectator
+            self.world.place_spectator_above_vehicle(self.vehicle.get_vehicle())
+            # 4. Get the initial state (Get the observation data)
+            time.sleep(0.5)
+            self.__update_observation()
+            # 5. Start the timer
+            self.__start_timer()
+            print("Episode started!")
+            # Return the observation and the scenario information
+            return self.observation, self.active_scenario_dict
+        except Exception as e:
+            self.close()
+            print("Environment closed due to a keyboard interrupt.")
+            return None, None
 
     def step(self, action):
-        # 0. Tick the world if in synchronous mode
-        if self.synchronous_mode:
-            self.world.tick()
-        # 1. Control the vehicle
-        self.__control_vehicle(np.array(action))
-        # 1.5 Tick the display if it is active
-        if self.show_sensor_data:
-            self.display.play_window_tick()
-        # 2. Update the observation
-        self.__update_observation()
-        # 3. Calculate the reward
-        reward = self.__calculate_reward()
-        # 4. Check if the episode is terminated
-        terminated = self.__is_done()
-        # 5. Check if the episode is truncated
-        self.truncated = self.__timer_truncated()
-        if self.truncated or terminated:
-            self.clean_scenario()
-        # 5. Return the observation, the reward, the terminated flag and the scenario information
-        return self.observation, reward, terminated, self.truncated, self.active_scenario_dict
+        try:
+            # 0. Tick the world if in synchronous mode
+            if self.synchronous_mode:
+                self.world.tick()
+            # 1. Control the vehicle
+            self.__control_vehicle(np.array(action))
+            # 1.5 Tick the display if it is active
+            if self.show_sensor_data:
+                self.display.play_window_tick()
+            # 2. Update the observation
+            self.__update_observation()
+            # 3. Calculate the reward
+            reward = self.__calculate_reward()
+            # 4. Check if the episode is terminated
+            terminated = self.__is_done()
+            # 5. Check if the episode is truncated
+            self.truncated = self.__timer_truncated()
+            if self.truncated or terminated:
+                self.clean_scenario()
+            # 5. Return the observation, the reward, the terminated flag and the scenario information
+            return self.observation, reward, terminated, self.truncated, self.active_scenario_dict
+        except Exception as e:
+            self.close()
+            print("Environment closed due to a keyboard interrupt.")
+            return None, None, None, None, None
 
     # Closes everything, more precisely, destroys the vehicle, along with its sensors, destroys every npc and then destroys the world
     def close(self):
         # 1. Destroy the vehicle
         self.vehicle.destroy_vehicle()
+        # 2. Destroy pedestrians and traffic vehicles
+        self.world.destroy_vehicles()
+        self.world.destroy_pedestrians()
         # 2. Destroy the world
         self.world.destroy_world()
         # 3. Close the server
