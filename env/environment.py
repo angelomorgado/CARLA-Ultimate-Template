@@ -187,7 +187,7 @@ class CarlaEnv():
         self.__load_weather(scenario_dict['weather_condition'])
         self.__spawn_vehicle(scenario_dict)
         print("Vehicle spawned!")
-        self.world.spawn_pedestrians_around_ego(ego_vehicle=self.vehicle.get_vehicle(), num_pedestrians=10)
+        # self.world.spawn_pedestrians_around_ego(ego_vehicle=self.vehicle.get_vehicle(), num_pedestrians=10)
         self.__spawn_traffic()
         print("Traffic spawned!")
 

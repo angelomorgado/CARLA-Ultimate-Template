@@ -30,8 +30,8 @@ def main():
     display = Display('Carla Sensor feed', autonomous_vehicle)
     
     # Traffic and pedestrians
-    world.spawn_vehicles_around_ego(autonomous_vehicle.get_vehicle(), num_vehicles_around_ego=10, radius=50)
-    world.spawn_pedestrians_around_ego(autonomous_vehicle.get_vehicle(), num_pedestrians=10, distance_range=(5,30))
+    world.spawn_vehicles_around_ego(autonomous_vehicle.get_vehicle(), num_vehicles_around_ego=40, radius=150)
+    world.spawn_pedestrians(num_pedestrians=100)
 
     while True:
         try:

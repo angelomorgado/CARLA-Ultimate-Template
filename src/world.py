@@ -72,21 +72,7 @@ class World:
             return
 
         self.active_map = self.map_dict[map_name]
-        # Deactivate synchronous mode and then load the map to avoid errors
-        if self.synchronous_mode:
-            self.__settings = self.__world.get_settings()
-            self.__settings.synchronous_mode = False
-            self.__world.apply_settings(self.__settings)
-
-            self.__client.load_world('/Game/Carla/Maps/' + map_name)
-
-            # Update settings after loading the world
-            self.__settings = self.__world.get_settings()
-            self.__settings.synchronous_mode = True
-            self.__settings.fixed_delta_seconds = config.SIM_DELTA_SECONDS
-            self.__world.apply_settings(self.__settings)
-        else:
-            self.__client.load_world('/Game/Carla/Maps/' + map_name)
+        self.__client.load_world('/Game/Carla/Maps/' + map_name)
 
     # Serves for debugging purposes
     def change_map(self):

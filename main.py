@@ -10,11 +10,11 @@ from env.environment import CarlaEnv
 
 def env_main():
     env = CarlaEnv('carla-rl-gym', time_limit=10, initialize_server=False, random_weather=True, synchronous_mode=True)
-    l = ["Town01-ClearNoon-Road-0", "Town01-WetNight-Road-0"]
+    # l = ["Town01-ClearNoon-Road-0", "Town01-WetNight-Road-0"]
     
-    for i in range(2):
+    for i in range(10):
         print("================================ Episode", i, " ================================")
-        obs, info = env.reset(l[i])
+        obs, info = env.reset()
         while True:
             # Random action TODO: Test this
             # action = env.action_space.sample()
