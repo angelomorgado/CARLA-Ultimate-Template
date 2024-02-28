@@ -13,7 +13,7 @@ import configuration
 from src.display import Display
 from src.world import World
 from src.server import CarlaServer
-
+import carla
 def main():
     # Carla server
     server_process = CarlaServer.initialize_server()
@@ -21,6 +21,7 @@ def main():
     # Carla client
     world = World(synchronous_mode=True)
     world.set_active_map('Town01')
+    world.set_random_weather()
 
     # Create vehicle
     autonomous_vehicle = Vehicle(world=world.get_world())
@@ -31,10 +32,12 @@ def main():
     
     # Traffic and pedestrians
     world.spawn_vehicles_around_ego(autonomous_vehicle.get_vehicle(), num_vehicles_around_ego=40, radius=150)
-    world.spawn_pedestrians(num_pedestrians=100)
+
+    action = (0.0, 1.0, 0.0)
 
     while True:
         try:
+            autonomous_vehicle.control_vehicle(action)
             world.tick()
             display.play_window_tick()
         except KeyboardInterrupt:

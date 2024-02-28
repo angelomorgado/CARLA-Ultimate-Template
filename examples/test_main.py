@@ -40,8 +40,7 @@ def control_main():
     
     # Create vehicle
     autonomous_vehicle = Vehicle(world=world.get_world())
-    autonomous_vehicle.spawn_vehicle()
-    # autonomous_vehicle.spawn_vehicle((370.0, 326.7, 0.3), (0.0, 179.9, 0.0))
+    autonomous_vehicle.spawn_vehicle() # Spawn vehicle at random location
 
     # Create display
     display = Display('Carla Sensor feed', autonomous_vehicle)

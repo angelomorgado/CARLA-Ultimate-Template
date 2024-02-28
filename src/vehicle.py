@@ -19,8 +19,11 @@ class Vehicle:
         self.__sensor_dict = {}
         self.__world = world
 
+        self.__control = carla.VehicleControl()
+        self.__ackermann_control = carla.VehicleAckermannControl()
+
         # Vehicle Control attributes for discrete action space
-        self.__speed = 0.0 # [km/h]
+        self.__throttle = 0.0
         self.__steering_angle = 0.0 # [-1.0, 1.0]
 
     def get_vehicle(self):
@@ -187,44 +190,38 @@ class Vehicle:
 
     # ====================================== Vehicle Control ======================================
     # Control the vehicle based on the continuous action space provided by the environment. The action space is steering_angle,throttle,brake,lights_on]. The first three are continuous values normalized between [-1, 1] for the steering angle and [0, 1] for the throttle and brake.
-    def control_vehicle(self, action):
-        control = carla.VehicleControl()
-        ackermann_control = carla.VehicleAckermannControl()
+    def control_vehicle(self, action):                
+        self.__control.steer = max(-1.0, min(action[0], 1.0))
+        self.__control.throttle = min(action[1], 1.0)
+        self.__control.brake = min(action[2], 1.0)
         
-        # Standard values
-        control.hand_brake = False
-        control.manual_gear_shift = False
-        control.reverse = False
-        
-        ackermann_control.steer = action[0]
-        control.throttle = action[1]
-        control.brake = action[2]
-        
-        self.__vehicle.apply_control(control)
-        self.__vehicle.apply_ackermann_control(ackermann_control)
+        self.__vehicle.apply_control(self.__control)
 
     # Control the vehicle based on the discrete action space provided by the environment. The action space is [accelerate, decelerate, left, right]. Out of these, only one action can be taken at a time.
+    # TODO: Change to throttle and brakes
     def control_vehicle_discrete(self, action):
-        # control = carla.VehicleControl()
-        ackermann_control = carla.VehicleAckermannControl()
-
         # Accelerate
         if action == 0:
-            self.__speed += 1
+            self.__throttle = min(self.__throttle + 0.05, 1.0)
         # Decelerate
         elif action == 1:
-            self.__speed -= 1
-        # Left
+            self.__throttle = max(self.__throttle - 0.05, 0.0)
+        # Brake More
         elif action == 2:
+            self.__control.brake = min(self.__control.brake + 0.05, 1.0)
+        # Brake Less
+        elif action == 3:
+            self.__control.brake = max(self.__control.brake - 0.05, 0.0)
+        # Left
+        elif action == 4:
             self.__steering_angle = max(-1.0, self.__steering_angle - 0.1)
         # Right
-        elif action == 3:
+        elif action == 5:
             self.__steering_angle = min(1.0, self.__steering_angle + 0.1)
 
-        ackermann_control.steer = self.__steering_angle 
-        ackermann_control.speed = self.__speed / 3.6
-
-        self.__vehicle.apply_ackermann_control(ackermann_control)
+        self.__control.throttle = self.__throttle
+        self.__control.steer = self.__steering_angle
+        self.__vehicle.apply_control(self.__control)
             
     # TODO: Add debug to vehicle through world.debug
 
