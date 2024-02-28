@@ -9,7 +9,7 @@ import time
 from env.environment import CarlaEnv
 
 def env_main():
-    env = CarlaEnv('carla-rl-gym', time_limit=5, initialize_server=False, is_training=True)
+    env = CarlaEnv('carla-rl-gym', time_limit=10, initialize_server=False, random_weather=True, synchronous_mode=True)
     l = ["Town01-ClearNoon-Road-0", "Town01-WetNight-Road-0"]
     
     for i in range(2):

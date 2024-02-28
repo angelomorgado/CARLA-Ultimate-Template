@@ -6,7 +6,7 @@ from src.weather_control import WeatherControl
 import configuration as config
 
 class World:
-    def __init__(self, client=None) -> None:
+    def __init__(self, client=None, synchronous_mode=False) -> None:
         self.__client = client
         if self.__client is None:
             self.__client = carla.Client(config.SIM_HOST, config.SIM_PORT)
@@ -18,6 +18,11 @@ class World:
         self.available_maps = [m for m in self.__client.get_available_maps() if 'Opt' not in m] # Took out the layered maps
         self.active_map = 7 # Default map is Town10HD
         self.map_dict = {m.split("/")[-1]: idx for idx, m in enumerate(self.available_maps)}
+        if synchronous_mode:
+            self.__settings = self.__world.get_settings()
+            self.__settings.synchronous_mode = True
+            self.__settings.fixed_delta_seconds = config.SIM_DELTA_SECONDS
+            self.__world.apply_settings(self.__settings)
         print("World initialized!")
 
     def get_client(self):
@@ -29,6 +34,9 @@ class World:
     def destroy_world(self):
         self.destroy_pedestrians()
         self.destroy_vehicles()
+    
+    def tick(self):
+        self.__world.tick()
 
     # ============ Weather Control ============
     # The output is a tuple (carla.WeatherPreset, Str: name of the weather preset)

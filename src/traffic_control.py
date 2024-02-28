@@ -53,6 +53,7 @@ class TrafficControl:
     
     def destroy_vehicles(self):
         for vehicle in self.active_vehicles:
+            vehicle.set_autopilot(False)
             vehicle.destroy()
         self.active_vehicles = []
         print('Destroyed all vehicles!')
@@ -87,6 +88,7 @@ class TrafficControl:
             vehicle_bp = random.choice(vehicle_bps)
             try:
                 vehicle = self.__world.spawn_actor(vehicle_bp, point)
+                vehicle.set_autopilot(True)
                 self.active_vehicles.append(vehicle)
             except:
                 print('Error: Failed to spawn a traffic vehicle.')

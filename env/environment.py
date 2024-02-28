@@ -43,20 +43,21 @@ from src.vehicle import Vehicle
 import configuration as config
 
 class CarlaEnv():
-    def __init__(self, name, continuous=True, scenarios=[], time_limit=10, initialize_server=True, random_weather=False, random_traffic=False):
-        # 1. Start the server
-        self.automatic_server_initialization = initialize_server
-        if self.automatic_server_initialization:
-            self.server_process = CarlaServer.initialize_server(low_quality = config.SIM_LOW_QUALITY, offscreen_rendering = config.SIM_OFFSCREEN_RENDERING)
-        # 2. Connect to the server
-        self.world = World()
-        self.__world = self.world.get_world()
-
+    def __init__(self, name, continuous=True, scenarios=[], time_limit=10, initialize_server=True, random_weather=False, random_traffic=False, synchronous_mode=False):
         # Read the environment settings
         self.is_continuous = continuous
         self.random_weather = random_weather
         self.random_traffic = random_traffic
+        self.synchronous_mode = synchronous_mode
         
+        # 1. Start the server
+        self.automatic_server_initialization = initialize_server
+        if self.automatic_server_initialization:
+            self.server_process = CarlaServer.initialize_server(low_quality = config.SIM_LOW_QUALITY, offscreen_rendering = config.SIM_OFFSCREEN_RENDERING)
+        
+        # 2. Connect to the server
+        self.world = World(synchronous_mode=self.synchronous_mode)
+
         # 3. Read the flag and get the appropriate situations
         self.__get_situations(scenarios)
         # 4. Create the vehicle TODO: Change vehicle module to not spawn the vehicle in the constructor, only with a function
@@ -125,8 +126,11 @@ class CarlaEnv():
     
 
     def step(self, action):
+        # 0. Tick the world if in synchronous mode
+        if self.synchronous_mode:
+            self.world.tick()
         # 1. Control the vehicle
-        self.__control_vehicle(np.array(action))
+        # self.__control_vehicle(np.array(action))
         # 2. Update the observation
         self.__update_observation()
         # 3. Calculate the reward
@@ -252,3 +256,4 @@ class CarlaEnv():
             name = self.active_scenario_name
         num_vehicles = random.randint(1, 20)
         self.world.spawn_vehicles_around_ego(self.vehicle.get_vehicle(), 100, num_vehicles, name)
+        # self.world.toggle_autopilot(True)
