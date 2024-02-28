@@ -3,7 +3,7 @@
         "image_size_x": 640,
         "image_size_y": 360,
         "fov": 90,
-        "sensor_tick": 0.1,
+        "sensor_tick": 0.0,
         "location_x": 0.8,
         "location_y": 0.0,
         "location_z": 1.7
@@ -15,13 +15,13 @@
         "rotation_frequency": 10.0,
         "upper_fov": 10.0,
         "lower_fov": -30.0,
-        "sensor_tick": 0.1,
+        "sensor_tick": 0.0,
         "location_x": 0.8,
         "location_y": 0.0,
         "location_z": 1.7
     },
     "gnss":{
-        "sensor_tick": 0.1,
+        "sensor_tick": 0.0,
         "location_x": 0.0,
         "location_y": 0.0,
         "location_z": 0.0
