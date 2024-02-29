@@ -227,5 +227,11 @@ class Vehicle:
         self.__control.throttle = self.__throttle
         self.__control.steer = self.__steering_angle
         self.__vehicle.apply_control(self.__control)
+    
+    def toggle_lights(self, lights_on=True):
+        if lights_on:
+            self.__vehicle.set_light_state(carla.VehicleLightState(carla.VehicleLightState.Position | carla.VehicleLightState.LowBeam))
+        else:
+            self.__vehicle.set_light_state(carla.VehicleLightState.NONE)
         
 

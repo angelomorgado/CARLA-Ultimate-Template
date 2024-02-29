@@ -48,23 +48,27 @@ class WeatherControl:
     def get_weather_presets(self):
         return self.weather_list
     
+    def get_active_weather(self):
+        return self.active_weather
+    
     def print_all_weather_presets(self):    
         for idx, weather in enumerate(self.weather_list):
             print(f'{idx}: {weather[1]}')
 
-    def __activate_weather_preset(self):
-        self.world.set_weather(self.weather_list[self.active_weather][0])
+    def __activate_weather_preset(self, idx):
+        self.world.set_weather(self.weather_list[idx][0])
 
     def set_active_weather_preset(self, weather):
         for idx, w in enumerate(self.weather_list):
             if w[1] == weather:
-                self.active_weather = idx
+                self.active_weather = w[1]
                 self.__activate_weather_preset()
                 return
     
     def set_random_weather_preset(self):
-        self.active_weather = random.randint(0, len(self.weather_list) - 1)
-        self.__activate_weather_preset()
+        idx = random.randint(0, len(self.weather_list) - 1)
+        self.active_weather = self.weather_list[idx][1]
+        self.__activate_weather_preset(idx)
 
     # This method let's the user choose with numbers the active preset. It serves as more of a debug.
     def choose_weather(self):
@@ -75,11 +79,11 @@ class WeatherControl:
         idx = int(input())
 
         try:
-            self.active_weather = idx
+            self.active_weather = self.weather_list[idx][1]
             self.__activate_weather_preset()
         except IndexError:
             print('Invalid index')
             return
         
-        print(f'Weather preset {self.weather_list[self.active_weather][1]} activated')
+        print(f'Weather preset {self.active_weather} activated')
 

@@ -101,6 +101,9 @@ class World:
     
     def destroy_pedestrians(self):
         self.traffic_control.destroy_pedestrians()
+
+    def toggle_lights(self, lights_on=True):
+        self.traffic_control.toggle_lights(lights_on)
     
     # ============ Weather Control ===============
     def get_weather_presets(self):
@@ -114,6 +117,9 @@ class World:
     
     def choose_weather(self):
         self.weather_control.choose_weather()
+    
+    def get_active_weather(self):
+        return self.weather_control.get_active_weather()
     
     # ============ Spectator Control ============
     def place_spectator_above_vehicle(self, vehicle):

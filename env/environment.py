@@ -214,6 +214,7 @@ class CarlaEnv():
         # Traffic
         # self.world.spawn_pedestrians_around_ego(ego_vehicle=self.vehicle.get_vehicle(), num_pedestrians=10)
         self.__spawn_traffic()
+        self.__toggle_lights()
         print("Traffic spawned!")
 
     def clean_scenario(self):
@@ -233,6 +234,14 @@ class CarlaEnv():
     
     def load_world(self, name):
         self.world.set_active_map(name)
+    
+    def __toggle_lights(self):
+        if "night" in self.world.get_active_weather().lower() or "noon" in self.world.get_active_weather().lower():
+            self.world.toggle_lights(lights_on=True)
+            self.vehicle.toggle_lights(lights_on=True)
+        else:
+            self.world.toggle_lights(lights_on=False)
+            self.vehicle.toggle_lights(lights_on=False)
 
     def __load_weather(self, weather_name):
         if self.random_weather:
@@ -282,4 +291,3 @@ class CarlaEnv():
             name = self.active_scenario_name
         num_vehicles = random.randint(1, 20)
         self.world.spawn_vehicles_around_ego(self.vehicle.get_vehicle(), 100, num_vehicles, name)
-        # self.world.toggle_autopilot(True)

@@ -94,7 +94,12 @@ class TrafficControl:
                 print('Error: Failed to spawn a traffic vehicle.')
                 pass
 
-    
+    def toggle_lights(self, lights_on=True):
+        for vehicle in self.active_vehicles:
+            if lights_on:
+                vehicle.set_light_state(carla.VehicleLightState(carla.VehicleLightState.Position | carla.VehicleLightState.LowBeam))
+            else:
+                vehicle.set_light_state(carla.VehicleLightState.NONE)
             
     # ============ Pedestrian Control ============
     def spawn_pedestrians(self, num_pedestrians=10):
