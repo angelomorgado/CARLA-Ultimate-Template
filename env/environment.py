@@ -196,6 +196,16 @@ class CarlaEnv():
             'target_position': target_position,
             'situation': situation
         }
+    
+    # Change here if you have more sensors in the sensors file
+    def __get_observation_shape(self):
+        with open(config.VEHICLE_SENSORS_FILE, 'r') as f:
+            sensors_dict = json.load(f)
+        
+        if "rgb_camera" in sensors_dict:
+            self.rgb_image_shape = (sensors_dict["rgb_camera"]["image_size_y"], sensors_dict["rgb_camera"]["image_size_x"], 3)
+        if "lidar" in sensors_dict:
+            self.lidar_point_cloud_shape = (sensors_dict["lidar"]["channels"], 4)
 
     # ===================================================== SCENARIO METHODS =====================================================
     def load_scenario(self, scenario_name):
