@@ -17,8 +17,8 @@ class World:
         self.weather_control = WeatherControl(self.__world)
         self.available_maps = [m for m in self.__client.get_available_maps() if 'Opt' not in m] # Took out the layered maps
         self.map_dict = {m.split("/")[-1]: idx for idx, m in enumerate(self.available_maps)}
-        self.set_active_map("Town10HD")
-        self.active_map = 7
+        self.active_map = list(self.map_dict).index(self.__world.get_map().name.split("/")[-1].split("_")[0])
+        
         self.synchronous_mode = synchronous_mode
         if self.synchronous_mode:
             self.__settings = self.__world.get_settings()
