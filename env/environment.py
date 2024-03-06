@@ -94,19 +94,7 @@ class CarlaEnv():
             self.action_space = spaces.Discrete(6)
 
         # Reward lambda values
-        self.reward_lambdas = {
-            'orientation': 0.5,
-            'distance': 0.5,
-            'speed': 0.5,
-            'throttle_brake': -1,
-            'destination': 0.5,
-            'collision': -1,
-            'lane_invasion': -1,
-            'light_pole_transgression': -1,
-            'roundabout_transgression': -1,
-            'time_limit': -1,
-            'time_driving': 0.001
-        }
+        self.reward_lambdas = config.ENV_REWARDS_LAMBDAS
         
         # Truncated flag
         self.time_limit = time_limit
@@ -204,7 +192,7 @@ class CarlaEnv():
     # Simple reward function only for the vehicle's movement learning
     def __calculate_reward(self):
         vehicle_location = self.vehicle.get_location()
-        waypoint = self.world.get_map().get_waypoint(vehicle_location, project_to_road=True, lane_type=carla.LaneType.Driving)
+        waypoint = self.world.get_world().get_map().get_waypoint(vehicle_location, project_to_road=True, lane_type=carla.LaneType.Driving)
         target_position = np.array([self.active_scenario_dict['target_position']['x'], self.active_scenario_dict['target_position']['y'], self.active_scenario_dict['target_position']['z']])
         return self.reward_lambdas['orientation']               * self.__get_orientation_reward(waypoint, vehicle_location) + \
                 self.reward_lambdas['distance']                 * self.__get_distance_reward(waypoint, vehicle_location) + \
@@ -242,10 +230,10 @@ class CarlaEnv():
         throttle = self.vehicle.get_throttle()
         brake = self.vehicle.get_brake()
 
-        return -1 if throttle > 0 and brake > 0 else 0
+        return 1 if throttle > 0 and brake > 0 else 0
     
     def __get_speed_reward(self, vehicle_speed, speed_limit=50):
-        return 0.05 if vehicle_speed > speed_limit else 0.0
+        return 1 if vehicle_speed > speed_limit else 0.0
     
     # This reward is based on if the vehicle reached the destination. the reward will be based on the number of steps taken to reach the destination. The less steps, the higher the reward, but reaching the destination is the highest reward
     def __get_destination_reward(self, current_position, target_position, threshold=2.0): 
@@ -258,14 +246,14 @@ class CarlaEnv():
     def __get_collision_reward(self):
         if self.vehicle.collision_occurred():
             self.__is_done = True
-            return -1
+            return 1
         else:
             return 0
 
     def __get_lane_invasion_reward(self):
         if self.vehicle.lane_invasion_occurred():
             self.__is_done = True
-            return -1
+            return 1
         else:
             return 0
 
@@ -278,10 +266,10 @@ class CarlaEnv():
         return 0 # Placeholder
     
     def __get_time_limit_reward(self):
-        return -1 if self.time_limit_reached else 0
+        return 1 if self.time_limit_reached else 0
     
     def __get_time_driving_reward(self):
-        return 0.001 if not self.__is_done else 0
+        return 1 if not self.__is_done else 0
 
     # ===================================================== OBSERVATION/ACTION METHODS =====================================================
     def __update_observation(self):
@@ -333,6 +321,7 @@ class CarlaEnv():
             self.display = Display('Ego Vehicle Sensor feed', self.vehicle)
             self.display.play_window_tick()
         print("Vehicle spawned!")
+        time.sleep(0.3)
         # Traffic
         # self.world.spawn_pedestrians_around_ego(ego_vehicle=self.vehicle.get_vehicle(), num_pedestrians=10)
         self.__spawn_traffic()
@@ -400,7 +389,7 @@ class CarlaEnv():
             self.vehicle.control_vehicle_discrete(action)
 
     def __timer_truncated(self):
-        if time.time() - self.start_time > self.time_limit
+        if time.time() - self.start_time > self.time_limit:
             self.time_limit_reached = True
             return True
         else:

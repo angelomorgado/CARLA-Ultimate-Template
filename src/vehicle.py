@@ -30,7 +30,7 @@ class Vehicle:
     def get_vehicle(self):
         return self.__vehicle
 
-    def get_vehicle_location(self):
+    def get_location(self):
         return self.__vehicle.get_location()
 
     def set_autopilot(self, boolean):
