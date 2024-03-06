@@ -11,7 +11,7 @@ import time
 from env.environment import CarlaEnv
 
 def steps_main():
-    env = CarlaEnv('carla-rl-gym', time_limit=10, initialize_server=False, random_weather=True, synchronous_mode=True, continuous=False, show_sensor_data=True)
+    env = CarlaEnv('carla-rl-gym', time_limit=60, initialize_server=False, random_weather=True, synchronous_mode=True, continuous=False, show_sensor_data=True)
     obs, info = env.reset()
     
     # Number of steps
@@ -25,10 +25,10 @@ def steps_main():
     env.close()
 
 def episodes_main():
-    env = CarlaEnv('carla-rl-gym', time_limit=10, initialize_server=False, random_weather=True, synchronous_mode=True, continuous=False, show_sensor_data=True)
+    env = CarlaEnv('carla-rl-gym', time_limit=120, initialize_server=False, random_weather=True, synchronous_mode=True, continuous=False, show_sensor_data=True)
 
     # Number of episodes
-    for i in range(3):
+    for i in range(1):
         print("================================ Episode", i, " ================================")
         obs, info = env.reset()
         while True:

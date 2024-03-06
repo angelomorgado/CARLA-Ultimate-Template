@@ -32,6 +32,7 @@ import numpy as np
 import json
 import time
 import random
+import carla
 
 # TODO: Incorporate the environment into a proper gym environment
 # import gymnasium as gym
@@ -124,6 +125,8 @@ class CarlaEnv():
         # 5. Start the timer
         self.__start_timer()
         print("Episode started!")
+        
+        self.number_of_steps = 0
         # Return the observation and the scenario information
         return self.observation, self.active_scenario_dict
 
@@ -132,6 +135,7 @@ class CarlaEnv():
         # 0. Tick the world if in synchronous mode
         if self.synchronous_mode:
             self.world.tick()
+        self.number_of_steps += 1
         # 1. Control the vehicle
         self.__control_vehicle(np.array(action))
         # 1.5 Tick the display if it is active
@@ -147,6 +151,7 @@ class CarlaEnv():
         self.truncated = self.__timer_truncated()
         if self.truncated or terminated:
             self.clean_scenario()
+            print(self.number_of_steps, "steps taken in this episode!")
         # 5. Return the observation, the reward, the terminated flag and the scenario information
         return self.observation, reward, terminated, self.truncated, self.active_scenario_dict
 
@@ -169,6 +174,35 @@ class CarlaEnv():
     
     def __is_done(self):
         return False # Placeholder
+    
+    
+    # This function is used to correct the yaw angle to be between 0 and 360 degrees
+    def correct_yaw(self, x):
+        return(((x%360) + 360) % 360)
+
+    # This reward is based on the orientation of the vehicle according to the waypoint of where the vehicle is
+    # R_orientation = \lambda * cos(\theta), where \theta is the angle between the vehicle and the waypoint
+    def __get_orientation_and_distance_reward(self):
+        vehicle_location = self.vehicle.get_location()
+        waypoint = self.world.get_map().get_waypoint(vehicle_location, project_to_road=True, 
+                    lane_type=carla.LaneType.Driving)
+
+        x_wp = waypoint.transform.location.x
+        y_wp = waypoint.transform.location.y
+
+        x_vehicle = vehicle_location.x
+        y_vehicle = vehicle_location.y
+
+        vh_yaw = self.correct_yaw(self.vehicle.get_vehicle().get_transform().rotation.yaw)
+        wp_yaw = self.correct_yaw(waypoint.transform.rotation.yaw)
+
+        return np.cos((vh_yaw - wp_yaw)*np.pi/180.), np.linalg.norm([x_wp - x_vehicle, y_wp - y_vehicle])
+    
+    def __get_speed_reward(self, vehicle_speed, speed_limit=50):
+        return 0.05 if vehicle_speed > speed_limit else 0.0
+    
+    def __get_destination_reward(self, current_position, target_position, threshold=2):
+        return 1 if np.linalg.norm(current_position - target_position) < threshold else 0
 
 
     # ===================================================== OBSERVATION/ACTION METHODS =====================================================

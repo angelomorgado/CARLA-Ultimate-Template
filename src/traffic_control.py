@@ -54,7 +54,10 @@ class TrafficControl:
     def destroy_vehicles(self):
         for vehicle in self.active_vehicles:
             vehicle.set_autopilot(False)
-            vehicle.destroy()
+            try:
+                vehicle.destroy()
+            except RuntimeError as e:
+                continue
         self.active_vehicles = []
         print('Destroyed all vehicles!')
     

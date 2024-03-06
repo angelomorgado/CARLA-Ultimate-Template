@@ -29,6 +29,9 @@ class Vehicle:
     def get_vehicle(self):
         return self.__vehicle
 
+    def get_vehicle_location(self):
+        return self.__vehicle.get_location()
+
     def set_autopilot(self, boolean):
         if self.__vehicle:
             self.__vehicle.set_autopilot(boolean)
