@@ -151,7 +151,7 @@ class CarlaEnv():
         # 3. Calculate the reward
         reward = self.__calculate_reward()
         # 4. Check if the episode is terminated
-        terminated = self.__is_done()
+        terminated = self.__is_done
         # 5. Check if the episode is truncated
         self.truncated = self.__timer_truncated()
         if self.truncated or terminated:
