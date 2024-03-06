@@ -24,6 +24,7 @@ class Vehicle:
 
         # Vehicle Control attributes for discrete action space
         self.__throttle = 0.0
+        self.__brake = 0.0
         self.__steering_angle = 0.0 # [-1.0, 1.0]
 
     def get_vehicle(self):
@@ -37,6 +38,12 @@ class Vehicle:
             self.__vehicle.set_autopilot(boolean)
         else:
             print("Error: No vehicle to set autopilot. Try spawning the vehicle first.")
+    
+    def collision_occurred(self):
+        return self.__sensor_dict['collision'].collision_occurred()
+
+    def lane_invasion_occurred(self):
+        return self.__sensor_dict['lane_invasion'].lane_invasion_occurred()
 
     def spawn_vehicle(self, location=None, rotation=None):
         # Check if the vehicle is already spawned
@@ -201,9 +208,11 @@ class Vehicle:
     # Control the vehicle based on the continuous action space provided by the environment. The action space is steering_angle,throttle,brake,lights_on]. The first three are continuous values normalized between [-1, 1] for the steering angle and [0, 1] for the throttle and brake.
     def control_vehicle(self, action):                
         self.__control.steer = max(-1.0, min(action[0], 1.0))
-        self.__control.throttle = min(action[1], 1.0)
-        self.__control.brake = min(action[2], 1.0)
+        self.__throttle = min(action[1], 1.0)
+        self.__brake = min(action[2], 1.0)
         
+        self.__control.throttle = self.__throttle
+        self.__control.brake = self.__brake
         self.__vehicle.apply_control(self.__control)
 
     # Control the vehicle based on the discrete action space provided by the environment. The action space is [accelerate, decelerate, left, right]. Out of these, only one action can be taken at a time.
@@ -216,10 +225,11 @@ class Vehicle:
             self.__throttle = max(self.__throttle - 0.05, 0.0)
         # Brake More
         elif action == 2:
-            self.__control.brake = min(self.__control.brake + 0.05, 1.0)
+            self.__brake = min(self.__brake + 0.05, 1.0)
         # Brake Less
         elif action == 3:
-            self.__control.brake = max(self.__control.brake - 0.05, 0.0)
+
+            self.__brake = max(self.__brake - 0.05, 0.0)
         # Left
         elif action == 4:
             self.__steering_angle = max(-1.0, self.__steering_angle - 0.1)
@@ -228,6 +238,7 @@ class Vehicle:
             self.__steering_angle = min(1.0, self.__steering_angle + 0.1)
 
         self.__control.throttle = self.__throttle
+        self.__control.brake = self.__brake
         self.__control.steer = self.__steering_angle
         self.__vehicle.apply_control(self.__control)
     
@@ -236,5 +247,14 @@ class Vehicle:
             self.__vehicle.set_light_state(carla.VehicleLightState(carla.VehicleLightState.Position | carla.VehicleLightState.LowBeam))
         else:
             self.__vehicle.set_light_state(carla.VehicleLightState.NONE)
-        
+    
+    def get_throttle(self):
+        return self.__throttle
+
+    def get_brake(self):
+        return self.__brake
+    
+    # In Km/h
+    def get_speed(self):
+        return 3.6 * self.__vehicle.get_velocity().length()
 

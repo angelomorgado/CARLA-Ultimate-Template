@@ -92,9 +92,25 @@ class CarlaEnv():
         else:
             # For discrete actions
             self.action_space = spaces.Discrete(6)
+
+        # Reward lambda values
+        self.reward_lambdas = {
+            'orientation': 0.5,
+            'distance': 0.5,
+            'speed': 0.5,
+            'throttle_brake': -1,
+            'destination': 0.5,
+            'collision': -1,
+            'lane_invasion': -1,
+            'light_pole_transgression': -1,
+            'roundabout_transgression': -1,
+            'time_limit': -1,
+            'time_driving': 0.001
+        }
         
         # Truncated flag
         self.time_limit = time_limit
+        self.time_limit_reached = False
         self.truncated = False  # Used for an episode that was terminated due to a time limit or errors
 
         # Variables to store the current state
@@ -127,6 +143,7 @@ class CarlaEnv():
         print("Episode started!")
         
         self.number_of_steps = 0
+        self.__is_done = False
         # Return the observation and the scenario information
         return self.observation, self.active_scenario_dict
 
@@ -151,7 +168,6 @@ class CarlaEnv():
         self.truncated = self.__timer_truncated()
         if self.truncated or terminated:
             self.clean_scenario()
-            print(self.number_of_steps, "steps taken in this episode!")
         # 5. Return the observation, the reward, the terminated flag and the scenario information
         return self.observation, reward, terminated, self.truncated, self.active_scenario_dict
 
@@ -169,11 +185,34 @@ class CarlaEnv():
             CarlaServer.close_server(self.server_process)
     
     # ===================================================== REWARD METHODS =====================================================
+    # More complex reward function for every driving task
+    # def __calculate_reward(self):
+    #     vehicle_location = self.vehicle.get_location()
+    #     waypoint = self.world.get_map().get_waypoint(vehicle_location, project_to_road=True, lane_type=carla.LaneType.Driving)
+    #     target_position = np.array([self.active_scenario_dict['target_position']['x'], self.active_scenario_dict['target_position']['y'], self.active_scenario_dict['target_position']['z']])
+    #     return self.reward_lambdas['orientation'] * self.__get_orientation_reward(waypoint, vehicle_location) + \
+    #             self.reward_lambdas['distance'] * self.__get_distance_reward(waypoint, vehicle_location) + \
+    #             self.reward_lambdas['speed'] * self.__get_speed_reward(self.vehicle.get_speed()) + \
+    #             self.reward_lambdas['destination'] * self.__get_destination_reward(vehicle_location, target_position) + \
+    #             self.reward_lambdas['collision'] * self.__get_collision_reward() + \
+    #             self.reward_lambdas['lane_invasion'] * self.__get_lane_invasion_reward() + \
+    #             self.reward_lambdas['light_pole_transgression'] * self.__get_light_pole_trangression_reward() + \
+    #             self.reward_lambdas['roundabout_transgression'] * self.__get_roundabout_transgression_reward() + \
+    #             self.reward_lambdas['time_limit'] * self.__get_time_limit_reward() + \
+    #             self.reward_lambdas['time_driving'] * self.__get_time_driving_reward()
+
+    # Simple reward function only for the vehicle's movement learning
     def __calculate_reward(self):
-        return 0 # Placeholder
-    
-    def __is_done(self):
-        return False # Placeholder
+        vehicle_location = self.vehicle.get_location()
+        waypoint = self.world.get_map().get_waypoint(vehicle_location, project_to_road=True, lane_type=carla.LaneType.Driving)
+        target_position = np.array([self.active_scenario_dict['target_position']['x'], self.active_scenario_dict['target_position']['y'], self.active_scenario_dict['target_position']['z']])
+        return self.reward_lambdas['orientation']               * self.__get_orientation_reward(waypoint, vehicle_location) + \
+                self.reward_lambdas['distance']                 * self.__get_distance_reward(waypoint, vehicle_location) + \
+                self.reward_lambdas['throttle_brake']           * self.__get_throttle_brake_reward() + \
+                self.reward_lambdas['collision']                * self.__get_collision_reward() + \
+                self.reward_lambdas['lane_invasion']            * self.__get_lane_invasion_reward() + \
+                self.reward_lambdas['time_limit']               * self.__get_time_limit_reward() + \
+                self.reward_lambdas['time_driving']             * self.__get_time_driving_reward()
     
     
     # This function is used to correct the yaw angle to be between 0 and 360 degrees
@@ -182,28 +221,67 @@ class CarlaEnv():
 
     # This reward is based on the orientation of the vehicle according to the waypoint of where the vehicle is
     # R_orientation = \lambda * cos(\theta), where \theta is the angle between the vehicle and the waypoint
-    def __get_orientation_and_distance_reward(self):
-        vehicle_location = self.vehicle.get_location()
-        waypoint = self.world.get_map().get_waypoint(vehicle_location, project_to_road=True, 
-                    lane_type=carla.LaneType.Driving)
+    def __get_orientation_reward(self, waypoint, vehicle_location):
+        vh_yaw = self.correct_yaw(self.vehicle.get_vehicle().get_transform().rotation.yaw)
+        wp_yaw = self.correct_yaw(waypoint.transform.rotation.yaw)
 
+        return np.cos((vh_yaw - wp_yaw)*np.pi/180.)
+    
+    # This reward is based on the distance between the vehicle and the waypoint
+    def __get_distance_reward(self, waypoint, vehicle_location):
         x_wp = waypoint.transform.location.x
         y_wp = waypoint.transform.location.y
 
         x_vehicle = vehicle_location.x
         y_vehicle = vehicle_location.y
 
-        vh_yaw = self.correct_yaw(self.vehicle.get_vehicle().get_transform().rotation.yaw)
-        wp_yaw = self.correct_yaw(waypoint.transform.rotation.yaw)
+        return np.linalg.norm([x_wp - x_vehicle, y_wp - y_vehicle])
+    
+    # Penalizes the agent if it is accelerating and braking at the same time
+    def __get_throttle_brake_reward(self):
+        throttle = self.vehicle.get_throttle()
+        brake = self.vehicle.get_brake()
 
-        return np.cos((vh_yaw - wp_yaw)*np.pi/180.), np.linalg.norm([x_wp - x_vehicle, y_wp - y_vehicle])
+        return -1 if throttle > 0 and brake > 0 else 0
     
     def __get_speed_reward(self, vehicle_speed, speed_limit=50):
         return 0.05 if vehicle_speed > speed_limit else 0.0
     
-    def __get_destination_reward(self, current_position, target_position, threshold=2):
-        return 1 if np.linalg.norm(current_position - target_position) < threshold else 0
+    # This reward is based on if the vehicle reached the destination. the reward will be based on the number of steps taken to reach the destination. The less steps, the higher the reward, but reaching the destination is the highest reward
+    def __get_destination_reward(self, current_position, target_position, threshold=2.0): 
+        if np.linalg.norm(current_position - target_position) < threshold:
+            self.__is_done = True
+            return max(-self.number_of_steps * (1 / config.ENV_MAX_STEPS) + 1, 0.35)
+        else:
+            return 0
+    
+    def __get_collision_reward(self):
+        if self.vehicle.collision_occurred():
+            self.__is_done = True
+            return -1
+        else:
+            return 0
 
+    def __get_lane_invasion_reward(self):
+        if self.vehicle.lane_invasion_occurred():
+            self.__is_done = True
+            return -1
+        else:
+            return 0
+
+    # TODO: Implement the negative reward for not stopping at a red light or a stop sign
+    def __get_light_pole_trangression_reward(self):
+        return 0 # Placeholder
+    
+    # TODO: Implement the negative reward for the roundabouts
+    def __get_roundabout_transgression_reward(self):
+        return 0 # Placeholder
+    
+    def __get_time_limit_reward(self):
+        return -1 if self.time_limit_reached else 0
+    
+    def __get_time_driving_reward(self):
+        return 0.001 if not self.__is_done else 0
 
     # ===================================================== OBSERVATION/ACTION METHODS =====================================================
     def __update_observation(self):
@@ -322,7 +400,11 @@ class CarlaEnv():
             self.vehicle.control_vehicle_discrete(action)
 
     def __timer_truncated(self):
-        return time.time() - self.start_time > self.time_limit
+        if time.time() - self.start_time > self.time_limit
+            self.time_limit_reached = True
+            return True
+        else:
+            return False
     
     def __start_timer(self):
         self.start_time = time.time()

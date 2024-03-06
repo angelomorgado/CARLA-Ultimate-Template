@@ -23,3 +23,4 @@ SIM_DELTA_SECONDS       = 0.05
 
 # Environment attributes
 ENV_SCENARIOS_FILE      = 'env/scenarios.json'
+ENV_MAX_STEPS           = 3500 # Used to limit the number of steps in the environment and to calculate the reward for finishing an episode successfully

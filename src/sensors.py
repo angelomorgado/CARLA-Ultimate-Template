@@ -328,6 +328,7 @@ class Collision:
         self.sensor = self.attach_collision(world, vehicle, sensor_dict)
         self.sensor.listen(lambda data: self.callback(data))
         self.sensor_ready = True
+        self.critical_collision = False
 
     def attach_collision(self, world, vehicle, sensor_dict):
         sensor_bp = world.get_blueprint_library().find('sensor.other.collision')
@@ -340,6 +341,10 @@ class Collision:
     
     def callback(self, data):
         print(f"Collision Occurred at {data.timestamp} with {data.other_actor}")
+        self.critical_collision = True
+    
+    def collision_occurred(self):
+        return self.critical_collision
     
     def is_ready(self):
         return self.sensor_ready
@@ -353,6 +358,7 @@ class Lane_Invasion:
         self.sensor = self.attach_lane_invasion(world, vehicle, sensor_dict)
         self.sensor.listen(lambda data: self.callback(data))
         self.sensor_ready = True
+        self.lane_transgression = False
 
     def attach_lane_invasion(self, world, vehicle, sensor_dict):
         sensor_bp = world.get_blueprint_library().find('sensor.other.lane_invasion')
@@ -364,10 +370,14 @@ class Lane_Invasion:
         return lane_invasion_sensor
     
     def callback(self, data):
+        self.lane_transgression = True
         print(f"Lane Invasion Occurred at {data.timestamp} with {data.crossed_lane_markings}")
     
     def is_ready(self):
         return self.sensor_ready
+    
+    def lane_invasion_occurred(self):
+        return self.lane_transgression
 
     def destroy(self):
         self.sensor.destroy()
