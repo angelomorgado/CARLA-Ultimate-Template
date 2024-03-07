@@ -5,10 +5,20 @@ from env.environment import CarlaEnv
 
 def main():
     env = CarlaEnv('carla-rl-gym', initialize_server=True, has_traffic=False, verbose=False)
-    obs, info = env.reset()
+    obs, info = env.reset("Town01-ClearNoon-Road-0")
 
+    obs_shape = []
+    for o in obs:
+        try:
+            obs_shape.append(obs[o].shape)
+        except AttributeError:
+            obs_shape.append(obs[o])
+
+    print("==============================================================")
     print("Action Space:", env.action_space)
-    print("Observation Space:", env.observation_space)
+    print("Defined observation Space:", env.observation_space)
+    print("Actual observation Space:", obs_shape)
+    print("==============================================================")
 
     env.close()
 

@@ -227,4 +227,5 @@ class TrafficControl:
 
         self.active_pedestrians = []
         self.active_ai_controllers = []
-        print('Destroyed all pedestrians!')
+        if config.VERBOSE:
+            print('Destroyed all pedestrians!')
