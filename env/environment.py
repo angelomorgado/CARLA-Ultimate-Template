@@ -72,7 +72,7 @@ class CarlaEnv():
         # Lidar: (122,4) for default settings
         # Change this according to your needs.
         self.rgb_image_shape = (360, 640, 3)
-        self.lidar_point_cloud_shape = (122, 4)
+        self.lidar_point_cloud_shape = (400, 4)
         self.current_position_shape = (3,)
         self.target_position_shape = (3,)
         self.number_of_situations = 4
@@ -124,7 +124,7 @@ class CarlaEnv():
         # 2. Load the scenario
         self.load_scenario(self.active_scenario_name)
         # 3. Place the spectator
-        self.world.place_spectator_above_vehicle(self.vehicle.get_vehicle())
+        self.place_spectator_above_vehicle()
         # 4. Get the initial state (Get the observation data)
         time.sleep(0.5)
         self.__update_observation()
@@ -310,6 +310,8 @@ class CarlaEnv():
     # ===================================================== SCENARIO METHODS =====================================================
     def load_scenario(self, scenario_name):
         scenario_dict = self.situations_dict[scenario_name]
+        self.active_scenario_name = scenario_name
+        self.active_scenario_dict = scenario_dict
         # World
         self.load_world(scenario_dict['map_name'])
         if self.verbose:
@@ -411,3 +413,42 @@ class CarlaEnv():
             name = self.active_scenario_name
         num_vehicles = random.randint(1, 20)
         self.world.spawn_vehicles_around_ego(self.vehicle.get_vehicle(), 100, num_vehicles, name)
+    
+    # ===================================================== DEBUG METHODS =====================================================
+    def place_spectator_above_vehicle(self):
+        self.world.place_spectator_above_vehicle(self.vehicle.get_vehicle())    
+
+    def output_all_waypoints(self, spacing=5):
+        waypoints = self.world.get_world().get_map().generate_waypoints(distance=spacing)
+
+        for w in waypoints:
+            self.world.get_world().debug.draw_string(w.transform.location, 'O', draw_shadow=False,
+                                       color=carla.Color(r=255, g=0, b=0), life_time=120.0,
+                                       persistent_lines=True)
+            
+    def output_waypoints_to_target(self, spacing=5):
+        current_location = self.vehicle.get_location()
+        map_ = self.world.get_world().get_map()
+        target_location = carla.Location(x=self.active_scenario_dict['target_position']['x'], y=self.active_scenario_dict['target_position']['y'], z=self.active_scenario_dict['target_position']['z'])
+
+        # Find the closest waypoint to the current location
+        current_waypoint = map_.get_waypoint(current_location)
+
+        # Find the closest waypoint to the target location
+        target_waypoint = map_.get_waypoint(target_location)
+
+        # Clear previous waypoints if specified
+        # if clear_previous:
+        #     self.world.get_world().debug.clear()
+
+        # Generate waypoints along the route with the specified spacing
+        waypoints = []
+        while current_waypoint.transform.location.distance(target_waypoint.transform.location) > spacing:
+            waypoints.append(current_waypoint.transform.location)
+            current_waypoint = current_waypoint.next(spacing)[0]
+
+        # Draw the waypoints
+        for w in waypoints:
+            self.world.get_world().debug.draw_string(w, 'O', draw_shadow=False,
+                                                    color=carla.Color(r=255, g=0, b=0), life_time=10.0,
+                                                    persistent_lines=True)
