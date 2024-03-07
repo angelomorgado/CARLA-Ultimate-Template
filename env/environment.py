@@ -439,10 +439,6 @@ class CarlaEnv():
         # Find the closest waypoint to the target location
         target_waypoint = map_.get_waypoint(target_location)
 
-        # Clear previous waypoints if specified
-        # if clear_previous:
-        #     self.world.get_world().debug.clear()
-
         # Generate waypoints along the route with the specified spacing
         waypoints = []
         while current_waypoint.transform.location.distance(target_waypoint.transform.location) > spacing:
