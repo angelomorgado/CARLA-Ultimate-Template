@@ -74,6 +74,8 @@ class World:
             return
 
         self.active_map = self.map_dict[map_name]
+        if map_name in ["Town15", "Town11", "Town12", "Town13"]:
+            map_name += f"/{map_name}"
         self.__client.load_world('/Game/Carla/Maps/' + map_name)
 
     # Serves for debugging purposes

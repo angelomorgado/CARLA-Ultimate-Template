@@ -8,6 +8,7 @@ class KeyboardControl:
         self.brake = 0.0
         self.steering = 0.0
         self.reverse = False
+        self.lock = False
 
         # Create a listener that will call on_press and on_release when a key is pressed or released
         self.listener = keyboard.Listener(on_press=self.on_press, on_release=self.on_release)
@@ -36,18 +37,21 @@ class KeyboardControl:
                 self.brake = 0.0
             elif key.char in ('a', 'd'):
                 self.steering = 0.0
+            elif key.char == 'z':
+                self.lock = not self.lock
         except AttributeError:
             pass
 
     def apply_controls(self):
-        # Apply controls to the vehicle
-        control = carla.VehicleControl()
-        if self.reverse:
-            control.reverse = True
-        control.throttle = self.throttle
-        control.brake = self.brake
-        control.steer = self.steering
-        self.vehicle.apply_control(control)
+        if not self.lock:
+            # Apply controls to the vehicle
+            control = carla.VehicleControl()
+            if self.reverse:
+                control.reverse = True
+            control.throttle = self.throttle
+            control.brake = self.brake
+            control.steer = self.steering
+            self.vehicle.apply_control(control)
 
     def tick(self):
         # Apply controls to the vehicle

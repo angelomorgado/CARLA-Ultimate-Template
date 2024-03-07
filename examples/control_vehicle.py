@@ -1,3 +1,14 @@
+'''
+This script demonstrates how to use this template to create and manually control a vehicle in Carla.
+
+Control the vehicle using the keyboard:
+    - w: throttle
+    - s: brake
+    - a: steer left
+    - d: steer right
+    - q: toggle reverse
+    - z: toggle lock (toggles vehicle control on/off)
+'''
 import os, sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
@@ -10,6 +21,8 @@ from src.vehicle_control import KeyboardControl
 def main():
     process = CarlaServer.initialize_server()
     world = World()
+    world.print_available_maps()
+    world.set_active_map('Town15')
     
     ego_vehicle = Vehicle(world=world.get_world())
     ego_vehicle.spawn_vehicle()
