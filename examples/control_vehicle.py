@@ -9,19 +9,20 @@ from src.display import Display
 from src.world import World
 from src.server import CarlaServer
 
-def control_vehicle_with_keyboard(vehicle):
-    pygame.init()
+class KeyboardControl:
+    def __init__(self, vehicle):
+        self.vehicle = vehicle
+        pygame.init()
+        self.throttle = 0.0
+        self.steering = 0.0
+        self.reverse = False
 
-    # Pygame screen setup
-    screen = pygame.display.set_mode((300, 300))
-    clock = pygame.time.Clock()
+    def initialize(self):
+        # Pygame screen setup
+        self.screen = pygame.display.set_mode((300, 300))
+        self.clock = pygame.time.Clock()
 
-    # Initialize control values
-    throttle = 0.0
-    steering = 0.0
-    reverse = False
-
-    while True:
+    def update_controls(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -29,37 +30,43 @@ def control_vehicle_with_keyboard(vehicle):
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_w:
-                    throttle = 1.0
+                    self.throttle = 1.0
                 elif event.key == pygame.K_s:
-                    throttle = -1.0
+                    self.throttle = -1.0
                 elif event.key == pygame.K_a:
-                    steering = -1.0
+                    self.steering = -1.0
                 elif event.key == pygame.K_d:
-                    steering = 1.0
+                    self.steering = 1.0
                 elif event.key == pygame.K_q:
-                    reverse = not reverse
+                    self.reverse = not self.reverse
 
             if event.type == pygame.KEYUP:
                 if event.key in (pygame.K_w, pygame.K_s):
-                    throttle = 0.0
+                    self.throttle = 0.0
                 elif event.key in (pygame.K_a, pygame.K_d):
-                    steering = 0.0
+                    self.steering = 0.0
 
+    def apply_controls(self):
         # Apply controls to the vehicle
         control = carla.VehicleControl()
-        control.throttle = throttle if not reverse else -throttle
-        control.steer = steering
+        control.throttle = self.throttle if not self.reverse else -self.throttle
+        control.steer = self.steering
+        self.vehicle.apply_control(control)
 
-        vehicle.apply_control(control)
-
+    def tick(self):
         # Clear the screen
-        screen.fill((255, 255, 255))
+        self.screen.fill((255, 255, 255))
+
+        # Update controls and apply them
+        self.update_controls()
+        self.apply_controls()
 
         # Update the display
         pygame.display.flip()
 
         # Cap the frame rate
-        clock.tick(60)
+        self.clock.tick(60)
+
 
 def main():
     CarlaServer.initialize_server()
@@ -68,11 +75,16 @@ def main():
     ego_vehicle = Vehicle(world=world.get_world())
     ego_vehicle.spawn_vehicle()
 
-    control_vehicle_with_keyboard(ego_vehicle.get_vehicle())
+    keyboard_control = KeyboardControl(ego_vehicle.get_vehicle())
+    keyboard_control.initialize()
+    
+    world.place_spectator_behind_vehicle(ego_vehicle.get_vehicle())
+    # world.place_spectator_above_vehicle(ego_vehicle.get_vehicle())
 
     while True:
         try:
             world.tick()
+            keyboard_control.tick()
         except KeyboardInterrupt:
             ego_vehicle.destroy_vehicle()
             world.close()

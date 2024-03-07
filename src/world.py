@@ -129,4 +129,15 @@ class World:
         transform = vehicle.get_transform()
         spectator.set_transform(carla.Transform(transform.location + carla.Location(z=50),
         carla.Rotation(pitch=-90)))
-    
+
+    def place_spectator_behind_vehicle(self, vehicle):
+        spectator = self.__world.get_spectator()
+        transform = vehicle.get_transform()
+
+        transform.location += carla.Location(x = -6, y=0, z = 2.5)
+        spectator.set_transform(transform)
+
+        # Calculate the new spectator location
+        spectator_location = transform.location
+
+        spectator.set_transform(carla.Transform(location=spectator_location, rotation=transform.rotation))
