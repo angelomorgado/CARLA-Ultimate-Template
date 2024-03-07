@@ -44,8 +44,10 @@ from src.vehicle import Vehicle
 from src.display import Display
 import configuration as config
 
+# Name: 'carla-rl-gym'
 class CarlaEnv():
-    def __init__(self, name, continuous=True, scenarios=[], time_limit=60, initialize_server=True, random_weather=False, random_traffic=False, synchronous_mode=True, show_sensor_data=False, has_traffic=True, verbose=True):
+    metadata = {'render.modes': ['human']}
+    def __init__(self, continuous=True, scenarios=[], time_limit=60, initialize_server=True, random_weather=False, random_traffic=False, synchronous_mode=True, show_sensor_data=False, has_traffic=True, verbose=True):
         # Read the environment settings
         self.is_continuous = continuous
         self.random_weather = random_weather

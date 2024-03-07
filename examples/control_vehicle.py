@@ -21,7 +21,6 @@ from src.vehicle_control import KeyboardControl
 def main():
     process = CarlaServer.initialize_server()
     world = World()
-    world.print_available_maps()
     world.set_active_map('Town15')
     
     ego_vehicle = Vehicle(world=world.get_world())
