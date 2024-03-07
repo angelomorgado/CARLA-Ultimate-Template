@@ -199,7 +199,6 @@ class CarlaEnv():
                 self.reward_lambdas['throttle_brake']           * self.__get_throttle_brake_reward() + \
                 self.reward_lambdas['collision']                * self.__get_collision_reward() + \
                 self.reward_lambdas['lane_invasion']            * self.__get_lane_invasion_reward() + \
-                self.reward_lambdas['time_limit']               * self.__get_time_limit_reward() + \
                 self.reward_lambdas['time_driving']             * self.__get_time_driving_reward()
     
     
@@ -269,7 +268,7 @@ class CarlaEnv():
         return 1 if self.time_limit_reached else 0
     
     def __get_time_driving_reward(self):
-        return 1 if not self.__is_done else 0
+        return 1 if not self.__is_done and self.vehicle.get_speed() > 2.0 else 0
 
     # ===================================================== OBSERVATION/ACTION METHODS =====================================================
     def __update_observation(self):
