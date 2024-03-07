@@ -5,6 +5,8 @@ import time
 import numpy as np
 import math
 
+import configuration as config
+
 '''
 Traffic Controller module:
     It provides the functionality to spawn, destroy, and control vehicles and pedestrians in the Carla simulation.
@@ -28,7 +30,8 @@ class TrafficControl:
             print("You need to spawn at least 1 vehicle.")
             return
         
-        print(f"Spawning {num_vehicles} vehicle(s)...")
+        if config.VERBOSE:
+            print(f"Spawning {num_vehicles} vehicle(s)...")
 
         vehicle_bp = self.__world.get_blueprint_library().filter('vehicle.*')
         spawn_points = self.__world.get_map().get_spawn_points()
@@ -49,7 +52,8 @@ class TrafficControl:
             
             self.active_vehicles.append(vehicle)
             # time.sleep(0.1)
-        print('Successfully spawned {} vehicles!'.format(num_vehicles))
+        if config.VERBOSE:
+            print('Successfully spawned {} vehicles!'.format(num_vehicles))
     
     def destroy_vehicles(self):
         for vehicle in self.active_vehicles:
@@ -59,7 +63,8 @@ class TrafficControl:
             except RuntimeError as e:
                 continue
         self.active_vehicles = []
-        print('Destroyed all vehicles!')
+        if config.VERBOSE:
+            print('Destroyed all vehicles!')
     
     def toggle_autopilot(self, autopilot_on = True):
         for vehicle in self.active_vehicles:

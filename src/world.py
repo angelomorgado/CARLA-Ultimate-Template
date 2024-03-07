@@ -25,7 +25,8 @@ class World:
             self.__settings.synchronous_mode = True
             self.__settings.fixed_delta_seconds = config.SIM_DELTA_SECONDS
             self.__world.apply_settings(self.__settings)
-        print("World initialized!")
+        if config.VERBOSE:
+            print("World initialized!")
 
     def get_client(self):
         return self.__client

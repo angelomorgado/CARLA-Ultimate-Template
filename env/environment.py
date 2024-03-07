@@ -45,7 +45,7 @@ from src.display import Display
 import configuration as config
 
 class CarlaEnv():
-    def __init__(self, name, continuous=True, scenarios=[], time_limit=60, initialize_server=True, random_weather=False, random_traffic=False, synchronous_mode=True, show_sensor_data=False, has_traffic=True):
+    def __init__(self, name, continuous=True, scenarios=[], time_limit=60, initialize_server=True, random_weather=False, random_traffic=False, synchronous_mode=True, show_sensor_data=False, has_traffic=True, verbose=True):
         # Read the environment settings
         self.is_continuous = continuous
         self.random_weather = random_weather
@@ -53,7 +53,8 @@ class CarlaEnv():
         self.synchronous_mode = synchronous_mode
         self.show_sensor_data = show_sensor_data
         self.has_traffic = has_traffic
-        
+        self.verbose = verbose
+
         # 1. Start the server
         self.automatic_server_initialization = initialize_server
         if self.automatic_server_initialization:
@@ -311,7 +312,8 @@ class CarlaEnv():
         scenario_dict = self.situations_dict[scenario_name]
         # World
         self.load_world(scenario_dict['map_name'])
-        print("World loaded!")
+        if self.verbose:
+            print("World loaded!")
         # Weather
         self.__load_weather(scenario_dict['weather_condition'])
         # Ego vehicle
@@ -319,20 +321,23 @@ class CarlaEnv():
         if self.show_sensor_data:   
             self.display = Display('Ego Vehicle Sensor feed', self.vehicle)
             self.display.play_window_tick()
-        print("Vehicle spawned!")
+        if self.verbose:
+            print("Vehicle spawned!")
         time.sleep(0.3)
         # Traffic
         if self.has_traffic:
             self.__spawn_traffic()
             # self.world.spawn_pedestrians_around_ego(ego_vehicle=self.vehicle.get_vehicle(), num_pedestrians=10)
+            if self.verbose:
+                print("Traffic spawned!")
         self.__toggle_lights()
-        print("Traffic spawned!")
 
     def clean_scenario(self):
         self.vehicle.destroy_vehicle()
         self.world.destroy_vehicles()
         self.world.destroy_pedestrians()
-        print("Scenario cleaned!")
+        if self.verbose:
+            print("Scenario cleaned!")
     
     def print_all_scenarios(self):
         for idx, i in enumerate(self.situations_list):

@@ -80,7 +80,8 @@ class Vehicle:
                 carla_location,
                 carla_rotation
             )
-            print("Spawning vehicle at location: ", carla_location, " and rotation: ", carla_rotation, " Transform: ", transform)
+            if configuration.VERBOSE:
+                print("Spawning ego vehicle at location: ", carla_location, " and rotation: ", carla_rotation, " Transform: ", transform)
             try:
                 self.__vehicle = self.__world.try_spawn_actor(random.choice(vehicle_bp), transform)
             except:
@@ -184,7 +185,8 @@ class Vehicle:
         physics_control.mass = physics_data["vehicle"]["mass"]
         physics_control.drag_coefficient = physics_data["vehicle"]["drag_coefficient"]
         self.__vehicle.apply_physics_control(physics_control)
-        print(f"Vehicle's physics changed to {weather_condition} weather")
+        if configuration.VERBOSE:
+            print(f"Vehicle's physics changed to {weather_condition} weather")
 
     def print_vehicle_physics(self):
         vehicle_physics = self.__vehicle.get_physics_control()
