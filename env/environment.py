@@ -45,13 +45,14 @@ from src.display import Display
 import configuration as config
 
 class CarlaEnv():
-    def __init__(self, name, continuous=True, scenarios=[], time_limit=10, initialize_server=True, random_weather=False, random_traffic=False, synchronous_mode=True, show_sensor_data=False):
+    def __init__(self, name, continuous=True, scenarios=[], time_limit=60, initialize_server=True, random_weather=False, random_traffic=False, synchronous_mode=True, show_sensor_data=False, has_traffic=True):
         # Read the environment settings
         self.is_continuous = continuous
         self.random_weather = random_weather
         self.random_traffic = random_traffic
         self.synchronous_mode = synchronous_mode
         self.show_sensor_data = show_sensor_data
+        self.has_traffic = has_traffic
         
         # 1. Start the server
         self.automatic_server_initialization = initialize_server
@@ -193,7 +194,6 @@ class CarlaEnv():
     def __calculate_reward(self):
         vehicle_location = self.vehicle.get_location()
         waypoint = self.world.get_world().get_map().get_waypoint(vehicle_location, project_to_road=True, lane_type=carla.LaneType.Driving)
-        target_position = np.array([self.active_scenario_dict['target_position']['x'], self.active_scenario_dict['target_position']['y'], self.active_scenario_dict['target_position']['z']])
         return self.reward_lambdas['orientation']               * self.__get_orientation_reward(waypoint, vehicle_location) + \
                 self.reward_lambdas['distance']                 * self.__get_distance_reward(waypoint, vehicle_location) + \
                 self.reward_lambdas['throttle_brake']           * self.__get_throttle_brake_reward() + \
@@ -268,7 +268,7 @@ class CarlaEnv():
         return 1 if self.time_limit_reached else 0
     
     def __get_time_driving_reward(self):
-        return 1 if not self.__is_done and self.vehicle.get_speed() > 2.0 else 0
+        return 1 if not self.__is_done and self.vehicle.get_speed() > 1.0 else 0
 
     # ===================================================== OBSERVATION/ACTION METHODS =====================================================
     def __update_observation(self):
@@ -322,8 +322,9 @@ class CarlaEnv():
         print("Vehicle spawned!")
         time.sleep(0.3)
         # Traffic
-        # self.world.spawn_pedestrians_around_ego(ego_vehicle=self.vehicle.get_vehicle(), num_pedestrians=10)
-        self.__spawn_traffic()
+        if self.has_traffic:
+            self.__spawn_traffic()
+            # self.world.spawn_pedestrians_around_ego(ego_vehicle=self.vehicle.get_vehicle(), num_pedestrians=10)
         self.__toggle_lights()
         print("Traffic spawned!")
 

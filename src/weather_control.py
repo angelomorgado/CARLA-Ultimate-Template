@@ -62,7 +62,7 @@ class WeatherControl:
         for idx, w in enumerate(self.weather_list):
             if w[1] == weather:
                 self.active_weather = w[1]
-                self.__activate_weather_preset()
+                self.__activate_weather_preset(idx)
                 return
     
     def set_random_weather_preset(self):
