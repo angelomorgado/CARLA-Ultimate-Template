@@ -117,13 +117,24 @@ class Lidar:
     def callback(self, data):
         global configuration
 
-        # Get the LiDAR point cloud from the data
+        # Assuming lidar_data is the raw Lidar data
         lidar_data = data.raw_data
         lidar_data = np.frombuffer(lidar_data, dtype=np.dtype('f4'))
         lidar_data = np.reshape(lidar_data, (int(lidar_data.shape[0] / 4), 4))
+
+        # Ensure a fixed number of points (e.g., 400)
+        fixed_num_points = 500
+        if lidar_data.shape[0] < fixed_num_points:
+            # Pad with zeros if fewer points than expected
+            lidar_data = np.pad(lidar_data, ((0, fixed_num_points - lidar_data.shape[0]), (0, 0)), mode='constant')
+        elif lidar_data.shape[0] > fixed_num_points:
+            # Downsample if more points than expected
+            indices = np.linspace(0, lidar_data.shape[0] - 1, fixed_num_points, dtype=int)
+            lidar_data = lidar_data[indices]
+
+        # Update self.raw_data with the modified Lidar data
         self.raw_data = lidar_data
         self.sensor_ready = True
-        # self.raw_data = np.reshape(lidar_data, (int(lidar_data.shape[0] / 3), 3))
 
         # Extract X, Y, Z coordinates and intensity values
         points_xyz = lidar_data[:, :3]

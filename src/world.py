@@ -4,6 +4,7 @@ from src.weather_control import WeatherControl
 from src.traffic_control import TrafficControl
 from src.weather_control import WeatherControl
 import configuration as config
+import time
 
 class World:
     def __init__(self, client=None, synchronous_mode=False) -> None:
@@ -77,6 +78,7 @@ class World:
         if map_name in ["Town15", "Town11", "Town12", "Town13"]:
             map_name += f"/{map_name}"
         self.__client.load_world('/Game/Carla/Maps/' + map_name)
+        time.sleep(3)
 
     # Serves for debugging purposes
     def change_map(self):

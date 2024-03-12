@@ -75,7 +75,7 @@ class CarlaEnv(gym.Env):
         # Lidar: (122,4) for default settings
         # Change this according to your needs.
         self.rgb_image_shape = (360, 640, 3)
-        self.lidar_point_cloud_shape = (400, 4)
+        self.lidar_point_cloud_shape = (500, 4)
         self.current_position_shape = (3,)
         self.target_position_shape = (3,)
         self.number_of_situations = 4
@@ -126,6 +126,7 @@ class CarlaEnv(gym.Env):
         self.active_scenario_dict = self.situations_dict[self.active_scenario_name]
         # 2. Load the scenario
         self.load_scenario(self.active_scenario_name, seed)
+        print("Scenario loaded!")
         # 3. Place the spectator
         self.place_spectator_above_vehicle()
         # 4. Get the initial state (Get the observation data)
@@ -287,7 +288,7 @@ class CarlaEnv(gym.Env):
         except AttributeError:
             observation_space = [None, None, None, None, None]
             observation_space[0] = np.zeros((360, 640, 3), dtype=np.uint8)
-            observation_space[1] = np.zeros((122, 4), dtype=float)
+            observation_space[1] = np.zeros((500, 4), dtype=float)
             observation_space[2] = np.zeros(3, dtype=float)
             observation_space[3] = np.zeros(3, dtype=float)
             observation_space[4] = -1
@@ -299,10 +300,10 @@ class CarlaEnv(gym.Env):
         situation = self.situations_map[self.active_scenario_dict['situation']]
 
         self.observation = {
-            'rgb_data': rgb_image,
-            'lidar_data': lidar_point_cloud,
-            'position': current_position,
-            'target_position': target_position,
+            'rgb_data': np.uint8(rgb_image),
+            'lidar_data': np.float32(lidar_point_cloud),
+            'position': np.float32(current_position),
+            'target_position': np.float32(target_position),
             'situation': situation
         }
     
