@@ -195,9 +195,7 @@ class CarlaEnv(gym.Env):
     #             self.reward_lambdas['speed'] * self.__get_speed_reward(self.vehicle.get_speed()) + \
     #             self.reward_lambdas['destination'] * self.__get_destination_reward(vehicle_location, target_position) + \
     #             self.reward_lambdas['collision'] * self.__get_collision_reward() + \
-    #             self.reward_lambdas['lane_invasion'] * self.__get_lane_invasion_reward() + \
     #             self.reward_lambdas['light_pole_transgression'] * self.__get_light_pole_trangression_reward() + \
-    #             self.reward_lambdas['roundabout_transgression'] * self.__get_roundabout_transgression_reward() + \
     #             self.reward_lambdas['time_limit'] * self.__get_time_limit_reward() + \
     #             self.reward_lambdas['time_driving'] * self.__get_time_driving_reward()
 
@@ -207,9 +205,7 @@ class CarlaEnv(gym.Env):
         waypoint = self.world.get_world().get_map().get_waypoint(vehicle_location, project_to_road=True, lane_type=carla.LaneType.Driving)
         return self.reward_lambdas['orientation']               * self.__get_orientation_reward(waypoint, vehicle_location) + \
                 self.reward_lambdas['distance']                 * self.__get_distance_reward(waypoint, vehicle_location) + \
-                self.reward_lambdas['throttle_brake']           * self.__get_throttle_brake_reward() + \
                 self.reward_lambdas['collision']                * self.__get_collision_reward() + \
-                self.reward_lambdas['lane_invasion']            * self.__get_lane_invasion_reward() + \
                 self.reward_lambdas['time_driving']             * self.__get_time_driving_reward()
     
     
@@ -235,15 +231,9 @@ class CarlaEnv(gym.Env):
 
         return np.linalg.norm([x_wp - x_vehicle, y_wp - y_vehicle])
     
-    # Penalizes the agent if it is accelerating and braking at the same time
-    def __get_throttle_brake_reward(self):
-        throttle = self.vehicle.get_throttle()
-        brake = self.vehicle.get_brake()
-
-        return 1 if throttle > 0 and brake > 0 else 0
     
     def __get_speed_reward(self, vehicle_speed, speed_limit=50):
-        return 1 if vehicle_speed > speed_limit else 0.0
+        return vehicle_speed - speed_limit if vehicle_speed > speed_limit else 0.0
     
     # This reward is based on if the vehicle reached the destination. the reward will be based on the number of steps taken to reach the destination. The less steps, the higher the reward, but reaching the destination is the highest reward
     def __get_destination_reward(self, current_position, target_position, threshold=2.0): 
@@ -253,15 +243,9 @@ class CarlaEnv(gym.Env):
         else:
             return 0
     
+    # Collision with other vehicles or pedestrians and even lane invasions
     def __get_collision_reward(self):
-        if self.vehicle.collision_occurred():
-            self.__is_done = True
-            return 1
-        else:
-            return 0
-
-    def __get_lane_invasion_reward(self):
-        if self.vehicle.lane_invasion_occurred():
+        if self.vehicle.collision_occurred() or self.vehicle.lane_invasion_occurred():
             self.__is_done = True
             return 1
         else:
@@ -269,10 +253,6 @@ class CarlaEnv(gym.Env):
 
     # TODO: Implement the negative reward for not stopping at a red light or a stop sign
     def __get_light_pole_trangression_reward(self):
-        return 0 # Placeholder
-    
-    # TODO: Implement the negative reward for the roundabouts
-    def __get_roundabout_transgression_reward(self):
         return 0 # Placeholder
     
     def __get_time_limit_reward(self):

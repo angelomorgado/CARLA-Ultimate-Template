@@ -27,13 +27,11 @@ ENV_SCENARIOS_FILE      = 'env/scenarios.json'
 ENV_MAX_STEPS           = 3500 # Used to limit the number of steps in the environment and to calculate the reward for finishing an episode successfully
 ENV_REWARDS_LAMBDAS     = {
                             'orientation': 0.5,
-                            'distance': 0.5,
+                            'distance': -0.5,
                             'time_driving': 0.001,
-                            'speed': -0.05,
-                            'throttle_brake': -0.3,
+                            'speed': -1,
                             'destination': 3.0,
                             'collision': -3,
-                            'lane_invasion': -3,
                             'light_pole_transgression': -3,
                             'roundabout_transgression': -1,
                             'time_limit': -1,
