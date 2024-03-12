@@ -12,11 +12,12 @@ from env.environment import CarlaEnv
 import gymnasium as gym
 
 def steps_main():
-    env = CarlaEnv('carla-rl-gym', time_limit=60, initialize_server=False, random_weather=True, synchronous_mode=True, continuous=False, show_sensor_data=True)
+    # env = CarlaEnv('carla-rl-gym', time_limit=60, initialize_server=False, random_weather=True, synchronous_mode=True, continuous=False, show_sensor_data=True)
+    env = gym.make('carla-rl-gym-v0', time_limit=300, initialize_server=True, random_weather=True, synchronous_mode=True, continuous=False, show_sensor_data=True)
     obs, info = env.reset()
     
     # Number of steps
-    for i in range(1000):
+    for i in range(300):
         action = env.action_space.sample()
         obs, reward, terminated, truncated, info = env.step(action)
 
@@ -44,4 +45,4 @@ def episodes_main():
     env.close()
 
 if __name__ == '__main__':
-    episodes_main()
+    steps_main()

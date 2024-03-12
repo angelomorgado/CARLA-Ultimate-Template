@@ -240,7 +240,7 @@ class Vehicle:
 
         self.__ackermann_control.steer= self.__steering_angle
         self.__ackermann_control.speed = self.__speed
-        self.__vehicle.apply_control(self.__ackermann_control)
+        self.__vehicle.apply_ackermann_control(self.__ackermann_control)
     
     def toggle_lights(self, lights_on=True):
         if lights_on:
