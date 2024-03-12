@@ -44,7 +44,7 @@ from src.vehicle import Vehicle
 from src.display import Display
 import configuration as config
 
-# Name: 'carla-rl-gym'
+# Name: 'carla-rl-gym-v0'
 class CarlaEnv(gym.Env):
     metadata = {"render_modes": ["human"], "render_fps": config.SIM_FPS}
     def __init__(self, continuous=True, scenarios=[], time_limit=60, initialize_server=True, random_weather=False, random_traffic=False, synchronous_mode=True, show_sensor_data=False, has_traffic=True, verbose=True):
