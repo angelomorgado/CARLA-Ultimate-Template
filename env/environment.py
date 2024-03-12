@@ -35,7 +35,7 @@ import random
 import carla
 
 # TODO: Incorporate the environment into a proper gym environment
-# import gymnasium as gym
+import gymnasium as gym
 from gymnasium import spaces
 
 from src.world import World
@@ -45,9 +45,10 @@ from src.display import Display
 import configuration as config
 
 # Name: 'carla-rl-gym'
-class CarlaEnv():
-    metadata = {'render.modes': ['human']}
+class CarlaEnv(gym.Env):
+    metadata = {"render_modes": ["human"], "render_fps": config.SIM_FPS}
     def __init__(self, continuous=True, scenarios=[], time_limit=60, initialize_server=True, random_weather=False, random_traffic=False, synchronous_mode=True, show_sensor_data=False, has_traffic=True, verbose=True):
+        super().__init__()
         # Read the environment settings
         self.is_continuous = continuous
         self.random_weather = random_weather
@@ -118,13 +119,13 @@ class CarlaEnv():
         
     # ===================================================== GYM METHODS =====================================================                
     # This reset loads a random scenario and returns the initial state plus information about the scenario
-    def reset(self, episode_name=None):
+    def reset(self, seed=None):
         # 1. Choose a scenario
-        self.active_scenario_name = self.__chose_situation(episode_name)
+        self.active_scenario_name = self.__chose_situation(seed)
         print(f"Loading scenario {self.active_scenario_name}...")
         self.active_scenario_dict = self.situations_dict[self.active_scenario_name]
         # 2. Load the scenario
-        self.load_scenario(self.active_scenario_name)
+        self.load_scenario(self.active_scenario_name, seed)
         # 3. Place the spectator
         self.place_spectator_above_vehicle()
         # 4. Get the initial state (Get the observation data)
@@ -139,6 +140,12 @@ class CarlaEnv():
         # Return the observation and the scenario information
         return self.observation, self.active_scenario_dict
 
+    def render(self, mode='human'):
+        if mode == 'human':
+            self.world.tick()
+            self.display.play_window_tick()
+        else:
+            raise NotImplementedError("This mode is not implemented yet")
 
     def step(self, action):
         # 0. Tick the world if in synchronous mode
@@ -310,9 +317,10 @@ class CarlaEnv():
             self.lidar_point_cloud_shape = (sensors_dict["lidar"]["channels"], 4)
 
     # ===================================================== SCENARIO METHODS =====================================================
-    def load_scenario(self, scenario_name):
+    def load_scenario(self, scenario_name, seed):
         scenario_dict = self.situations_dict[scenario_name]
         self.active_scenario_name = scenario_name
+        self.__seed = seed
         self.active_scenario_dict = scenario_dict
         # World
         self.load_world(scenario_dict['map_name'])
@@ -369,14 +377,27 @@ class CarlaEnv():
         else:
             self.world.set_active_weather_preset(weather_name)
     
-    def __choose_random_situation(self):
+    # If the seed is not none send the seed, else make the scenario based on its name
+    def __spawn_traffic(self, seed):
+        name = None
+        if not self.random_traffic:
+            random.seed(self.active_scenario_name)
+            seed = self.active_scenario_name
+        if seed:
+            random.seed(seed)
+        num_vehicles = random.randint(1, 20)
+        self.world.spawn_vehicles_around_ego(self.vehicle.get_vehicle(), 100, num_vehicles, seed)
+    
+    def __choose_random_situation(self, seed=None):
+        if seed:
+            np.random.seed(seed)
         return np.random.choice(self.situations_list)
 
-    def __chose_situation(self, episode_name):
-        if episode_name:
-            return episode_name
+    def __chose_situation(self, seed):
+        if isinstance(seed, str):
+            return seed
         else:
-            return self.__choose_random_situation()
+            return self.__choose_random_situation(seed)
     
     # ===================================================== SITUATIONS PARSING =====================================================
     # Filter the current situations based on the flag
@@ -406,15 +427,6 @@ class CarlaEnv():
     
     def __start_timer(self):
         self.start_time = time.time()
-    
-    # ===================================================== TRAFFIC METHODS =====================================================
-    def __spawn_traffic(self):
-        name = None
-        if not self.random_traffic:
-            random.seed(self.active_scenario_name)
-            name = self.active_scenario_name
-        num_vehicles = random.randint(1, 20)
-        self.world.spawn_vehicles_around_ego(self.vehicle.get_vehicle(), 100, num_vehicles, name)
     
     # ===================================================== DEBUG METHODS =====================================================
     def place_spectator_above_vehicle(self):

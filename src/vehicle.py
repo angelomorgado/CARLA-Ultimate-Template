@@ -208,7 +208,7 @@ class Vehicle:
         print(f"long_stiff_value: {vehicle_physics.wheels[1].long_stiff_value}")
 
     # ====================================== Vehicle Control ======================================
-    # Control the vehicle based on the continuous action space provided by the environment. The action space is [steering_angle,throttle,brake]. The first three are continuous values normalized between [-1, 1] for the steering angle and [0, 1] for the throttle and brake.
+    # Control the vehicle based on the continuous action space provided by the environment. The action space is [steering_angle,throttle/brake], both between [-1, 1]
     def control_vehicle(self, action):                
         self.__control.steer = max(-1.0, min(action[0], 1.0))
         if action[1] >= 0:
@@ -217,7 +217,7 @@ class Vehicle:
         else:
             self.__throttle = 0.0
             self.__brake = min(-action[1], 1.0)
-            
+
         self.__throttle = min(action[1], 1.0)
         self.__brake = min(action[2], 1.0)
         
