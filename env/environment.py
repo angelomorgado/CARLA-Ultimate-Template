@@ -81,7 +81,7 @@ class CarlaEnv(gym.Env):
         # Lidar: (122,4) for default settings
         # Change this according to your needs.
         self.rgb_image_shape = (360, 640, 3)
-        self.lidar_point_cloud_shape = (500, 4)
+        self.lidar_point_cloud_shape = (500*4,) # (500, 4) I'm trying it flattened to check if it works with stable-baselines3
         self.current_position_shape = (3,)
         self.target_position_shape = (3,)
         self.number_of_situations = 4
@@ -122,6 +122,9 @@ class CarlaEnv(gym.Env):
             "Junction": 2,
             "Tunnel": 3
         }
+
+        # This is a PENSO, please resolve this issue TODO: Resolve this issue (When a scenario is loaded with the default map it crashes because it loads too fast)
+        self.world.set_active_map("Town02")
         
     # ===================================================== GYM METHODS =====================================================                
     # This reset loads a random scenario and returns the initial state plus information about the scenario
@@ -273,10 +276,10 @@ class CarlaEnv(gym.Env):
             observation_space = self.vehicle.get_observation_data()
         except AttributeError:
             observation_space = [None, None, None, None, None]
-            observation_space[0] = np.zeros((360, 640, 3), dtype=np.uint8)
-            observation_space[1] = np.zeros((500, 4), dtype=float)
-            observation_space[2] = np.zeros(3, dtype=float)
-            observation_space[3] = np.zeros(3, dtype=float)
+            observation_space[0] = np.zeros(self.rgb_image_shape, dtype=np.uint8)
+            observation_space[1] = np.zeros(self.lidar_point_cloud_shape, dtype=float)
+            observation_space[2] = np.zeros(self.current_position_shape, dtype=float)
+            observation_space[3] = np.zeros(self.target_position_shape, dtype=float)
             observation_space[4] = -1
 
         rgb_image = observation_space[0]
@@ -287,7 +290,7 @@ class CarlaEnv(gym.Env):
 
         self.observation = {
             'rgb_data': np.uint8(rgb_image),
-            'lidar_data': np.float32(lidar_point_cloud),
+            'lidar_data': np.float32(lidar_point_cloud.flatten()),
             'position': np.float32(current_position),
             'target_position': np.float32(target_position),
             'situation': situation
