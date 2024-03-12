@@ -9,6 +9,7 @@ Main window:
 
 import time
 from env.environment import CarlaEnv
+import gymnasium as gym
 
 def steps_main():
     env = CarlaEnv('carla-rl-gym', time_limit=60, initialize_server=False, random_weather=True, synchronous_mode=True, continuous=False, show_sensor_data=True)
@@ -25,7 +26,8 @@ def steps_main():
     env.close()
 
 def episodes_main():
-    env = CarlaEnv(time_limit=50, initialize_server=True, random_weather=True, synchronous_mode=True, continuous=True, show_sensor_data=True)
+    # env = CarlaEnv(time_limit=50, initialize_server=False, random_weather=True, synchronous_mode=True, continuous=True, show_sensor_data=True)
+    env = gym.make('carla-rl-gym-v0', time_limit=50, initialize_server=True, random_weather=True, synchronous_mode=True, continuous=True, show_sensor_data=True)
 
     # Number of episodes
     for i in range(2):
@@ -34,7 +36,7 @@ def episodes_main():
         while True:
             action = env.action_space.sample()
             obs, reward, terminated, truncated, info = env.step(action)
-            print("Reward:", reward, "Terminated:", terminated, "Truncated:", truncated, "Info:", info)
+            # print("Reward:", reward, "Terminated:", terminated, "Truncated:", truncated)
             
             if terminated or truncated:
                 print('Episode terminated closing environment')

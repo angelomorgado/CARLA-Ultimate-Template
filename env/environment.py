@@ -34,9 +34,15 @@ import time
 import random
 import carla
 
-# TODO: Incorporate the environment into a proper gym environment
 import gymnasium as gym
 from gymnasium import spaces
+from gymnasium.envs.registration import register
+
+register(
+    id="carla-rl-gym-v0", # name-version
+    entry_point="env.environment:CarlaEnv",
+    max_episode_steps=10000,
+)
 
 from src.world import World
 from src.server import CarlaServer
@@ -119,7 +125,7 @@ class CarlaEnv(gym.Env):
         
     # ===================================================== GYM METHODS =====================================================                
     # This reset loads a random scenario and returns the initial state plus information about the scenario
-    def reset(self, seed=None):
+    def reset(self, seed=None, options=None):
         # 1. Choose a scenario
         self.active_scenario_name = self.__chose_situation(seed)
         print(f"Loading scenario {self.active_scenario_name}...")
