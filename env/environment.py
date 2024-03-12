@@ -22,9 +22,9 @@ Observation Space:
 
 Action Space:
     Continuous:
-        [Steering (-1.0, 1.0), Throttle (0.0, 1.0), Brake (0.0, 1.0)]
+        [Steering (-1.0, 1.0), Throttle/Brake (-1.0, 1.0)]
     Discrete:
-        [Action] (0: Accelerate, 1: Decelerate, 2: Brake More, 3:Brake Less, 4: Left, 5: Right) <- It's a number from 0 to 5
+        [Action] (0: Accelerate, 1: Decelerate, 2: Left, 3: Right) <- It's a number from 0 to 3
 
 '''
 
@@ -92,10 +92,10 @@ class CarlaEnv():
         # Action space
         if self.is_continuous:
             # For continuous actions
-            self.action_space = spaces.Box(low=np.array([-1.0, 0.0, 0.0]), high=np.array([1.0, 1.0, 1.0]), dtype=float)
+            self.action_space = spaces.Box(low=np.array([-1.0, -1.0]), high=np.array([1.0, 1.0]), dtype=float)
         else:
             # For discrete actions
-            self.action_space = spaces.Discrete(6)
+            self.action_space = spaces.Discrete(4)
 
         # Reward lambda values
         self.reward_lambdas = config.ENV_REWARDS_LAMBDAS

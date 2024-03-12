@@ -26,6 +26,7 @@ class Vehicle:
         self.__throttle = 0.0
         self.__brake = 0.0
         self.__steering_angle = 0.0 # [-1.0, 1.0]
+        self.__speed = 0.0 # In Km/h
 
     def get_vehicle(self):
         return self.__vehicle
@@ -207,7 +208,7 @@ class Vehicle:
         print(f"long_stiff_value: {vehicle_physics.wheels[1].long_stiff_value}")
 
     # ====================================== Vehicle Control ======================================
-    # Control the vehicle based on the continuous action space provided by the environment. The action space is steering_angle,throttle,brake,lights_on]. The first three are continuous values normalized between [-1, 1] for the steering angle and [0, 1] for the throttle and brake.
+    # Control the vehicle based on the continuous action space provided by the environment. The action space is [steering_angle,throttle,brake]. The first three are continuous values normalized between [-1, 1] for the steering angle and [0, 1] for the throttle and brake.
     def control_vehicle(self, action):                
         self.__control.steer = max(-1.0, min(action[0], 1.0))
         self.__throttle = min(action[1], 1.0)
@@ -221,28 +222,20 @@ class Vehicle:
     def control_vehicle_discrete(self, action):
         # Accelerate
         if action == 0:
-            self.__throttle = min(self.__throttle + 0.05, 1.0)
+            self.__speed += 0.5
         # Decelerate
         elif action == 1:
-            self.__throttle = max(self.__throttle - 0.05, 0.0)
-        # Brake More
-        elif action == 2:
-            self.__brake = min(self.__brake + 0.05, 1.0)
-        # Brake Less
-        elif action == 3:
-
-            self.__brake = max(self.__brake - 0.05, 0.0)
+            self.__speed -= 0.5
         # Left
-        elif action == 4:
+        elif action == 2:
             self.__steering_angle = max(-1.0, self.__steering_angle - 0.1)
         # Right
-        elif action == 5:
+        elif action == 3:
             self.__steering_angle = min(1.0, self.__steering_angle + 0.1)
 
-        self.__control.throttle = self.__throttle
-        self.__control.brake = self.__brake
-        self.__control.steer = self.__steering_angle
-        self.__vehicle.apply_control(self.__control)
+        self.__ackermann_control.steer= self.__steering_angle
+        self.__ackermann_control.speed = self.__speed
+        self.__vehicle.apply_control(self.__ackermann_control)
     
     def toggle_lights(self, lights_on=True):
         if lights_on:

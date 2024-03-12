@@ -159,7 +159,7 @@ The action space also uses gymnasium.Spaces to store data
 ```
 Action Space:
     Continuous:
-        [Steering (-1.0, 1.0), Throttle (0.0, 1.0), Brake (0.0, 1.0)]
+        [Steering (-1.0, 1.0), Throttle/Brake (-1.0, 1.0)] akin to the paper [src](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=9506673&casa_token=I3-E56-Rf-0AAAAA:41wOE13tuw0MBSZh3sJfG-U1WSv-xAolXFD8-NA_-rGJsanKuffozTAIUYzNobNLZB-Bzp3YGQ&tag=1)
     Discrete:
         [Action] (0: Accelerate, 1: Decelerate, 2: Left, 3: Right) <- It's a number from 0 to 3
 ```
