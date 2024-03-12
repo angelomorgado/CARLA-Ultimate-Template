@@ -210,16 +210,13 @@ class Vehicle:
     # ====================================== Vehicle Control ======================================
     # Control the vehicle based on the continuous action space provided by the environment. The action space is [steering_angle,throttle/brake], both between [-1, 1]
     def control_vehicle(self, action):                
-        self.__control.steer = max(-1.0, min(action[0], 1.0))
+        self.__control.steer = max(-1.0, min(float(action[0]), 1.0))
         if action[1] >= 0:
-            self.__throttle = min(action[1], 1.0)
+            self.__throttle = min(float(action[1]), 1.0)
             self.__brake = 0.0
         else:
             self.__throttle = 0.0
-            self.__brake = min(-action[1], 1.0)
-
-        self.__throttle = min(action[1], 1.0)
-        self.__brake = min(action[2], 1.0)
+            self.__brake = min(float(-action[1]), 1.0)
         
         self.__control.throttle = self.__throttle
         self.__control.brake = self.__brake
@@ -227,6 +224,7 @@ class Vehicle:
 
     # Control the vehicle based on the discrete action space provided by the environment. The action space is [accelerate, decelerate, left, right]. Out of these, only one action can be taken at a time.
     def control_vehicle_discrete(self, action):
+        action = float(action)
         # Accelerate
         if action == 0:
             self.__speed += 0.5

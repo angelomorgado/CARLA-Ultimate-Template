@@ -93,7 +93,7 @@ class CarlaEnv(gym.Env):
         # Action space
         if self.is_continuous:
             # For continuous actions
-            self.action_space = spaces.Box(low=np.array([-1.0, -1.0]), high=np.array([1.0, 1.0]), dtype=float)
+            self.action_space = spaces.Box(low=np.array([-1.0, -1.0]), high=np.array([1.0, 1.0]), dtype=np.float32)
         else:
             # For discrete actions
             self.action_space = spaces.Discrete(4)
@@ -338,7 +338,7 @@ class CarlaEnv(gym.Env):
         time.sleep(0.3)
         # Traffic
         if self.has_traffic:
-            self.__spawn_traffic()
+            self.__spawn_traffic(seed=seed)
             # self.world.spawn_pedestrians_around_ego(ego_vehicle=self.vehicle.get_vehicle(), num_pedestrians=10)
             if self.verbose:
                 print("Traffic spawned!")
