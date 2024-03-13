@@ -328,6 +328,7 @@ class CarlaEnv(gym.Env):
         time.sleep(0.3)
         # Traffic
         if self.has_traffic:
+            self.world.update_traffic_map()
             self.__spawn_traffic(seed=seed)
             # self.world.spawn_pedestrians_around_ego(self.vehicle.get_location(), num_pedestrians=10)
             if self.verbose:

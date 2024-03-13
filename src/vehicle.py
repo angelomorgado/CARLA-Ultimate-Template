@@ -230,14 +230,15 @@ class Vehicle:
             self.__speed += 0.5
         # Decelerate
         elif action == 1:
-            self.__speed -= 0.5
+            self.__speed = max(self.__speed - 0.5, 0.0)
         # Left
         elif action == 2:
             self.__steering_angle = max(-1.0, self.__steering_angle - 0.1)
         # Right
         elif action == 3:
             self.__steering_angle = min(1.0, self.__steering_angle + 0.1)
-
+            
+        
         self.__ackermann_control.steer= self.__steering_angle
         self.__ackermann_control.speed = self.__speed
         self.__vehicle.apply_ackermann_control(self.__ackermann_control)

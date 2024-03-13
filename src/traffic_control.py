@@ -22,8 +22,10 @@ class TrafficControl:
         self.active_pedestrians = []
         self.active_ai_controllers = []
         self.__world = world
+        self.__map = None
+        
+    def update_map(self):
         self.__map = self.__world.get_map()
-
 
     # ============ Vehicle Control ============
     def spawn_vehicles(self, num_vehicles = 10, autopilot_on = False):
@@ -33,7 +35,7 @@ class TrafficControl:
         
         if config.VERBOSE:
             print(f"Spawning {num_vehicles} vehicle(s)...")
-
+        
         vehicle_bp = self.__world.get_blueprint_library().filter('vehicle.*')
         spawn_points = self.__map.get_spawn_points()
 
@@ -156,8 +158,7 @@ class TrafficControl:
             return
         
         walker_controller_bp = self.__world.get_blueprint_library().find('controller.ai.walker')
-        map = self.__world.get_map()
-
+        
         for _ in range(num_walkers):
 
             # Find a sidewalk waypoint within a radius of the vehicle location.
@@ -167,7 +168,7 @@ class TrafficControl:
                     x=random.uniform(-radius, radius),
                     y=random.uniform(-radius, radius))
                 potential_location = vehicle_location + random_offset
-                waypoint = map.get_waypoint(potential_location, project_to_road=True, lane_type=(carla.LaneType.Sidewalk))
+                waypoint = self.__map.get_waypoint(potential_location, project_to_road=True, lane_type=(carla.LaneType.Sidewalk))
                 if waypoint:
                     sidewalk_waypoint = waypoint
 

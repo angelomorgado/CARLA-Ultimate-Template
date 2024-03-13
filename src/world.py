@@ -111,6 +111,9 @@ class World:
     def toggle_lights(self, lights_on=True):
         self.traffic_control.toggle_lights(lights_on)
     
+    def update_traffic_map(self):
+        self.traffic_control.update_map()
+    
     # ============ Weather Control ===============
     def get_weather_presets(self):
         return self.weather_control.get_weather_presets()
