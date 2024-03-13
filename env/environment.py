@@ -197,7 +197,7 @@ class CarlaEnv(gym.Env):
     # More complex reward function for every driving task
     # def __calculate_reward(self):
     #     vehicle_location = self.vehicle.get_location()
-    #     waypoint = self.world.get_map().get_waypoint(vehicle_location, project_to_road=True, lane_type=carla.LaneType.Driving)
+    #     waypoint = self.__map.get_waypoint(vehicle_location, project_to_road=True, lane_type=carla.LaneType.Driving)
     #     target_position = np.array([self.active_scenario_dict['target_position']['x'], self.active_scenario_dict['target_position']['y'], self.active_scenario_dict['target_position']['z']])
     #     return self.reward_lambdas['orientation'] * self.__get_orientation_reward(waypoint, vehicle_location) + \
     #             self.reward_lambdas['distance'] * self.__get_distance_reward(waypoint, vehicle_location) + \
@@ -211,12 +211,11 @@ class CarlaEnv(gym.Env):
     # Simple reward function only for the vehicle's movement learning
     def __calculate_reward(self):
         vehicle_location = self.vehicle.get_location()
-        waypoint = self.world.get_world().get_map().get_waypoint(vehicle_location, project_to_road=True, lane_type=carla.LaneType.Driving)
+        waypoint = self.__map.get_waypoint(vehicle_location, project_to_road=True, lane_type=carla.LaneType.Driving)
         return self.reward_lambdas['orientation']               * self.__get_orientation_reward(waypoint, vehicle_location) + \
                 self.reward_lambdas['distance']                 * self.__get_distance_reward(waypoint, vehicle_location) + \
                 self.reward_lambdas['collision']                * self.__get_collision_reward() + \
                 self.reward_lambdas['time_driving']             * self.__get_time_driving_reward()
-    
     
     # This function is used to correct the yaw angle to be between 0 and 360 degrees
     def correct_yaw(self, x):
@@ -260,9 +259,27 @@ class CarlaEnv(gym.Env):
         else:
             return 0
 
-    # TODO: Implement the negative reward for not stopping at a red light or a stop sign
+    # TODO: Implement for the stop sign as well
     def __get_light_pole_trangression_reward(self):
-        return 0 # Placeholder
+        # Get the current waypoint of the vehicle
+        current_waypoint = self.__map.get_waypoint(self.vehicle.get_location(), project_to_road=True)
+
+        # Get the traffic lights affecting the current waypoint
+        traffic_lights = self.world.get_world().get_traffic_lights_from_waypoint(current_waypoint, distance=10.0)
+
+        for traffic_light in traffic_lights:
+            # Check if the traffic light is red
+            if traffic_light.get_state() == carla.TrafficLightState.Red:
+                # Get the stop waypoints for the traffic light
+                stop_waypoints = traffic_light.get_stop_waypoints()
+
+                # Check if the vehicle has passed the stop line
+                for stop_waypoint in stop_waypoints:
+                    if current_waypoint.transform.location.distance(stop_waypoint.transform.location) < 2.0 and self.vehicle.get_speed() > 0.1:
+                        return 1
+                        print("Red light infringement detected!")
+
+        return 0
     
     def __get_time_limit_reward(self):
         return 1 if self.time_limit_reached else 0
@@ -314,6 +331,7 @@ class CarlaEnv(gym.Env):
         self.active_scenario_dict = scenario_dict
         # World
         self.load_world(scenario_dict['map_name'])
+        self.__map = self.world.update_traffic_map()
         if self.verbose:
             print("World loaded!")
         # Weather
@@ -328,7 +346,6 @@ class CarlaEnv(gym.Env):
         time.sleep(0.3)
         # Traffic
         if self.has_traffic:
-            self.world.update_traffic_map()
             self.__spawn_traffic(seed=seed)
             # self.world.spawn_pedestrians_around_ego(self.vehicle.get_location(), num_pedestrians=10)
             if self.verbose:
@@ -424,7 +441,7 @@ class CarlaEnv(gym.Env):
         self.world.place_spectator_above_location(self.vehicle.get_location())    
 
     def output_all_waypoints(self, spacing=5):
-        waypoints = self.world.get_world().get_map().generate_waypoints(distance=spacing)
+        waypoints = self.__map.generate_waypoints(distance=spacing)
 
         for w in waypoints:
             self.world.get_world().debug.draw_string(w.transform.location, 'O', draw_shadow=False,
@@ -433,7 +450,7 @@ class CarlaEnv(gym.Env):
             
     def output_waypoints_to_target(self, spacing=5):
         current_location = self.vehicle.get_location()
-        map_ = self.world.get_world().get_map()
+        map_ = self.__map
         target_location = carla.Location(x=self.active_scenario_dict['target_position']['x'], y=self.active_scenario_dict['target_position']['y'], z=self.active_scenario_dict['target_position']['z'])
 
         # Find the closest waypoint to the current location

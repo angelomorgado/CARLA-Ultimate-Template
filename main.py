@@ -20,6 +20,7 @@ def steps_main():
     for i in range(300):
         action = env.action_space.sample()
         obs, reward, terminated, truncated, info = env.step(action)
+        print("Reward: ", reward)
 
         if terminated or truncated:
             observation, info = env.reset()

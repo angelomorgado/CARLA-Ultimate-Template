@@ -13,9 +13,9 @@ import configuration
 from src.display import Display
 from src.world import World
 from src.server import CarlaServer
+from src.vehicle_control import KeyboardControl
 import carla
 import random
-
 
 def main():
     # Carla server
@@ -29,8 +29,10 @@ def main():
     # Create vehicle
     autonomous_vehicle = Vehicle(world=world.get_world())
     autonomous_vehicle.spawn_vehicle()  # Spawn vehicle at random location
+    v_control = KeyboardControl(autonomous_vehicle.get_vehicle()) # Control vehicle with keyboard
     
-    world.place_spectator_above_vehicle(autonomous_vehicle.get_vehicle())
+    
+    world.place_spectator_above_location(autonomous_vehicle.get_location())
 
     # Create display
     display = Display('Carla Sensor feed', autonomous_vehicle)
@@ -39,16 +41,14 @@ def main():
     # world.spawn_vehicles_around_ego(autonomous_vehicle.get_vehicle(), num_vehicles_around_ego=40, radius=150)
     # world.spawn_pedestrians_around_ego(autonomous_vehicle.get_location(), num_pedestrians=40, radius=150)
 
-    action = (0.0, 0.0, 0.0) # (steer, throttle, brake)
-
     while True:
         try:
-            autonomous_vehicle.control_vehicle(action)
             world.tick()
+            v_control.tick()
             display.play_window_tick()
         except KeyboardInterrupt:
             autonomous_vehicle.destroy_vehicle()
-            # display.close_window()
+            display.close_window()
             # CarlaServer.kill_carla_linux()
             break
 
