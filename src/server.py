@@ -48,3 +48,11 @@ class CarlaServer:
             subprocess.run(['taskkill', '/F', '/T', '/PID', str(process.pid)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             if not silent:
                 print('Carla server closed')
+    
+    @staticmethod
+    def kill_carla_linux():
+        if os.name == 'posix':
+            os.system('pkill -9 -f CarlaUE4')
+            print('Carla server closed')
+        else:
+            print('This method is only for Unix systems! Please close the Carla server manually.')
