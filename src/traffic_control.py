@@ -147,7 +147,8 @@ class TrafficControl:
             # walker_controller.start()
             # walker_controller.go_to_location(self.__world.get_random_location_from_navigation())
 
-        print("Spawned", num_walkers, "walkers on random sidewalks.")
+        if config.VERBOSE:
+            print("Spawned", num_walkers, "walkers on random sidewalks.")
     
     def spawn_pedestrians_around_ego(self, vehicle_location, num_walkers=10, radius=25.0):
         if num_walkers < 1:
@@ -185,7 +186,8 @@ class TrafficControl:
             # walker_controller.start()
             # walker_controller.go_to_location(self.__world.get_random_location_from_navigation())
 
-        print("Spawned", num_walkers, "walkers near the vehicle.")
+        if config.VERBOSE:
+            print("Spawned", num_walkers, "walkers near the vehicle.")
 
 
     def destroy_pedestrians(self):
