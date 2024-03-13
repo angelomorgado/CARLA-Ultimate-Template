@@ -1,5 +1,9 @@
 carla==0.9.15
+gymnasium==0.29.1
 numpy==1.24.4
 opencv_python==4.9.0.80
 Pillow==10.2.0
 pygame==2.5.2
+pynput==1.7.6
+stable_baselines3==2.2.1
+torch==2.1.1
