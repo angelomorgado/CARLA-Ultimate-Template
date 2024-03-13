@@ -329,7 +329,7 @@ class CarlaEnv(gym.Env):
         # Traffic
         if self.has_traffic:
             self.__spawn_traffic(seed=seed)
-            # self.world.spawn_pedestrians_around_ego(ego_vehicle=self.vehicle.get_vehicle(), num_pedestrians=10)
+            # self.world.spawn_pedestrians_around_ego(self.vehicle.get_location(), num_pedestrians=10)
             if self.verbose:
                 print("Traffic spawned!")
         self.__toggle_lights()

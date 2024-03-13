@@ -13,7 +13,7 @@ import gymnasium as gym
 
 def steps_main():
     # env = CarlaEnv('carla-rl-gym', time_limit=60, initialize_server=False, random_weather=True, synchronous_mode=True, continuous=False, show_sensor_data=True)
-    env = gym.make('carla-rl-gym-v0', time_limit=300, initialize_server=True, random_weather=True, synchronous_mode=True, continuous=False, show_sensor_data=True)
+    env = gym.make('carla-rl-gym-v0', time_limit=300, initialize_server=False, random_weather=True, synchronous_mode=True, continuous=False, show_sensor_data=True)
     obs, info = env.reset()
     
     # Number of steps

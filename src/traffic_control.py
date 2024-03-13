@@ -22,6 +22,7 @@ class TrafficControl:
         self.active_pedestrians = []
         self.active_ai_controllers = []
         self.__world = world
+        self.__map = self.__world.get_map()
 
 
     # ============ Vehicle Control ============
@@ -34,7 +35,7 @@ class TrafficControl:
             print(f"Spawning {num_vehicles} vehicle(s)...")
 
         vehicle_bp = self.__world.get_blueprint_library().filter('vehicle.*')
-        spawn_points = self.__world.get_map().get_spawn_points()
+        spawn_points = self.__map.get_spawn_points()
 
         for i in range(num_vehicles):
             vehicle = None
@@ -75,7 +76,7 @@ class TrafficControl:
         if scene_name is not None:
             random.seed(scene_name)
 
-        self.spawn_points = self.__world.get_map().get_spawn_points()
+        self.spawn_points = self.__map.get_spawn_points()
         ego_location = ego_vehicle.get_location()
         accessible_points = []
 
@@ -110,111 +111,81 @@ class TrafficControl:
                 vehicle.set_light_state(carla.VehicleLightState.NONE)
             
     # ============ Pedestrian Control ============
-    def spawn_pedestrians(self, num_pedestrians=10):
-        if num_pedestrians < 1:
+    def spawn_pedestrians(self, num_walkers=10):
+        if num_walkers < 1:
             print("You need to spawn at least 1 pedestrian.")
             return
+        
+        walker_controller_bp = self.__world.get_blueprint_library().find('controller.ai.walker')
+        walker_bps = self.__world.get_blueprint_library().filter('walker.pedestrian.*')
 
-        print(f"Spawning {num_pedestrians} pedestrian(s)...")
+        # Get spawn points on sidewalks
+        spawn_points = self.__map.get_spawn_points()
 
-        for _ in range(num_pedestrians):
-            walker_bp = random.choice(self.__world.get_blueprint_library().filter('walker.pedestrian.*'))
+        for _ in range(num_walkers):
+            # Randomly select a spawn point
+            spawn_point = random.choice(spawn_points)
+            
+            # Extract location from the spawn point
+            spawn_location = spawn_point.location
 
-            if walker_bp.has_attribute('is_invincible'):
-                walker_bp.set_attribute('is_invincible', 'false')
+            # Get waypoint from the location
+            sidewalk_waypoint = self.__map.get_waypoint(spawn_location, project_to_road=True, lane_type=(carla.LaneType.Sidewalk))
 
-            walker_bp.set_attribute('speed', str(random.uniform(0.5, 1.0)))
+            # Spawn walker and controller at the sidewalk waypoint.
+            walker_bp = random.choice(walker_bps)
+            try:
+                walker = self.__world.spawn_actor(walker_bp, carla.Transform(sidewalk_waypoint.transform.location))
+            except RuntimeError:
+                continue
+            self.active_pedestrians.append(walker)
 
-            spawn_point = carla.Transform(location=self.__world.get_random_location_from_navigation())
+            walker_controller = self.__world.spawn_actor(walker_controller_bp, carla.Transform(), walker)
+            self.active_ai_controllers.append(walker_controller)
+            
+            # Keep the commented code if you want to start and move the walkers
+            # walker_controller.start()
+            # walker_controller.go_to_location(self.__world.get_random_location_from_navigation())
 
-            # Spawn the walker
-            walker = self.__world.try_spawn_actor(walker_bp, spawn_point)
-            if walker:
-                self.active_pedestrians.append(walker)
-
-                # Spawn the walker controller
-                walker_controller_bp = self.__world.get_blueprint_library().find('controller.ai.walker')
-
-                # Attach AI controller to the walker
-                ai_controller = self.__world.try_spawn_actor(walker_controller_bp, carla.Transform(), walker)
-
-                if ai_controller:
-                    try:
-                        # Start the walker controller
-                        ai_controller.start()
-
-                        # Set the walker's target location
-                        ai_controller.go_to_location(self.__world.get_random_location_from_navigation())
-
-                        # Set the walker's max speed
-                        ai_controller.set_max_speed(1 + random.random())
-
-                        # Store the AI controller
-                        self.active_ai_controllers.append(ai_controller)
-                    except Exception as e:
-                        print(f"Error initializing walker controller: {e}")
-
-        print(f"Successfully spawned {len(self.active_pedestrians)} pedestrians!")
+        print("Spawned", num_walkers, "walkers on random sidewalks.")
     
-    def spawn_pedestrians_around_ego(self, ego_vehicle, num_pedestrians=10, distance_range=(5, 30)):
-        if num_pedestrians < 1:
+    def spawn_pedestrians_around_ego(self, vehicle_location, num_walkers=10, radius=25.0):
+        if num_walkers < 1:
             print("You need to spawn at least 1 pedestrian.")
             return
+        
+        walker_controller_bp = self.__world.get_blueprint_library().find('controller.ai.walker')
+        map = self.__world.get_map()
 
-        print(f"Spawning {num_pedestrians} pedestrian(s) near the ego vehicle...")
+        for _ in range(num_walkers):
 
-        for _ in range(num_pedestrians):
+            # Find a sidewalk waypoint within a radius of the vehicle location.
+            sidewalk_waypoint = None
+            while sidewalk_waypoint is None:
+                random_offset = carla.Location(
+                    x=random.uniform(-radius, radius),
+                    y=random.uniform(-radius, radius))
+                potential_location = vehicle_location + random_offset
+                waypoint = map.get_waypoint(potential_location, project_to_road=True, lane_type=(carla.LaneType.Sidewalk))
+                if waypoint:
+                    sidewalk_waypoint = waypoint
+
+            # Spawn walker and controller at the sidewalk waypoint.
             walker_bp = random.choice(self.__world.get_blueprint_library().filter('walker.pedestrian.*'))
+            try:
+                walker = self.__world.spawn_actor(walker_bp, sidewalk_waypoint.transform)
+            except RuntimeError:
+                continue
+            self.active_pedestrians.append(walker)
 
-            if walker_bp.has_attribute('is_invincible'):
-                walker_bp.set_attribute('is_invincible', 'false')
+            walker_controller = self.__world.spawn_actor(walker_controller_bp, carla.Transform(), walker)
+            self.active_ai_controllers.append(walker_controller)
+            
+            # Gives off segmenation fault: Carla's fault!! I did according to the documentation!!
+            # walker_controller.start()
+            # walker_controller.go_to_location(self.__world.get_random_location_from_navigation())
 
-            walker_bp.set_attribute('speed', str(random.uniform(0.5, 1.0)))
-
-            # Get ego vehicle location
-            ego_location = ego_vehicle.get_location()
-
-            # Generate random distance and angle
-            distance = random.uniform(*distance_range)
-            angle = random.uniform(0, 360)
-
-            # Calculate spawn location near ego vehicle
-            spawn_location = carla.Location(
-                x=ego_location.x + distance * math.cos(math.radians(angle)),
-                y=ego_location.y + distance * math.sin(math.radians(angle)),
-                z=ego_location.z  # You can adjust the z-coordinate as needed
-            )
-
-            spawn_point = carla.Transform(location=spawn_location)
-
-            # Spawn the walker
-            walker = self.__world.try_spawn_actor(walker_bp, spawn_point)
-            if walker:
-                self.active_pedestrians.append(walker)
-
-                # Spawn the walker controller
-                walker_controller_bp = self.__world.get_blueprint_library().find('controller.ai.walker')
-
-                # Attach AI controller to the walker
-                ai_controller = self.__world.try_spawn_actor(walker_controller_bp, carla.Transform(), walker)
-
-                if ai_controller:
-                    try:
-                        # Start the walker controller
-                        ai_controller.start()
-
-                        # Set the walker's target location
-                        ai_controller.go_to_location(self.__world.get_random_location_from_navigation())
-
-                        # Set the walker's max speed
-                        ai_controller.set_max_speed(1 + random.random())
-
-                        # Store the AI controller
-                        self.active_ai_controllers.append(ai_controller)
-                    except Exception as e:
-                        print(f"Error initializing walker controller: {e}")
-
-        print(f"Successfully spawned {len(self.active_pedestrians)} pedestrians near the ego vehicle!")
+        print("Spawned", num_walkers, "walkers near the vehicle.")
 
 
     def destroy_pedestrians(self):
@@ -222,6 +193,7 @@ class TrafficControl:
             try:
                 pedestrian.destroy()
                 self.active_ai_controllers[idx].stop()
+                self.active_ai_controllers[idx].destroy()
             except Exception as e:
                 print(f"Error destroying pedestrians: {e}")
 

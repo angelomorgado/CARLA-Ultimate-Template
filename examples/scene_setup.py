@@ -19,49 +19,40 @@ import random
 walkers = []
 walker_controllers = []
 
-def spawn_walkers_near_vehicle(world, num_walkers, vehicle_location):
-    """
-    Spawns a specified number of walkers on sidewalks near a given vehicle location.
-
-    Args:
-        world: A carla.World object representing the Carla simulation.
-        num_walkers: Number of walkers to spawn.
-        vehicle_location: The location of the vehicle to spawn walkers near.
-    """
-
+def spawn_random_walkers(world, num_walkers=10):
     walker_controller_bp = world.get_blueprint_library().find('controller.ai.walker')
+    walker_bps = world.get_blueprint_library().filter('walker.pedestrian.*')
     map = world.get_map()
 
-    for _ in range(num_walkers):
+    # Get spawn points on sidewalks
+    spawn_points = map.get_spawn_points()
 
-        # Find a sidewalk waypoint within a radius of the vehicle location.
-        max_distance = 25.0  # Adjust this distance as needed
-        sidewalk_waypoint = None
-        while sidewalk_waypoint is None:
-            random_offset = carla.Location(
-                x=random.uniform(-max_distance, max_distance),
-                y=random.uniform(-max_distance, max_distance))
-            potential_location = vehicle_location + random_offset
-            waypoint = map.get_waypoint(potential_location, project_to_road=True, lane_type=(carla.LaneType.Sidewalk))
-            if waypoint:
-                sidewalk_waypoint = waypoint
+    for _ in range(num_walkers):
+        # Randomly select a spawn point
+        spawn_point = random.choice(spawn_points)
+        
+        # Extract location from the spawn point
+        spawn_location = spawn_point.location
+
+        # Get waypoint from the location
+        sidewalk_waypoint = map.get_waypoint(spawn_location, project_to_road=True, lane_type=(carla.LaneType.Sidewalk))
 
         # Spawn walker and controller at the sidewalk waypoint.
-        walker_bp = random.choice(world.get_blueprint_library().filter('walker.pedestrian.*'))
+        walker_bp = random.choice(walker_bps)
         try:
-            walker = world.spawn_actor(walker_bp, sidewalk_waypoint.transform)
+            walker = world.spawn_actor(walker_bp, carla.Transform(sidewalk_waypoint.transform.location))
         except RuntimeError:
             continue
         walkers.append(walker)
 
         walker_controller = world.spawn_actor(walker_controller_bp, carla.Transform(), walker)
         walker_controllers.append(walker_controller)
+        
+        # Keep the commented code if you want to start and move the walkers
         # walker_controller.start()
         # walker_controller.go_to_location(world.get_random_location_from_navigation())
 
-    print("Spawned", num_walkers, "walkers near the vehicle.")
-
-
+    print("Spawned", num_walkers, "walkers on random sidewalks.")
 
 def destroy_walkers():
     for walker_controller in walker_controllers:
@@ -92,8 +83,8 @@ def main():
     # Traffic and pedestrians
     # world.spawn_vehicles_around_ego(autonomous_vehicle.get_vehicle(), num_vehicles_around_ego=40, radius=150)
 
-    spawn_walkers_near_vehicle(world.get_world(), 10, autonomous_vehicle.get_location())
-    # spawn_walkers(world.get_world(), 50)
+    # spawn_walkers_near_vehicle(world.get_world(), 10, autonomous_vehicle.get_location())
+    spawn_random_walkers(world.get_world(), 50)
 
     action = (0.0, 0.0, 0.0) # (steer, throttle, brake)
 

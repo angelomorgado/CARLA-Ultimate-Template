@@ -102,8 +102,8 @@ class World:
     def spawn_pedestrians(self, num_pedestrians=10):
         self.traffic_control.spawn_pedestrians(num_pedestrians)
     
-    def spawn_pedestrians_around_ego(self, ego_vehicle, num_pedestrians=10, distance_range=(5,30)):
-        self.traffic_control.spawn_pedestrians_around_ego(ego_vehicle, num_pedestrians, distance_range)
+    def spawn_pedestrians_around_ego(self, ego_vehicle_location, num_pedestrians=10, radius=50):
+        self.traffic_control.spawn_pedestrians_around_ego(ego_vehicle_location, num_pedestrians, radius)
     
     def destroy_pedestrians(self):
         self.traffic_control.destroy_pedestrians()
