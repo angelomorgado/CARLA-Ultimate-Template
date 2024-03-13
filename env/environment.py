@@ -421,7 +421,7 @@ class CarlaEnv(gym.Env):
     
     # ===================================================== DEBUG METHODS =====================================================
     def place_spectator_above_vehicle(self):
-        self.world.place_spectator_above_vehicle(self.vehicle.get_vehicle())    
+        self.world.place_spectator_above_location(self.vehicle.get_location())    
 
     def output_all_waypoints(self, spacing=5):
         waypoints = self.world.get_world().get_map().generate_waypoints(distance=spacing)
