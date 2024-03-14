@@ -24,9 +24,8 @@ class TrafficControl:
         self.__world = world
         self.__map = None
         
-    def update_map(self):
-        self.__map = self.__world.get_map()
-        return self.__map
+    def update_map(self, map):
+        self.__map = map
 
     # ============ Vehicle Control ============
     def spawn_vehicles(self, num_vehicles = 10, autopilot_on = False):

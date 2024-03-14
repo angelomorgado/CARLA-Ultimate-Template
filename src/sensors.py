@@ -351,7 +351,8 @@ class Collision:
         return collision_sensor
     
     def callback(self, data):
-        print(f"Collision Occurred at {data.timestamp} with {data.other_actor}")
+        if configuration.VERBOSE:
+            print(f"Collision Occurred at {data.timestamp} with {data.other_actor}")
         self.critical_collision = True
     
     def collision_occurred(self):
@@ -382,7 +383,8 @@ class Lane_Invasion:
     
     def callback(self, data):
         self.lane_transgression = True
-        print(f"Lane Invasion Occurred at {data.timestamp} with {data.crossed_lane_markings}")
+        if configuration.VERBOSE:
+            print(f"Lane Invasion Occurred at {data.timestamp} with {data.crossed_lane_markings}")
     
     def is_ready(self):
         return self.sensor_ready
