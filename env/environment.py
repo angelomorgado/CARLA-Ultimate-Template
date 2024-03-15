@@ -441,13 +441,13 @@ class CarlaEnv(gym.Env):
     def __spawn_traffic(self, seed):
         if not self.random_traffic and self.active_scenario_dict['traffic_density'] == 'None':
             return
-        
+
         # The traffic isn't random, so it will be based on the scenario name
         if not self.random_traffic:
             random.seed(self.active_scenario_name)
             seed = self.active_scenario_name
         
-        if seed:
+        if seed is not None:
             random.seed(seed)
         
         # Give density to the traffic
