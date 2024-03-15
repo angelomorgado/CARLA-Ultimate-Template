@@ -29,7 +29,7 @@ def steps_main():
 
 def episodes_main():
     # env = CarlaEnv(time_limit=50, initialize_server=False, random_weather=True, synchronous_mode=True, continuous=True, show_sensor_data=True)
-    env = gym.make('carla-rl-gym-v0', time_limit=10, initialize_server=False, random_weather=True, synchronous_mode=True, continuous=False, show_sensor_data=False, random_traffic=True)
+    env = gym.make('carla-rl-gym-v0', time_limit=10, initialize_server=False, random_weather=True, synchronous_mode=True, continuous=True, show_sensor_data=True, random_traffic=True)
 
     # Number of episodes
     for i in range(2):
@@ -38,7 +38,7 @@ def episodes_main():
         while True:
             action = env.action_space.sample()
             obs, reward, terminated, truncated, info = env.step(action)
-            # print("Reward:", reward, "Terminated:", terminated, "Truncated:", truncated)
+            print("Reward:", reward, "Terminated:", terminated, "Truncated:", truncated)
             
             if terminated or truncated:
                 print('Episode terminated cleaning environment')
