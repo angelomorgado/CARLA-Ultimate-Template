@@ -140,7 +140,12 @@ class CarlaEnv(gym.Env):
         
         # 2. Load the scenario
         print(f"Loading scenario {self.active_scenario_name}...")
-        self.load_scenario(self.active_scenario_name, seed)
+        try:
+            self.load_scenario(self.active_scenario_name, seed)
+        except KeyboardInterrupt as e:
+            self.clean_scenario()
+            print("Scenario loading interrupted!")
+            exit(0)
         print("Scenario loaded!")
         
         # 3. Place the spectator
@@ -169,7 +174,12 @@ class CarlaEnv(gym.Env):
     def step(self, action):
         # 0. Tick the world if in synchronous mode
         if self.synchronous_mode:
-            self.world.tick()
+            try:
+                self.world.tick()
+            except KeyboardInterrupt:
+                self.clean_scenario()
+                print("Episode interrupted!")
+                exit(0)
         self.number_of_steps += 1
         # 1. Control the vehicle
         self.__control_vehicle(np.array(action))
@@ -183,7 +193,12 @@ class CarlaEnv(gym.Env):
         # 4. Check if the episode is terminated
         terminated = self.__is_done
         # 5. Check if the episode is truncated
-        self.truncated = self.__timer_truncated()
+        try:
+            self.truncated = self.__timer_truncated()
+        except KeyboardInterrupt:
+            self.clean_scenario()
+            print("Episode interrupted!")
+            exit(0)
         if self.truncated or terminated:
             self.clean_scenario()
         # 5. Return the observation, the reward, the terminated flag and the scenario information
@@ -381,7 +396,7 @@ class CarlaEnv(gym.Env):
         # Weather
         self.__load_weather(scenario_dict['weather_condition'])
         if self.verbose:
-            print(scenario_dict['weather_condition'], " weather preset loaded!")
+            print(self.world.get_active_weather(), " weather preset loaded!")
         
         # Ego vehicle
         self.__spawn_vehicle(scenario_dict)
