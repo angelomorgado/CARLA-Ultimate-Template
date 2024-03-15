@@ -34,7 +34,7 @@ def episodes_main():
     # Number of episodes
     for i in range(2):
         print("================================ Episode", i, " ================================")
-        obs, info = env.reset(seed=0, options={'scenario_name':'Town10HD-ClearNoon-Road-0'})
+        obs, info = env.reset(seed=0, options={'scenario_name':'Town10-ClearNoon-Road-0'})
         while True:
             action = env.action_space.sample()
             obs, reward, terminated, truncated, info = env.step(action)

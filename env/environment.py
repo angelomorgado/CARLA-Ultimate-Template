@@ -130,7 +130,7 @@ class CarlaEnv(gym.Env):
         
     # ===================================================== GYM METHODS =====================================================                
     # This reset loads a random scenario and returns the initial state plus information about the scenario
-    # Options may include the name of the scenario to load
+    # Options may include the name of the scenario to load    
     def reset(self, seed=None, options={'scenario_name': None}):
         # 1. Choose a scenario
         if options['scenario_name'] is not None:
@@ -158,7 +158,7 @@ class CarlaEnv(gym.Env):
         self.__is_done = False
         # Return the observation and the scenario information
         return self.observation, self.active_scenario_dict
-
+    
     def render(self, mode='human'):
         if mode == 'human':
             self.world.tick()
@@ -293,7 +293,7 @@ class CarlaEnv(gym.Env):
         return 1 if not self.__is_done and self.vehicle.get_speed() > 1.0 else 0
     
     def __get_stop_sign_reward(self):        
-        distance = 30.0  # meters (adjust as needed)
+        distance = 20.0  # meters (adjust as needed)
         
         current_location = self.vehicle.get_location()
         current_waypoint = self.__map.get_waypoint(current_location, project_to_road=True)
@@ -356,7 +356,12 @@ class CarlaEnv(gym.Env):
 
     # ===================================================== SCENARIO METHODS =====================================================
     def load_scenario(self, scenario_name, seed=None):
-        scenario_dict = self.situations_dict[scenario_name]
+        try:
+            scenario_dict = self.situations_dict[scenario_name]
+        except KeyError:
+            new_name = self.__choose_random_situation(seed)
+            scenario_dict = self.situations_dict[new_name]
+            print(f"Scenario {scenario_name} not found! Loading random scenario {new_name}...")
         self.active_scenario_name = scenario_name
         self.__seed = seed
         self.active_scenario_dict = scenario_dict
