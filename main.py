@@ -13,7 +13,7 @@ import gymnasium as gym
 
 def steps_main():
     # env = CarlaEnv('carla-rl-gym', time_limit=60, initialize_server=False, random_weather=True, synchronous_mode=True, continuous=False, show_sensor_data=True)
-    env = gym.make('carla-rl-gym-v0', time_limit=300, initialize_server=False, random_weather=True, synchronous_mode=True, continuous=False, show_sensor_data=True)
+    env = gym.make('carla-rl-gym-v0', time_limit=300, initialize_server=False, random_weather=True, synchronous_mode=True, continuous=False, show_sensor_data=True, random_traffic=True)
     obs, info = env.reset()
     
     # Number of steps
@@ -29,21 +29,21 @@ def steps_main():
 
 def episodes_main():
     # env = CarlaEnv(time_limit=50, initialize_server=False, random_weather=True, synchronous_mode=True, continuous=True, show_sensor_data=True)
-    env = gym.make('carla-rl-gym-v0', time_limit=50, initialize_server=True, random_weather=True, synchronous_mode=True, continuous=True, show_sensor_data=True)
+    env = gym.make('carla-rl-gym-v0', time_limit=300, initialize_server=False, random_weather=True, synchronous_mode=True, continuous=False, show_sensor_data=True, random_traffic=True)
 
     # Number of episodes
-    for i in range(2):
+    for i in range(3):
         print("================================ Episode", i, " ================================")
-        obs, info = env.reset()
+        obs, info = env.reset(seed=0, options={'scenario_name':'Town01-ClearNoon-Road-0'})
         while True:
             action = env.action_space.sample()
             obs, reward, terminated, truncated, info = env.step(action)
-            print("Reward:", reward, "Terminated:", terminated, "Truncated:", truncated)
+            # print("Reward:", reward, "Terminated:", terminated, "Truncated:", truncated)
             
             if terminated or truncated:
-                print('Episode terminated closing environment')
+                print('Episode terminated cleaning environment')
                 break
     env.close()
 
 if __name__ == '__main__':
-    steps_main()
+    episodes_main()

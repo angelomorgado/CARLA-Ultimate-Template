@@ -123,7 +123,7 @@ class CarlaEnv(gym.Env):
             "Tunnel": 3
         }
 
-        # This is a PENSO, please resolve this issue TODO: Resolve this issue (When a scenario is loaded with the default map it crashes because it loads too fast)
+        # This is a 🩹🩹 TODO: Resolve this issue (When a scenario is loaded with the default map it crashes because it loads too fast)
         self.world.set_active_map("Town02")
         
         # Auxiliar variables
@@ -133,9 +133,9 @@ class CarlaEnv(gym.Env):
     # ===================================================== GYM METHODS =====================================================                
     # This reset loads a random scenario and returns the initial state plus information about the scenario
     # Options may include the name of the scenario to load
-    def reset(self, seed=None, options=None):
+    def reset(self, seed=None, options={'scenario_name': None}):
         # 1. Choose a scenario
-        if options['scenario_name']:
+        if options['scenario_name'] is not None:
             self.active_scenario_name = options['scenario_name']
         else:
             self.active_scenario_name = self.__chose_situation(seed)
@@ -394,7 +394,7 @@ class CarlaEnv(gym.Env):
             self.display.play_window_tick()
         if self.verbose:
             print("Vehicle spawned!")
-        time.sleep(0.3)
+        time.sleep(0.6)
         
         # Traffic
         if self.has_traffic:
@@ -442,11 +442,11 @@ class CarlaEnv(gym.Env):
         if not self.random_traffic and self.active_scenario_dict['traffic_density'] == 'None':
             return
         
-        name = None
         # The traffic isn't random, so it will be based on the scenario name
         if not self.random_traffic:
             random.seed(self.active_scenario_name)
             seed = self.active_scenario_name
+        
         if seed:
             random.seed(seed)
         
@@ -459,6 +459,7 @@ class CarlaEnv(gym.Env):
         else:
             num_vehicles = random.randint(1, 20)
         
+        print("NUM_VEHI: ", num_vehicles)
         self.world.spawn_vehicles_around_ego(self.vehicle.get_vehicle(), radius=100, num_vehicles_around_ego=num_vehicles, seed=seed)
     
     def __choose_random_situation(self, seed=None):
