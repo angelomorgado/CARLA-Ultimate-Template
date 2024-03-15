@@ -123,9 +123,6 @@ class CarlaEnv(gym.Env):
             "Tunnel": 3
         }
 
-        # This is a 🩹🩹 TODO: Resolve this issue (When a scenario is loaded with the default map it crashes because it loads too fast)
-        # self.world.set_active_map("Town02")
-        
         # Auxiliar variables
         self.has_stopped = False
         self.inside_stop_area = False
@@ -363,8 +360,7 @@ class CarlaEnv(gym.Env):
         self.active_scenario_name = scenario_name
         self.__seed = seed
         self.active_scenario_dict = scenario_dict
-        
-        
+         
         # World
         # This is a fix to a weird bug that happens when the first town is the same as the default map (comment and run a couple of times to see the bug)
         if self.first_episode and self.active_scenario_dict['map_name'] == self.world.get_active_map_name():
@@ -376,7 +372,6 @@ class CarlaEnv(gym.Env):
         time.sleep(2.0)
         if self.verbose:
             print("World loaded!")
-        
         
         # Weather
         self.__load_weather(scenario_dict['weather_condition'])
