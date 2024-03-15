@@ -74,7 +74,7 @@ class CarlaEnv(gym.Env):
 
         # 3. Read the flag and get the appropriate situations
         self.__get_situations(scenarios)
-        # 4. Create the vehicle TODO: Change vehicle module to not spawn the vehicle in the constructor, only with a function
+        # 4. Create the vehicle
         self.vehicle = Vehicle(self.world.get_world())
 
         # 5. Create the observation space: TODO: Make the observation space more dynamic.
@@ -132,19 +132,26 @@ class CarlaEnv(gym.Env):
         
     # ===================================================== GYM METHODS =====================================================                
     # This reset loads a random scenario and returns the initial state plus information about the scenario
+    # Options may include the name of the scenario to load
     def reset(self, seed=None, options=None):
         # 1. Choose a scenario
-        self.active_scenario_name = self.__chose_situation(seed)
-        print(f"Loading scenario {self.active_scenario_name}...")
-        self.active_scenario_dict = self.situations_dict[self.active_scenario_name]
+        if options['scenario_name']:
+            self.active_scenario_name = options['scenario_name']
+        else:
+            self.active_scenario_name = self.__chose_situation(seed)
+        
         # 2. Load the scenario
+        print(f"Loading scenario {self.active_scenario_name}...")
         self.load_scenario(self.active_scenario_name, seed)
         print("Scenario loaded!")
+        
         # 3. Place the spectator
         self.place_spectator_above_vehicle()
+        
         # 4. Get the initial state (Get the observation data)
         time.sleep(0.5)
         self.__update_observation()
+        
         # 5. Start the timer
         self.__start_timer()
         print("Episode started!")
@@ -363,18 +370,23 @@ class CarlaEnv(gym.Env):
             self.lidar_point_cloud_shape = (sensors_dict["lidar"]["channels"], 4)
 
     # ===================================================== SCENARIO METHODS =====================================================
-    def load_scenario(self, scenario_name, seed):
+    def load_scenario(self, scenario_name, seed=None):
         scenario_dict = self.situations_dict[scenario_name]
         self.active_scenario_name = scenario_name
         self.__seed = seed
         self.active_scenario_dict = scenario_dict
+        
         # World
         self.load_world(scenario_dict['map_name'])
         self.__map = self.world.update_traffic_map()
         if self.verbose:
             print("World loaded!")
+        
         # Weather
         self.__load_weather(scenario_dict['weather_condition'])
+        if self.verbose:
+            print(scenario_dict['weather_condition'], " weather preset loaded!")
+        
         # Ego vehicle
         self.__spawn_vehicle(scenario_dict)
         if self.show_sensor_data:   
@@ -383,6 +395,7 @@ class CarlaEnv(gym.Env):
         if self.verbose:
             print("Vehicle spawned!")
         time.sleep(0.3)
+        
         # Traffic
         if self.has_traffic:
             self.__spawn_traffic(seed=seed)
@@ -426,14 +439,27 @@ class CarlaEnv(gym.Env):
     
     # If the seed is not none send the seed, else make the scenario based on its name
     def __spawn_traffic(self, seed):
+        if not self.random_traffic and self.active_scenario_dict['traffic_density'] == 'None':
+            return
+        
         name = None
+        # The traffic isn't random, so it will be based on the scenario name
         if not self.random_traffic:
             random.seed(self.active_scenario_name)
             seed = self.active_scenario_name
         if seed:
             random.seed(seed)
-        num_vehicles = random.randint(1, 20)
-        self.world.spawn_vehicles_around_ego(self.vehicle.get_vehicle(), 100, num_vehicles, seed)
+        
+        # Give density to the traffic
+        if not self.random_traffic:
+            if self.active_scenario_dict['traffic_density'] == 'Low':
+                num_vehicles = random.randint(1, 5)
+            else:
+                num_vehicles = random.randint(10, 20)
+        else:
+            num_vehicles = random.randint(1, 20)
+        
+        self.world.spawn_vehicles_around_ego(self.vehicle.get_vehicle(), radius=100, num_vehicles_around_ego=num_vehicles, seed=seed)
     
     def __choose_random_situation(self, seed=None):
         if seed:
@@ -442,7 +468,8 @@ class CarlaEnv(gym.Env):
 
     def __chose_situation(self, seed):
         if isinstance(seed, str):
-            return seed
+            print("Seed needs to be an integer! Loading a random scenario...")
+            return self.__choose_random_situation()
         else:
             return self.__choose_random_situation(seed)
     

@@ -32,9 +32,10 @@ The tool is a gym.Env wrap. This means that you can use this environment as a gy
 
 ## Instructions Manual
 
-There are two ways of using the environment: 
+There are two ways of using the environment:
 
 1. The first, and the recommended one is through the gym framework. An example of the main loop is as such:
+
     ```python
     import gymnasium as gym
     import env.environment
@@ -52,8 +53,9 @@ There are two ways of using the environment:
 
         env.close()
     ```
-    
+
 2. The second, is through the CarlaEnv class:
+
     ```python
     from env.environment import CarlaEnv
 
@@ -72,12 +74,13 @@ There are two ways of using the environment:
     ```
 
 The environment's constructor has multiple arguments for the customization of the environment, these are:
+
 - `continuous` (bool): Determines if the action space is continuous (True) or discrete (False);
 - `scenarios` (list: Road/Roundabout,etc.): List of desired scenarios if you don't want to segmentate the scenarios JSON.
 - `time_limit` (int): Maximum amount of seconds for each episode. When it reaches this timeout the episode gets truncated.
 - `initialize_server` (bool): Automatically opens and closes the server. If False, you have to open the server side before running the client side scripts;
 - `random_weather` (bool): If True loads a random weather configuration for each episode regardless of what's in the scenarios JSON. If False, simply loads what's in the JSON.
-- `random_traffic` (bool): If True loads a random traffic configuration for each episode regardless of what's in the scenarios JSON. If False, simply loads what's in the JSON.
+- `random_traffic` (bool): If True loads a random traffic configuration for each episode regardless of what's in the scenarios JSON. If False, it loads the traffic based on the scenario's name. It can be overwritten if given a seed to the reset function.
 - `synchronous_mode` (bool): If True loads the client in synchronous mode. It is recommended to keep this as True, as some Carla features require it to be on.
 - `show_sensor_data` (bool): If True, during each episode it opens up a pygame window with the ego vehicle's sensors for easy visualization.
 - `has_traffic` (bool): If False, it loads the episodes without any traffic at all.
@@ -92,6 +95,7 @@ In the file [configuration.py](../configuration.py) there are multiple different
 ### Ego Vehicle's Sensors Configuration
 
 To change the ego vehicle's sensors and even their paramenters there's an easy way to do so, simply create a JSON file and make something along the lines of:
+
 ```python
 {
     "rgb_camera":{
@@ -134,7 +138,7 @@ A list of available sensors can be found [here](../README.md).
 
 ### Scenario Customization
 
-Making new scenarios or changing the existing ones is super intuitive. Basically you only have to create a JSON file to manage the scenarios. Then you have to specify the path to the json in the configuration.py file. 
+Making new scenarios or changing the existing ones is super intuitive. Basically you only have to create a JSON file to manage the scenarios. Then you have to specify the path to the json in the configuration.py file.
 
 It must specify the following parameters:
 
@@ -154,7 +158,7 @@ An example of a JSON file is below:
     "weather_condition": "Clear Noon",
     "initial_position": {"x": 312.3, "y": 195.3, "z": 0.3},
     "initial_rotation": {"pitch": 0.0, "yaw": 180.0, "roll": 0.0},
-		"target_position": {"x": 128.2, "y": 195.3, "z": 0.3},
+    "target_position": {"x": 128.2, "y": 195.3, "z": 0.3},
     "target_gnss": {"lat": -0.001754, "lon": 0.001143, "alt": 0},
     "situation": "Road"
   },
@@ -192,6 +196,7 @@ An example of a JSON file is below:
 ### Observation Space
 
 Observation space is totally customizable, and it follows the gymnasium.Spaces standard, however, if you wish to use the default ones, the observation space is:
+
 ```python
 self.rgb_image_shape = (360, 640, 3)
 self.lidar_point_cloud_shape = (500,4)
@@ -207,28 +212,32 @@ self.observation_space = spaces.Dict({
             'situation':       spaces.Discrete(self.number_of_situations) # *
         })
 ```
+
 \* The Situations are: 0: Road, 1: Roundabout, 2: Junction, 3: Tunnel
 However you can customize this by changing the dictionary and the number of situations variable.
-
 
 ### Methods
 
 The public methods accessible through the CarlaEnv class are:
-**Standard gym methods**:
+
+#### Standard gym methods
+
 - `env.reset()`: Starts a new episode in a random scenario.
-    - seed: Seed to make the episode deterministic
-    - options: extra options. There are none at the moment
+  - seed: Seed to make the episode deterministic
+  - options: extra options. There are none at the moment
 - `env.step(action)`: Takes a step in the environment. The action must be according the action space.
 - `env.render()`: Ticks the simulation
 - `env.close()`: Closes the simulation
 
-**Episode methods**
+#### Episode methods
+
 - `env.load_scenario(scenario_name, seed)`: Loads the scenario, at the moment the seed is mandatory.
 - `env.clean_scenario()`: Cleans the scenario without changing map nor closing the simulation.
 - `env.print_all_scenarios()`: Outputs the name of every scenario available.
 - `env.load_world(map_name)`: Loads a map by its name. It does the same as the World module's set_active_map().
 
-**Debug methods**
+#### Debug methods
+
 - `env.place_spectator_above_vehicle()`: It places the server screen on top of the ego vehicle.
 - `env.output_all_waypoints(spacing)`: Outputs on the server screen all waypoints separated by a determined spacing.
 - `env.output_waypoints_to_target(spacing)`: Outputs on the server screen the waypoints from the starting point of the scenario to the target point, separated by a certain spacing.
@@ -253,6 +262,7 @@ self.action_space = spaces.Discrete(4)
 The name of the scenario will be based on these attributes, then because there can be many there will be a counter after the name to differentiate.
 
 Available Maps:
+
 - Town01 <- small city roads with junctions with lightpoles
 - Town02 <- Has city roads and junctions (neighborhood)
 - Town03 <- Big city with roundabouts lightpoles, big junctions and inclined roads, also has big road and even a tunnel.
@@ -262,10 +272,11 @@ Available Maps:
 - Town10HD <- Default map, big city with intersections, lightpoles
 - Town15 <- This is the biggest city and it has every type of scenario possible, it’s used for testing the carla leaderboard challenge
 Each map has a variation with the suffix “_opt”. This means that the map is layered and different layers can be removed and added with scripts. But these won't be used.
- 
+
 (Towns 11-13 make my machine crash, you can try them, i added compatibility to them but they still crash in my machine, beware)
 
 Available Weather Conditions
+
 - Clear Night
 - Clear Noon
 - Clear Sunset
@@ -291,6 +302,7 @@ Available Weather Conditions
 - Wet Sunset
 
 Available Traffic Densities
+
+- None
 - Low
-- Medium
 - High

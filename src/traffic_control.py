@@ -74,9 +74,9 @@ class TrafficControl:
             vehicle.set_autopilot(autopilot_on)
     
 
-    def spawn_vehicles_around_ego(self, ego_vehicle, radius, num_vehicles_around_ego, scene_name=None):
-        if scene_name is not None:
-            random.seed(scene_name)
+    def spawn_vehicles_around_ego(self, ego_vehicle, radius, num_vehicles_around_ego, seed=None):
+        if seed is not None:
+            random.seed(seed)
 
         self.spawn_points = self.__map.get_spawn_points()
         ego_location = ego_vehicle.get_location()
