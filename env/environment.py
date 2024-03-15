@@ -126,6 +126,10 @@ class CarlaEnv(gym.Env):
         # This is a PENSO, please resolve this issue TODO: Resolve this issue (When a scenario is loaded with the default map it crashes because it loads too fast)
         self.world.set_active_map("Town02")
         
+        # Auxiliar variables
+        self.has_stopped = False
+        self.inside_stop_area = False
+        
     # ===================================================== GYM METHODS =====================================================                
     # This reset loads a random scenario and returns the initial state plus information about the scenario
     def reset(self, seed=None, options=None):
@@ -205,6 +209,7 @@ class CarlaEnv(gym.Env):
     #             self.reward_lambdas['destination'] * self.__get_destination_reward(vehicle_location, target_position) + \
     #             self.reward_lambdas['collision'] * self.__get_collision_reward() + \
     #             self.reward_lambdas['light_pole_transgression'] * self.__get_light_pole_trangression_reward() + \
+    #             self.reward_lambdas['stop_sign_transgression'] * self.__get_stop_sign_reward() + \
     #             self.reward_lambdas['time_limit'] * self.__get_time_limit_reward() + \
     #             self.reward_lambdas['time_driving'] * self.__get_time_driving_reward()
 
@@ -238,7 +243,6 @@ class CarlaEnv(gym.Env):
         y_vehicle = vehicle_location.y
 
         return np.linalg.norm([x_wp - x_vehicle, y_wp - y_vehicle])
-    
     
     def __get_speed_reward(self, vehicle_speed, speed_limit=50):
         return vehicle_speed - speed_limit if vehicle_speed > speed_limit else 0.0
@@ -286,6 +290,41 @@ class CarlaEnv(gym.Env):
     
     def __get_time_driving_reward(self):
         return 1 if not self.__is_done and self.vehicle.get_speed() > 1.0 else 0
+    
+    def __get_stop_sign_reward(self):        
+        distance = 30.0  # meters (adjust as needed)
+        
+        current_location = self.vehicle.get_location()
+        current_waypoint = self.__map.get_waypoint(current_location, project_to_road=True)
+        
+        # Get all the stop sign landmarks within a certain distance from the vehicle and on the same road
+        stop_signs_on_same_road = []
+        for landmark in current_waypoint.get_landmarks_of_type(distance, carla.LandmarkType.StopSign):
+            landmark_waypoint = self.__map().get_waypoint(landmark.transform.location, project_to_road=True)
+            if landmark_waypoint.road_id == current_waypoint.road_id:
+                stop_signs_on_same_road.append(landmark)
+
+        if len(stop_signs_on_same_road) == 0:
+            if self.inside_stop_area and self.has_stopped:
+                print("Vehicle has stopped at the stop sign.")
+                self.has_stopped = False
+                self.inside_stop_area = False
+                return 0
+            elif self.inside_stop_area and not self.has_stopped:
+                print("Vehicle has not stopped at the stop sign.")
+                self.has_stopped = False
+                self.inside_stop_area = False
+                return 1
+            else:            
+                return 0
+        else:
+            self.inside_stop_area = True
+
+        # The vehicle entered the stop sign area
+        for stop_sign in stop_signs_on_same_road:
+            # Check if the vehicle has stopped
+            if self.vehicle.get_speed() < 1.0:
+                self.has_stopped = True
 
     # ===================================================== OBSERVATION/ACTION METHODS =====================================================
     def __update_observation(self):

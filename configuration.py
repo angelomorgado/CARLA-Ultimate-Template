@@ -33,5 +33,6 @@ ENV_REWARDS_LAMBDAS     = {
                             'destination': 3.0,
                             'collision': -3,
                             'light_pole_transgression': -3,
+                            'stop_sign_transgression': -3,
                             'time_limit': -1,
                          }
