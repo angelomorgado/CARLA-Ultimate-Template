@@ -145,12 +145,9 @@ class Vehicle:
         lidar_data = self.__sensor_dict['lidar'].get_data()
         gnss_data = self.__sensor_dict['gnss'].get_data()
 
-        # Perform necessary processing on the data # TODO: Should the data be really flattened?
-        # rgb_data = rgb_data.reshape(-1) # Flatten the image so it can be concatenated with the rest of the data point cloud
-
         return [rgb_data, lidar_data, gnss_data]
 
-    def check_if_sensors_are_ready(self):
+    def sensors_ready(self):
         for sensor in self.__sensor_dict:
             if not self.__sensor_dict[sensor].is_ready():
                 return False

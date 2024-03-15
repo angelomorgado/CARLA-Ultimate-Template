@@ -124,11 +124,12 @@ class CarlaEnv(gym.Env):
         }
 
         # This is a 🩹🩹 TODO: Resolve this issue (When a scenario is loaded with the default map it crashes because it loads too fast)
-        self.world.set_active_map("Town02")
+        # self.world.set_active_map("Town02")
         
         # Auxiliar variables
         self.has_stopped = False
         self.inside_stop_area = False
+        self.first_episode = True
         
     # ===================================================== GYM METHODS =====================================================                
     # This reset loads a random scenario and returns the initial state plus information about the scenario
@@ -229,15 +230,11 @@ class CarlaEnv(gym.Env):
                 self.reward_lambdas['collision']                * self.__get_collision_reward() + \
                 self.reward_lambdas['time_driving']             * self.__get_time_driving_reward()
     
-    # This function is used to correct the yaw angle to be between 0 and 360 degrees
-    def correct_yaw(self, x):
-        return(((x%360) + 360) % 360)
-
     # This reward is based on the orientation of the vehicle according to the waypoint of where the vehicle is
     # R_orientation = \lambda * cos(\theta), where \theta is the angle between the vehicle and the waypoint
     def __get_orientation_reward(self, waypoint, vehicle_location):
-        vh_yaw = self.correct_yaw(self.vehicle.get_vehicle().get_transform().rotation.yaw)
-        wp_yaw = self.correct_yaw(waypoint.transform.rotation.yaw)
+        vh_yaw = self.__correct_yaw(self.vehicle.get_vehicle().get_transform().rotation.yaw)
+        wp_yaw = self.__correct_yaw(waypoint.transform.rotation.yaw)
 
         return np.cos((vh_yaw - wp_yaw)*np.pi/180.)
     
@@ -334,17 +331,8 @@ class CarlaEnv(gym.Env):
                 self.has_stopped = True
 
     # ===================================================== OBSERVATION/ACTION METHODS =====================================================
-    def __update_observation(self):
-        try:
-            observation_space = self.vehicle.get_observation_data()
-        except AttributeError:
-            observation_space = [None, None, None, None, None]
-            observation_space[0] = np.zeros(self.rgb_image_shape, dtype=np.uint8)
-            observation_space[1] = np.zeros(self.lidar_point_cloud_shape, dtype=float)
-            observation_space[2] = np.zeros(self.current_position_shape, dtype=float)
-            observation_space[3] = np.zeros(self.target_position_shape, dtype=float)
-            observation_space[4] = -1
-
+    def __update_observation(self):        
+        observation_space = self.vehicle.get_observation_data()
         rgb_image = observation_space[0]
         lidar_point_cloud = observation_space[1]
         current_position = observation_space[2]
@@ -376,11 +364,19 @@ class CarlaEnv(gym.Env):
         self.__seed = seed
         self.active_scenario_dict = scenario_dict
         
+        
         # World
+        # This is a fix to a weird bug that happens when the first town is the same as the default map (comment and run a couple of times to see the bug)
+        if self.first_episode and self.active_scenario_dict['map_name'] == self.world.get_active_map_name():
+            self.world.reload_map()
+        self.first_episode = False
+        
         self.load_world(scenario_dict['map_name'])
         self.__map = self.world.update_traffic_map()
+        time.sleep(2.0)
         if self.verbose:
             print("World loaded!")
+        
         
         # Weather
         self.__load_weather(scenario_dict['weather_condition'])
@@ -394,7 +390,6 @@ class CarlaEnv(gym.Env):
             self.display.play_window_tick()
         if self.verbose:
             print("Vehicle spawned!")
-        time.sleep(0.6)
         
         # Traffic
         if self.has_traffic:
@@ -459,7 +454,6 @@ class CarlaEnv(gym.Env):
         else:
             num_vehicles = random.randint(1, 20)
         
-        print("NUM_VEHI: ", num_vehicles)
         self.world.spawn_vehicles_around_ego(self.vehicle.get_vehicle(), radius=100, num_vehicles_around_ego=num_vehicles, seed=seed)
     
     def __choose_random_situation(self, seed=None):
@@ -502,6 +496,10 @@ class CarlaEnv(gym.Env):
     
     def __start_timer(self):
         self.start_time = time.time()
+        
+    # This function is used to correct the yaw angle to be between 0 and 360 degrees
+    def __correct_yaw(self, x):
+        return(((x%360) + 360) % 360)
     
     # ===================================================== DEBUG METHODS =====================================================
     def place_spectator_above_vehicle(self):

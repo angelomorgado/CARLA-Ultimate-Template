@@ -64,7 +64,7 @@ class World:
 
     # ============ Map Control =================
     def get_active_map_name(self):
-        return self.active_map
+        return self.__map.name.split("/")[-1].split("_")[0]
 
     def get_map(self):
         return self.__map
@@ -73,9 +73,9 @@ class World:
         for idx, m in enumerate(self.available_maps):
             print(f'{idx}: {m}')
     
-    def set_active_map(self, map_name):
+    def set_active_map(self, map_name, reload_map=False):
         # Check if the map is already loaded
-        if self.map_dict[map_name] == self.active_map:
+        if self.map_dict[map_name] == self.active_map and not reload_map:
             return
         
         self.active_map = self.map_dict[map_name]
@@ -90,6 +90,9 @@ class World:
         self.print_available_maps()
         map_idx = int(input('Choose a map index: '))
         self.set_active_map(map_idx)
+    
+    def reload_map(self):
+        self.set_active_map(self.get_active_map_name(), reload_map=True)
     
     # ============ Traffic Control ============
     def spawn_vehicles(self, num_vehicles = 10, autopilot_on = False):
