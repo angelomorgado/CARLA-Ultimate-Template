@@ -10,6 +10,13 @@ observation_shapes = {
     'num_of_stuations': 4
 }
 
+situations_map = {
+    "Road": 0,
+    "Roundabout": 1,
+    "Junction": 2,
+    "Tunnel": 3
+}
+
 observation_space = spaces.Dict({
     'rgb_data': spaces.Box(low=0, high=255, shape=observation_shapes['rgb_data'], dtype=np.uint8),
     'lidar_data': spaces.Box(low=-np.inf, high=np.inf, shape=observation_shapes['lidar_data'], dtype=np.float32),
