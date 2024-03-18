@@ -14,7 +14,7 @@ class Display:
         self.__sensor_dict = vehicle.get_sensor_dict()
         self.__non_displayable_sensors = ['gnss', 'imu', 'collision', 'lane_invasion']
         self.__main_screen = self.initialize_pygame_window(title)
-        self.Clock = pygame.time.Clock()  # Create a clock object to control the frame rate
+        self.__clock = pygame.time.Clock()  # Create a clock object to control the frame rate
 
     def initialize_pygame_window(self, title):
         pygame.init()
@@ -158,7 +158,7 @@ class Display:
 
         pygame.display.flip()
 
-        self.Clock.tick(configuration.SENSOR_FPS)
+        self.__clock.tick(configuration.SENSOR_FPS)
     
     def close_window(self):
         pygame.quit()

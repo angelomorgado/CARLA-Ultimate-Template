@@ -29,11 +29,11 @@ import configuration
 # ====================================== RGB Camera ======================================
 class RGB_Camera:
     def __init__(self, world, vehicle, sensor_dict):
-        self.sensor = self.attach_rgb_camera(world, vehicle, sensor_dict)
-        self.last_data = None
-        self.raw_data = None
-        self.sensor_ready = False
-        self.sensor.listen(lambda data: self.callback(data))
+        self.__sensor = self.attach_rgb_camera(world, vehicle, sensor_dict)
+        self.__last_data = None
+        self.__raw_data = None
+        self.__sensor_ready = False
+        self.__sensor.listen(lambda data: self.callback(data))
 
     def attach_rgb_camera(self, world, vehicle, sensor_dict):
         sensor_bp = world.get_blueprint_library().find('sensor.camera.rgb')
@@ -61,14 +61,14 @@ class RGB_Camera:
         # Take out the alpha channel
         image_array = image_array[:, :, :3]
 
-        self.raw_data = image_array
-        self.sensor_ready = True
+        self.__raw_data = image_array
+        self.__sensor_ready = True
 
         # Ensure the array is contiguous in memory
         image_array = np.ascontiguousarray(image_array)
 
         # Display the processed image using Pygame
-        self.last_data = image_array
+        self.__last_data = image_array
 
 
         # Save image in directory
@@ -77,25 +77,25 @@ class RGB_Camera:
             cv2.imwrite(f'data/rgb_camera/{timestamp}.png', image_array)
     
     def get_last_data(self):
-        return self.last_data
+        return self.__last_data
 
     def get_data(self):
-        return self.raw_data
+        return self.__raw_data
     
     def is_ready(self):
-        return self.sensor_ready
+        return self.__sensor_ready
 
     def destroy(self):
-        self.sensor.destroy()
+        self.__sensor.destroy()
 
 # ====================================== LiDAR ======================================
 class Lidar:
     def __init__(self, world, vehicle, sensor_dict):
-        self.sensor = self.attach_lidar(world, vehicle, sensor_dict)
-        self.last_data = None
-        self.raw_data = None
-        self.sensor_ready = False
-        self.sensor.listen(lambda data: self.callback(data))
+        self.__sensor = self.attach_lidar(world, vehicle, sensor_dict)
+        self.__last_data = None
+        self.__raw_data = None
+        self.__sensor_ready = False
+        self.__sensor.listen(lambda data: self.callback(data))
 
     def attach_lidar(self, world, vehicle, sensor_dict):
         sensor_bp = world.get_blueprint_library().find('sensor.lidar.ray_cast')
@@ -132,9 +132,9 @@ class Lidar:
             indices = np.linspace(0, lidar_data.shape[0] - 1, fixed_num_points, dtype=int)
             lidar_data = lidar_data[indices]
 
-        # Update self.raw_data with the modified Lidar data
-        self.raw_data = lidar_data
-        self.sensor_ready = True
+        # Update self.__raw_data with the modified Lidar data
+        self.__raw_data = lidar_data
+        self.__sensor_ready = True
 
         # Extract X, Y, Z coordinates and intensity values
         points_xyz = lidar_data[:, :3]
@@ -166,7 +166,7 @@ class Lidar:
         lidar_image_array = np.clip(lidar_image_array, 0, 255)
 
         # Display the processed image using Pygame
-        self.last_data = lidar_image_array
+        self.__last_data = lidar_image_array
 
         # Save image in directory
         if configuration.VERBOSE:
@@ -174,25 +174,25 @@ class Lidar:
             cv2.imwrite(f'data/lidar/{timestamp}.png', lidar_image_array)
     
     def get_last_data(self):
-        return self.last_data
+        return self.__last_data
     
     def get_data(self):
-        return self.raw_data
+        return self.__raw_data
     
     def is_ready(self):
-        return self.sensor_ready
+        return self.__sensor_ready
     
     def destroy(self):
-        self.sensor.destroy()
+        self.__sensor.destroy()
 
 # ====================================== Radar ======================================
 class Radar:
     def __init__(self, world, vehicle, sensor_dict):
-        self.sensor = self.attach_radar(world, vehicle, sensor_dict)
-        self.last_data = None
-        self.raw_data = None
-        self.sensor_ready = False
-        self.sensor.listen(lambda data: self.callback(data))
+        self.__sensor = self.attach_radar(world, vehicle, sensor_dict)
+        self.__last_data = None
+        self.__raw_data = None
+        self.__sensor_ready = False
+        self.__sensor.listen(lambda data: self.callback(data))
 
     def attach_radar(self, world, vehicle, sensor_dict):
         sensor_bp = world.get_blueprint_library().find('sensor.other.radar')
@@ -216,8 +216,8 @@ class Radar:
         radar_data = data.raw_data
 
         points = np.frombuffer(radar_data, dtype=np.dtype('f4'))
-        self.raw_data = points
-        self.sensor_ready = True
+        self.__raw_data = points
+        self.__sensor_ready = True
         points = np.reshape(points, (len(data), 4))
 
         # Extract information from radar points
@@ -245,7 +245,7 @@ class Radar:
         # Set a value (e.g., velocity) at each (azimuth, depth) coordinate in the histogram
         radar_image_array[depth_indices, azimuth_indices] = 255  # Set a constant value for visibility
 
-        self.last_data = radar_image_array
+        self.__last_data = radar_image_array
 
         # Save image in directory
         if configuration.VERBOSE:
@@ -253,24 +253,24 @@ class Radar:
             cv2.imwrite(f'data/radar/{timestamp}.png', radar_image_array)
     
     def get_last_data(self):
-        return self.last_data
+        return self.__last_data
 
     def get_data(self):
-        return self.raw_data
+        return self.__raw_data
     
     def is_ready(self):
-        return self.sensor_ready
+        return self.__sensor_ready
 
     def destroy(self):
-        self.sensor.destroy()
+        self.__sensor.destroy()
 
 # ====================================== GNSS ======================================
 class GNSS:
     def __init__(self, world, vehicle, sensor_dict):
-        self.sensor = self.attach_gnss(world, vehicle, sensor_dict)
-        self.last_data = None
-        self.sensor_ready = False
-        self.sensor.listen(lambda data: self.callback(data))
+        self.__sensor = self.attach_gnss(world, vehicle, sensor_dict)
+        self.__last_data = None
+        self.__sensor_ready = False
+        self.__sensor.listen(lambda data: self.callback(data))
 
     def attach_gnss(self, world, vehicle, sensor_dict):
         sensor_bp = world.get_blueprint_library().find('sensor.other.gnss')
@@ -285,28 +285,28 @@ class GNSS:
     
     def callback(self, data):
         global configuration
-        self.last_data = data
-        self.sensor_ready = True
+        self.__last_data = data
+        self.__sensor_ready = True
 
     def get_last_data(self):
-        return self.last_data
+        return self.__last_data
     
     def get_data(self):
-        return np.array([self.last_data.latitude, self.last_data.longitude, self.last_data.altitude])
+        return np.array([self.__last_data.latitude, self.__last_data.longitude, self.__last_data.altitude])
     
     def is_ready(self):
-        return self.sensor_ready
+        return self.__sensor_ready
 
     def destroy(self):
-        self.sensor.destroy()
+        self.__sensor.destroy()
 
 
 # ====================================== IMU ======================================
 class IMU:
     def __init__(self, world, vehicle, sensor_dict):
-        self.sensor = self.attach_imu(world, vehicle, sensor_dict)
-        self.sensor.listen(lambda data: self.callback(data))
-        self.sensor_ready = False
+        self.__sensor = self.attach_imu(world, vehicle, sensor_dict)
+        self.__sensor.listen(lambda data: self.callback(data))
+        self.__sensor_ready = False
 
     def attach_imu(self, world, vehicle, sensor_dict):
         sensor_bp = world.get_blueprint_library().find('sensor.other.imu')
@@ -321,24 +321,24 @@ class IMU:
     
     def callback(self, data):
         global configuration
-        self.last_data = data
-        self.sensor_ready = True
+        self.__last_data = data
+        self.__sensor_ready = True
 
     def get_last_data(self):
-        return self.last_data
+        return self.__last_data
     
     def is_ready(self):
-        return self.sensor_ready
+        return self.__sensor_ready
 
     def destroy(self):
-        self.sensor.destroy()
+        self.__sensor.destroy()
 
 # ====================================== Collision ======================================
 class Collision:
     def __init__(self, world, vehicle, sensor_dict):
-        self.sensor = self.attach_collision(world, vehicle, sensor_dict)
-        self.sensor.listen(lambda data: self.callback(data))
-        self.sensor_ready = True
+        self.__sensor = self.attach_collision(world, vehicle, sensor_dict)
+        self.__sensor.listen(lambda data: self.callback(data))
+        self.__sensor_ready = True
         self.critical_collision = False
 
     def attach_collision(self, world, vehicle, sensor_dict):
@@ -359,17 +359,17 @@ class Collision:
         return self.critical_collision
     
     def is_ready(self):
-        return self.sensor_ready
+        return self.__sensor_ready
 
     def destroy(self):
-        self.sensor.destroy()
+        self.__sensor.destroy()
 
 # ====================================== Lane Invasion ======================================
 class Lane_Invasion:
     def __init__(self, world, vehicle, sensor_dict):
-        self.sensor = self.attach_lane_invasion(world, vehicle, sensor_dict)
-        self.sensor.listen(lambda data: self.callback(data))
-        self.sensor_ready = True
+        self.__sensor = self.attach_lane_invasion(world, vehicle, sensor_dict)
+        self.__sensor.listen(lambda data: self.callback(data))
+        self.__sensor_ready = True
         self.lane_transgression = False
 
     def attach_lane_invasion(self, world, vehicle, sensor_dict):
@@ -387,10 +387,10 @@ class Lane_Invasion:
             print(f"Lane Invasion Occurred at {data.timestamp} with {data.crossed_lane_markings}")
     
     def is_ready(self):
-        return self.sensor_ready
+        return self.__sensor_ready
     
     def lane_invasion_occurred(self):
         return self.lane_transgression
 
     def destroy(self):
-        self.sensor.destroy()
+        self.__sensor.destroy()

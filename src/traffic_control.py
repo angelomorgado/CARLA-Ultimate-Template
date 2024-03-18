@@ -10,17 +10,13 @@ import configuration as config
 '''
 Traffic Controller module:
     It provides the functionality to spawn, destroy, and control vehicles and pedestrians in the Carla simulation.
-
-    TODO: - Implement generation of other types of vehicles (e.g, trucks, motorcycles, bicycles, etc.)
-          - Pedestrians still can't move
-          - Make the spawning deterministic (e.g, using a json or a database to store the spawn points and the vehicles to spawn)
 '''
 
 class TrafficControl:
     def __init__(self, world) -> None:
-        self.active_vehicles = []
-        self.active_pedestrians = []
-        self.active_ai_controllers = []
+        self.__active_vehicles = []
+        self.__active_pedestrians = []
+        self.__active_ai_controllers = []
         self.__world = world
         self.__map = None
         
@@ -53,26 +49,25 @@ class TrafficControl:
                     # try again if failed to spawn vehicle
                     continue
             
-            self.active_vehicles.append(vehicle)
+            self.__active_vehicles.append(vehicle)
             # time.sleep(0.1)
         if config.VERBOSE:
             print('Successfully spawned {} vehicles!'.format(num_vehicles))
     
     def destroy_vehicles(self):
-        for vehicle in self.active_vehicles:
+        for vehicle in self.__active_vehicles:
             vehicle.set_autopilot(False)
             try:
                 vehicle.destroy()
             except RuntimeError as e:
                 continue
-        self.active_vehicles = []
+        self.__active_vehicles = []
         if config.VERBOSE:
             print('Destroyed all vehicles!')
     
     def toggle_autopilot(self, autopilot_on = True):
-        for vehicle in self.active_vehicles:
+        for vehicle in self.__active_vehicles:
             vehicle.set_autopilot(autopilot_on)
-    
 
     def spawn_vehicles_around_ego(self, ego_vehicle, radius, num_vehicles_around_ego, seed=None):
         if seed is not None:
@@ -100,13 +95,13 @@ class TrafficControl:
             try:
                 vehicle = self.__world.spawn_actor(vehicle_bp, point)
                 vehicle.set_autopilot(True)
-                self.active_vehicles.append(vehicle)
+                self.__active_vehicles.append(vehicle)
             except:
                 print('Error: Failed to spawn a traffic vehicle.')
                 pass
 
     def toggle_lights(self, lights_on=True):
-        for vehicle in self.active_vehicles:
+        for vehicle in self.__active_vehicles:
             if lights_on:
                 vehicle.set_light_state(carla.VehicleLightState(carla.VehicleLightState.Position | carla.VehicleLightState.LowBeam))
             else:
@@ -140,10 +135,10 @@ class TrafficControl:
                 walker = self.__world.spawn_actor(walker_bp, carla.Transform(sidewalk_waypoint.transform.location))
             except RuntimeError:
                 continue
-            self.active_pedestrians.append(walker)
+            self.__active_pedestrians.append(walker)
 
             walker_controller = self.__world.spawn_actor(walker_controller_bp, carla.Transform(), walker)
-            self.active_ai_controllers.append(walker_controller)
+            self.__active_ai_controllers.append(walker_controller)
             
             # Keep the commented code if you want to start and move the walkers
             # walker_controller.start()
@@ -178,10 +173,10 @@ class TrafficControl:
                 walker = self.__world.spawn_actor(walker_bp, sidewalk_waypoint.transform)
             except RuntimeError:
                 continue
-            self.active_pedestrians.append(walker)
+            self.__active_pedestrians.append(walker)
 
             walker_controller = self.__world.spawn_actor(walker_controller_bp, carla.Transform(), walker)
-            self.active_ai_controllers.append(walker_controller)
+            self.__active_ai_controllers.append(walker_controller)
             
             # Gives off segmenation fault: Carla's fault!! I did according to the documentation!!
             # walker_controller.start()
@@ -190,17 +185,16 @@ class TrafficControl:
         if config.VERBOSE:
             print("Spawned", num_walkers, "walkers near the vehicle.")
 
-
     def destroy_pedestrians(self):
-        for idx, pedestrian in enumerate(self.active_pedestrians):
+        for idx, pedestrian in enumerate(self.__active_pedestrians):
             try:
                 pedestrian.destroy()
-                self.active_ai_controllers[idx].stop()
-                self.active_ai_controllers[idx].destroy()
+                self.__active_ai_controllers[idx].stop()
+                self.__active_ai_controllers[idx].destroy()
             except Exception as e:
                 print(f"Error destroying pedestrians: {e}")
 
-        self.active_pedestrians = []
-        self.active_ai_controllers = []
+        self.__active_pedestrians = []
+        self.__active_ai_controllers = []
         if config.VERBOSE:
             print('Destroyed all pedestrians!')

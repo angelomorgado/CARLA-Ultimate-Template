@@ -33,10 +33,9 @@ Currently available weather presets:
 
 class WeatherControl:
     def __init__(self, world):
-        self.weather_list = self.__get_all_weather_presets()
-        self.active_weather = "Default"
-        self.world = world
-        pass
+        self.__weather_list = self.__get_all_weather_presets()
+        self.__active_weather = "Default"
+        self.__world = world
 
     def __get_all_weather_presets(self):
         rgx = re.compile('.+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)')
@@ -46,44 +45,43 @@ class WeatherControl:
     
     # The output is a tuple (carla.WeatherPreset, Str: name of the weather preset)
     def get_weather_presets(self):
-        return self.weather_list
+        return self.__weather_list
     
     def get_active_weather(self):
-        return self.active_weather
+        return self.__active_weather
     
     def print_all_weather_presets(self):    
-        for idx, weather in enumerate(self.weather_list):
+        for idx, weather in enumerate(self.__weather_list):
             print(f'{idx}: {weather[1]}')
 
     def __activate_weather_preset(self, idx):
-        self.world.set_weather(self.weather_list[idx][0])
+        self.__world.set_weather(self.__weather_list[idx][0])
 
     def set_active_weather_preset(self, weather):
-        for idx, w in enumerate(self.weather_list):
+        for idx, w in enumerate(self.__weather_list):
             if w[1] == weather:
-                self.active_weather = w[1]
+                self.__active_weather = w[1]
                 self.__activate_weather_preset(idx)
                 return
     
     def set_random_weather_preset(self):
-        idx = random.randint(0, len(self.weather_list) - 1)
-        self.active_weather = self.weather_list[idx][1]
+        idx = random.randint(0, len(self.__weather_list) - 1)
+        self.__active_weather = self.__weather_list[idx][1]
         self.__activate_weather_preset(idx)
 
     # This method let's the user choose with numbers the active preset. It serves as more of a debug.
     def choose_weather(self):
         print('Choose a weather preset:')
-        for idx, weather in enumerate(self.weather_list):
+        for idx, weather in enumerate(self.__weather_list):
             print(f'{idx}: {weather[1]}')
         
         idx = int(input())
 
         try:
-            self.active_weather = self.weather_list[idx][1]
+            self.__active_weather = self.__weather_list[idx][1]
             self.__activate_weather_preset()
         except IndexError:
             print('Invalid index')
             return
         
-        print(f'Weather preset {self.active_weather} activated')
-
+        print(f'Weather preset {self.__active_weather} activated')

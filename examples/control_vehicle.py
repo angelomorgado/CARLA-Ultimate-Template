@@ -16,7 +16,7 @@ from src.vehicle import Vehicle
 from src.display import Display
 from src.world import World
 from src.server import CarlaServer
-from src.vehicle_control import KeyboardControl
+from src.keyboard_control import KeyboardControl
 
 def main():
     process = CarlaServer.initialize_server()

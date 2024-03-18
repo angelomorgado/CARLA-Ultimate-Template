@@ -13,12 +13,11 @@ class World:
             self.__client = carla.Client(config.SIM_HOST, config.SIM_PORT)
             self.__client.set_timeout(config.SIM_TIMEOUT)
         self.__world = self.__client.get_world()
-        self.weather_control = WeatherControl(self.__world)
-        self.traffic_control = TrafficControl(self.__world)
-        self.weather_control = WeatherControl(self.__world)
-        self.available_maps = [m for m in self.__client.get_available_maps() if 'Opt' not in m] # Took out the layered maps
-        self.map_dict = {m.split("/")[-1]: idx for idx, m in enumerate(self.available_maps)}
-        self.active_map = list(self.map_dict).index(self.__world.get_map().name.split("/")[-1].split("_")[0])
+        self.__weather_control = WeatherControl(self.__world)
+        self.__traffic_control = TrafficControl(self.__world)
+        self.__available_maps = [m for m in self.__client.get_available_maps() if 'Opt' not in m] # Took out the layered maps
+        self.__map_dict = {m.split("/")[-1]: idx for idx, m in enumerate(self.__available_maps)}
+        self.__active_map = list(self.__map_dict).index(self.__world.get_map().name.split("/")[-1].split("_")[0])
         self.__map = self.__world.get_map()
         
         self.synchronous_mode = synchronous_mode
@@ -46,21 +45,21 @@ class World:
     # ============ Weather Control ============
     # The output is a tuple (carla.WeatherPreset, Str: name of the weather preset)
     def get_weather_presets(self):
-        return self.weather_control.get_weather_presets()
+        return self.__weather_control.get_weather_presets()
     
     def print_all_weather_presets(self):    
         for idx, weather in enumerate(self.weather_list):
             print(f'{idx}: {weather[1]}')
 
     def set_active_weather_preset(self, weather):
-        self.weather_control.set_active_weather_preset(weather)
+        self.__weather_control.set_active_weather_preset(weather)
     
     def set_random_weather(self):
-        self.weather_control.set_random_weather_preset()
+        self.__weather_control.set_random_weather_preset()
 
     # This method let's the user choose with numbers the active preset. It serves as more of a debug.
     def choose_weather(self):
-        self.weather_control.choose_weather()
+        self.__weather_control.choose_weather()
 
     # ============ Map Control =================
     def get_active_map_name(self):
@@ -70,15 +69,15 @@ class World:
         return self.__map
     
     def print_available_maps(self):
-        for idx, m in enumerate(self.available_maps):
+        for idx, m in enumerate(self.__available_maps):
             print(f'{idx}: {m}')
     
     def set_active_map(self, map_name, reload_map=False):
         # Check if the map is already loaded
-        if self.map_dict[map_name] == self.active_map and not reload_map:
+        if self.__map_dict[map_name] == self.__active_map and not reload_map:
             return
         
-        self.active_map = self.map_dict[map_name]
+        self.__active_map = self.__map_dict[map_name]
         if map_name in ["Town15", "Town11", "Town12", "Town13"]:
             map_name += f"/{map_name}"
         self.__client.load_world('/Game/Carla/Maps/' + map_name)
@@ -96,48 +95,48 @@ class World:
     
     # ============ Traffic Control ============
     def spawn_vehicles(self, num_vehicles = 10, autopilot_on = False):
-        self.traffic_control.spawn_vehicles(num_vehicles, autopilot_on)
+        self.__traffic_control.spawn_vehicles(num_vehicles, autopilot_on)
     
     def spawn_vehicles_around_ego(self, ego_vehicle, radius, num_vehicles_around_ego, seed=None):
-        self.traffic_control.spawn_vehicles_around_ego(ego_vehicle, radius, num_vehicles_around_ego, seed)
+        self.__traffic_control.spawn_vehicles_around_ego(ego_vehicle, radius, num_vehicles_around_ego, seed)
     
     def destroy_vehicles(self):
-        self.traffic_control.destroy_vehicles()
+        self.__traffic_control.destroy_vehicles()
     
     def toggle_autopilot(self, autopilot_on = True):
-        self.traffic_control.toggle_autopilot(autopilot_on)
+        self.__traffic_control.toggle_autopilot(autopilot_on)
     
     def spawn_pedestrians(self, num_pedestrians=10):
-        self.traffic_control.spawn_pedestrians(num_pedestrians)
+        self.__traffic_control.spawn_pedestrians(num_pedestrians)
     
     def spawn_pedestrians_around_ego(self, ego_vehicle_location, num_pedestrians=10, radius=50):
-        self.traffic_control.spawn_pedestrians_around_ego(ego_vehicle_location, num_pedestrians, radius)
+        self.__traffic_control.spawn_pedestrians_around_ego(ego_vehicle_location, num_pedestrians, radius)
     
     def destroy_pedestrians(self):
-        self.traffic_control.destroy_pedestrians()
+        self.__traffic_control.destroy_pedestrians()
 
     def toggle_lights(self, lights_on=True):
-        self.traffic_control.toggle_lights(lights_on)
+        self.__traffic_control.toggle_lights(lights_on)
     
     def update_traffic_map(self):
-        self.traffic_control.update_map(self.__map)
+        self.__traffic_control.update_map(self.__map)
         return self.__map
     
     # ============ Weather Control ===============
     def get_weather_presets(self):
-        return self.weather_control.get_weather_presets()
+        return self.__weather_control.get_weather_presets()
     
     def print_all_weather_presets(self):
-        self.weather_control.print_all_weather_presets()
+        self.__weather_control.print_all_weather_presets()
     
     def set_active_weather_preset(self, weather):
-        self.weather_control.set_active_weather_preset(weather)
+        self.__weather_control.set_active_weather_preset(weather)
     
     def choose_weather(self):
-        self.weather_control.choose_weather()
+        self.__weather_control.choose_weather()
     
     def get_active_weather(self):
-        return self.weather_control.get_active_weather()
+        return self.__weather_control.get_active_weather()
     
     # ============ Spectator Control ============
     def place_spectator_above_location(self, location):

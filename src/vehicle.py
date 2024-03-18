@@ -54,7 +54,7 @@ class Vehicle:
             
             self.destroy_vehicle()
 
-        vehicle_id = self.read_vehicle_file(configuration.VEHICLE_PHYSICS_FILE)["id"]
+        vehicle_id = self.__read_vehicle_file(configuration.VEHICLE_PHYSICS_FILE)["id"]
 
         vehicle_bp = self.__world.get_blueprint_library().filter(vehicle_id)
         
@@ -90,14 +90,14 @@ class Vehicle:
                 return
         
         # Attach sensors
-        vehicle_data = self.read_vehicle_file(configuration.VEHICLE_SENSORS_FILE)
-        self.attach_sensors(vehicle_data, self.__world)
+        vehicle_data = self.__read_vehicle_file(configuration.VEHICLE_SENSORS_FILE)
+        self.__attach_sensors(vehicle_data, self.__world)
 
     def get_sensor_dict(self):
         return self.__sensor_dict
 
-    def read_vehicle_file(self, vehicle_json):
-        with open(vehicle_json) as f:
+    def __read_vehicle_file(self, filename):
+        with open(filename) as f:
             vehicle_data = json.load(f)
         
         return vehicle_data
@@ -115,7 +115,7 @@ class Vehicle:
         self.__vehicle = None
 
     # ====================================== Vehicle Sensors ======================================
-    def attach_sensors(self, vehicle_data, world):
+    def __attach_sensors(self, vehicle_data, world):
         for sensor in vehicle_data:
             if sensor == 'rgb_camera':
                 self.__sensor_dict[sensor]    = sensors.RGB_Camera(world=world, vehicle=self.__vehicle, sensor_dict=vehicle_data['rgb_camera'])
@@ -158,7 +158,7 @@ class Vehicle:
     # Change the vehicle physics to a determined weather that is stated in the JSON file.
     def change_vehicle_physics(self, weather_condition):
         # Read JSON file
-        physics_data = self.read_vehicle_file(configuration.VEHICLE_PHYSICS_FILE)
+        physics_data = self.__read_vehicle_file(configuration.VEHICLE_PHYSICS_FILE)
 
         # Check if the provided weather exists
         if weather_condition not in physics_data["weather_conditions"]:
