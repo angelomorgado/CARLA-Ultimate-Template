@@ -26,7 +26,7 @@ I'll make a proper documentation and README once the project is finished.
 - `display.py`: Contains the methods to display the sensors in a PyGame window
 - `vehicle.py`: Contains the methods responsible for creating the ego vehicle, attaching sensors to it, destroying it, and in future versions, controlling it
 - `sensors.py`: Contains classes for each sensor, with methods to attach them to the vehicle, and to get their data through callbacks
-- 'config.py': Contains option parameters for the simulation
+- `config.py`: Contains option parameters for the simulation
 
 These modules are coded to be extremely dynamic, allowing their integration with any other project.
 

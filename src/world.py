@@ -31,8 +31,8 @@ class World:
         # self.__active_map = list(self.__map_dict).index(self.__world.get_map().name.split("/")[-1].split("_")[0])
         self.__map = self.__map_control.get_map()
         
-        self.synchronous_mode = synchronous_mode
-        if self.synchronous_mode:
+        self.__synchronous_mode = synchronous_mode
+        if self.__synchronous_mode:
             self.__settings = self.__world.get_settings()
             self.__settings.synchronous_mode = True
             self.__settings.fixed_delta_seconds = config.SIM_DELTA_SECONDS

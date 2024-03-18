@@ -1,3 +1,7 @@
+'''
+MapControl:
+    - Module that controls the current map of the simulation, and allows its customization
+'''
 import carla
 import time
 
