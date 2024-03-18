@@ -35,7 +35,6 @@ import random
 import carla
 
 import gymnasium as gym
-from gymnasium import spaces
 from gymnasium.envs.registration import register
 
 register(
@@ -50,6 +49,7 @@ from src.vehicle import Vehicle
 from src.display import Display
 import configuration as config
 from env.reward import calculate_reward
+import env.observation_action_space
 
 # Name: 'carla-rl-gym-v0'
 class CarlaEnv(gym.Env):
@@ -78,32 +78,17 @@ class CarlaEnv(gym.Env):
         # 4. Create the vehicle
         self.vehicle = Vehicle(self.world.get_world())
 
-        # 5. Create the observation space: TODO: Make the observation space more dynamic.
-        # Lidar: (122,4) for default settings
-        # Change this according to your needs.
-        self.rgb_image_shape = (360, 640, 3)
-        self.lidar_point_cloud_shape = (500*4,) # (500, 4) I'm trying it flattened to check if it works with stable-baselines3
-        self.current_position_shape = (3,)
-        self.target_position_shape = (3,)
-        self.number_of_situations = 4
-
-        self.observation_space = spaces.Dict({
-            'rgb_data': spaces.Box(low=0, high=255, shape=self.rgb_image_shape, dtype=np.uint8),
-            'lidar_data': spaces.Box(low=-np.inf, high=np.inf, shape=self.lidar_point_cloud_shape, dtype=np.float32),
-            'position': spaces.Box(low=-np.inf, high=np.inf, shape=self.current_position_shape, dtype=np.float32),
-            'target_position': spaces.Box(low=-np.inf, high=np.inf, shape=self.target_position_shape, dtype=np.float32),
-            'situation': spaces.Discrete(self.number_of_situations)
-        })
-
+        # 5. Observation space:
+        self.observation_space = env.observation_action_space.observation_space
         self.observation = None
 
-        # Action space
+        # 6: Action space
         if self.is_continuous:
             # For continuous actions
-            self.action_space = spaces.Box(low=np.array([-1.0, -1.0]), high=np.array([1.0, 1.0]), dtype=np.float32)
+            self.action_space = env.observation_action_space.continuous_action_space
         else:
             # For discrete actions
-            self.action_space = spaces.Discrete(4)
+            self.action_space = env.observation_action_space.discrete_action_space
 
         # Reward lambda values
         self.reward_lambdas = config.ENV_REWARDS_LAMBDAS
@@ -232,16 +217,6 @@ class CarlaEnv(gym.Env):
             'target_position': np.float32(target_position),
             'situation': situation
         }
-    
-    # Change here if you have more sensors in the sensors file
-    def __get_observation_shape(self):
-        with open(config.VEHICLE_SENSORS_FILE, 'r') as f:
-            sensors_dict = json.load(f)
-        
-        if "rgb_camera" in sensors_dict:
-            self.rgb_image_shape = (sensors_dict["rgb_camera"]["image_size_y"], sensors_dict["rgb_camera"]["image_size_x"], 3)
-        if "lidar" in sensors_dict:
-            self.lidar_point_cloud_shape = (sensors_dict["lidar"]["channels"], 4)
 
     # ===================================================== SCENARIO METHODS =====================================================
     def load_scenario(self, scenario_name, seed=None):
