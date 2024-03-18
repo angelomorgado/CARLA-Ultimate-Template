@@ -4,6 +4,8 @@ import re
 import random
 
 '''
+This module provides functions to control weather in the simulator
+
 Currently available weather presets:
 
 'Clear Night'

@@ -1,8 +1,18 @@
+'''
+World:
+    This module is a compilation of the various other modules for easier use inside a script. Instead of importing various modules, simply import this one.
+    Available Modules:
+        - Traffic
+        - WeatherControl
+        - Map
+'''
+
 import carla
 
 from src.weather_control import WeatherControl
 from src.traffic_control import TrafficControl
 from src.weather_control import WeatherControl
+from src.map_control     import MapControl
 import configuration as config
 import time
 
@@ -15,10 +25,11 @@ class World:
         self.__world = self.__client.get_world()
         self.__weather_control = WeatherControl(self.__world)
         self.__traffic_control = TrafficControl(self.__world)
-        self.__available_maps = [m for m in self.__client.get_available_maps() if 'Opt' not in m] # Took out the layered maps
-        self.__map_dict = {m.split("/")[-1]: idx for idx, m in enumerate(self.__available_maps)}
-        self.__active_map = list(self.__map_dict).index(self.__world.get_map().name.split("/")[-1].split("_")[0])
-        self.__map = self.__world.get_map()
+        self.__map_control     = MapControl(self.__world)
+        # self.__available_maps = [m for m in self.__client.get_available_maps() if 'Opt' not in m] # Took out the layered maps
+        # self.__map_dict = {m.split("/")[-1]: idx for idx, m in enumerate(self.__available_maps)}
+        # self.__active_map = list(self.__map_dict).index(self.__world.get_map().name.split("/")[-1].split("_")[0])
+        self.__map = self.__map_control.get_map()
         
         self.synchronous_mode = synchronous_mode
         if self.synchronous_mode:
@@ -62,36 +73,57 @@ class World:
         self.__weather_control.choose_weather()
 
     # ============ Map Control =================
-    def get_active_map_name(self):
-        return self.__map.name.split("/")[-1].split("_")[0]
+    # Commented until testes. After testing delete
+    # def get_active_map_name(self):
+    #     return self.__map.name.split("/")[-1].split("_")[0]
 
+    # def get_map(self):
+    #     return self.__map
+    
+    # def print_available_maps(self):
+    #     for idx, m in enumerate(self.__available_maps):
+    #         print(f'{idx}: {m}')
+    
+    # def set_active_map(self, map_name, reload_map=False):
+    #     # Check if the map is already loaded
+    #     if self.__map_dict[map_name] == self.__active_map and not reload_map:
+    #         return
+        
+    #     self.__active_map = self.__map_dict[map_name]
+    #     if map_name in ["Town15", "Town11", "Town12", "Town13"]:
+    #         map_name += f"/{map_name}"
+    #     self.__client.load_world('/Game/Carla/Maps/' + map_name)
+    #     time.sleep(3)
+    #     self.__map = self.__world.get_map()
+
+    # # Serves for debugging purposes
+    # def change_map(self):
+    #     self.print_available_maps()
+    #     map_idx = int(input('Choose a map index: '))
+    #     self.set_active_map(map_idx)
+    
+    # def reload_map(self):
+    #     self.set_active_map(self.get_active_map_name(), reload_map=True)
+    
+    def get_active_map_name(self):
+        return self.__map_control.get_active_map_name()        
+    
     def get_map(self):
-        return self.__map
+        self.__map = self.__map_control.get_map()
+        return self.__map_control.get_map()
     
     def print_available_maps(self):
-        for idx, m in enumerate(self.__available_maps):
-            print(f'{idx}: {m}')
-    
-    def set_active_map(self, map_name, reload_map=False):
-        # Check if the map is already loaded
-        if self.__map_dict[map_name] == self.__active_map and not reload_map:
-            return
-        
-        self.__active_map = self.__map_dict[map_name]
-        if map_name in ["Town15", "Town11", "Town12", "Town13"]:
-            map_name += f"/{map_name}"
-        self.__client.load_world('/Game/Carla/Maps/' + map_name)
-        time.sleep(3)
-        self.__map = self.__world.get_map()
+        self.__map_control.print_available_maps()
 
-    # Serves for debugging purposes
+    def set_active_map(self, map_name, reload_map=False):
+        self.__map_control.set_active_map(map_name=map_name, reload_map=reload_map)
+        self.__map = self.__map_control.get_map()
+    
     def change_map(self):
-        self.print_available_maps()
-        map_idx = int(input('Choose a map index: '))
-        self.set_active_map(map_idx)
+        self.__map_control.change_map()
     
     def reload_map(self):
-        self.set_active_map(self.get_active_map_name(), reload_map=True)
+        self.__map_control.reload_map()
     
     # ============ Traffic Control ============
     def spawn_vehicles(self, num_vehicles = 10, autopilot_on = False):
