@@ -1,3 +1,7 @@
+'''
+get_action_observation_space.py
+ - This script is used to get the action and observation space of the environment.
+'''
 import os, sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 

@@ -1,8 +1,7 @@
 '''
-scene_setup.py
+check_infractions.py
 
-- This script demonstrates how to use this template to create and configure a scene in Carla.
-- It provides an overview of how to create a Carla server, a Carla client, a vehicle, and a display.
+- This script is used to check for any infractions by the ego vehicle. The vehicle is controlled by the keyboard.
 '''
 
 import os, sys

@@ -34,6 +34,7 @@ This module provides functionality for managing vehicles in a Carla simulation e
 ### Methods
 
 #### Public
+
 - `get_vehicle()`: Get the Carla actor representing the vehicle.
 - `get_location()`: Get the location of the vehicle.
 - `set_autopilot(boolean)`: Set autopilot mode for the vehicle.
@@ -54,6 +55,7 @@ This module provides functionality for managing vehicles in a Carla simulation e
 - `get_speed()`: Get current speed of the vehicle.
 
 #### Private
+
 - `__read_vehicle_file(filename)`: Read data from a JSON file.
 - `__attach_sensors(vehicle_data, world)`: Attach sensors to the vehicle based on data from a JSON file.
 
@@ -265,6 +267,7 @@ The WeatherControl class enables the manipulation of weather conditions in the s
 #### Methods
 
 ##### Public
+
 - `get_weather_presets()`: Returns a list of available weather presets.
 - `get_active_weather()`: Returns the currently active weather preset.
 - `print_all_weather_presets()`: Prints all available weather presets.
@@ -273,6 +276,7 @@ The WeatherControl class enables the manipulation of weather conditions in the s
 - `choose_weather()`: Allows the user to choose a weather preset.
 
 ##### Private
+
 - `__get_all_weather_presets()`: Retrieves all available weather presets.
 - `__activate_weather_preset(idx)`: Activates a specific weather preset.
 
@@ -293,6 +297,7 @@ The TrafficControl class manages the spawning, control, and destruction of vehic
 #### Attributes
 
 ##### Private
+
 - `__active_vehicles`: List of currently active vehicle actors.
 - `__active_pedestrians`: List of currently active pedestrian actors.
 - `__active_ai_controllers`: List of active AI controllers for pedestrians.
@@ -309,10 +314,9 @@ The TrafficControl class manages the spawning, control, and destruction of vehic
 - `toggle_autopilot(autopilot_on=True)`: Toggles autopilot mode for vehicles.
 - `spawn_vehicles_around_ego(ego_vehicle, radius, num_vehicles_around_ego, seed=None)`: Spawns vehicles around the ego vehicle within a specified radius.
 - `toggle_lights(lights_on=True)`: Toggles vehicle lights on or off.
-- `spawn_pedestrians(num_walkers=10)`: Spawns pedestrians on random sidewalks.
+- `spawn_pedestrians(num_walkers=10)`: Spawns pedestrians on random sidewalks.    
 - `spawn_pedestrians_around_ego(vehicle_location, num_walkers=10, radius=25.0)`: Spawns pedestrians around the ego vehicle within a specified radius.
 - `destroy_pedestrians()`: Destroys all active pedestrians.
-
 
 ---
 ## 5- Map Control
@@ -332,6 +336,7 @@ The MapControl class controls the current map of the simulation and allows for i
 ##### Private
 
 - `__world`: The Carla world object.
+- `__client`: The Carla client object.
 - `__available_maps`: List of available maps in the simulation environment.
 - `__map_dict`: Dictionary mapping map names to their corresponding indices.
 - `__active_map`: Index of the currently active map.
@@ -348,7 +353,6 @@ The MapControl class controls the current map of the simulation and allows for i
 - `change_map()`: Allows the user to choose and change the active map (for debugging purposes).
 - `reload_map()`: Reloads the current active map.
 
-
 ---
 ## 6- World
 
@@ -363,6 +367,7 @@ The World module provides a unified interface for managing different aspects of 
 - Traffic
 - Weather Control
 - Map
+- Spectator (This one isn't in a different module because it's just two simple functions)
 
 ### Class
 
@@ -382,6 +387,7 @@ The World class serves as the main interface for controlling different aspects o
 #### Methods
 
 ##### Public
+
 - `get_client()`: Returns the Carla client object.
 - `get_world()`: Returns the Carla world object.
 - `destroy_world()`: Destroys all vehicles and pedestrians in the simulation.
@@ -482,6 +488,7 @@ The Display class manages the creation and updating of the Pygame window to disp
 #### Methods
 
 ##### Public
+
 - `initialize_pygame_window(title)`: Initializes the Pygame window with the given title.
 - `play_window()`: Displays the sensor data in a Pygame window using its own event loop.
 - `play_window_tick()`: Displays the sensor data in a Pygame window inside the main loop of the program.
@@ -503,8 +510,7 @@ The CarlaServer class encapsulates functionalities related to the Carla server.
 #### Methods
 
 ##### Static Methods
+
 - `initialize_server(low_quality=False, offscreen_rendering=False, silent=False, sleep_time=10)`: Initializes the Carla server with optional parameters such as quality level and offscreen rendering. It waits for the server to start before returning a process object representing the server.
 - `close_server(process, silent=False)`: Gracefully closes the Carla server. On Unix systems, it sends a termination signal to the process group. On Windows, it forcibly terminates the process and its children.
 - `kill_carla_linux()`: Terminates the Carla server forcefully on Unix systems by killing the process using the `pkill` command. This method is not applicable to Windows systems.
-
-

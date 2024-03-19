@@ -1,3 +1,7 @@
+'''
+This script checks if the environment is compatible with the OpenAI Gym API.
+'''
+
 import os, sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 

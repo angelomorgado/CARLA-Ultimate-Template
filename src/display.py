@@ -13,10 +13,10 @@ class Display:
         self.__sensor_window_dict = {}
         self.__sensor_dict = vehicle.get_sensor_dict()
         self.__non_displayable_sensors = ['gnss', 'imu', 'collision', 'lane_invasion']
-        self.__main_screen = self.initialize_pygame_window(title)
+        self.__main_screen = self.__initialize_pygame_window(title)
         self.__clock = pygame.time.Clock()  # Create a clock object to control the frame rate
 
-    def initialize_pygame_window(self, title):
+    def __initialize_pygame_window(self, title):
         pygame.init()
         pygame.display.set_caption(title)
 

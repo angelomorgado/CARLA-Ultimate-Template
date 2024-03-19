@@ -6,8 +6,9 @@ import carla
 import time
 
 class MapControl:
-    def __init__(self, world):
+    def __init__(self, world, client):
         self.__world          = world
+        self.__client         = client
         self.__available_maps = [m for m in self.__client.get_available_maps() if 'Opt' not in m] # Took out the layered maps
         self.__map_dict       = {m.split("/")[-1]: idx for idx, m in enumerate(self.__available_maps)}
         self.__active_map     = list(self.__map_dict).index(self.__world.get_map().name.split("/")[-1].split("_")[0])

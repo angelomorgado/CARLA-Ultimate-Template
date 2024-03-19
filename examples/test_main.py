@@ -1,24 +1,18 @@
+'''
+List of simple examples that can be used to test the different functionalities of the template.
+'''
+
 import os, sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-import carla
-import time
-
 from src.vehicle import Vehicle
-import configuration
-from src.display import Display
 from src.world import World
 from src.server import CarlaServer
 
+# Change the vehicle's physics to a determined weather that is stated in the JSON file specified in the config file.
 def physics_main():
     # Carla client
-    client = carla.Client('localhost', 2000)
-    client.set_timeout(10.0)
-    world = client.get_world()
-
-    if world is None:
-        print('Failed to load world')
-        return
+    world = World()
     
     # Create vehicle
     autonomous_vehicle = Vehicle(world=world)
@@ -33,6 +27,7 @@ def physics_main():
 
     autonomous_vehicle.destroy_vehicle()
 
+# Control the vehicle
 def control_main():
     # Carla client
     world = World()
@@ -42,31 +37,29 @@ def control_main():
     autonomous_vehicle = Vehicle(world=world.get_world())
     autonomous_vehicle.spawn_vehicle() # Spawn vehicle at random location
 
-    # Create display
-    display = Display('Carla Sensor feed', autonomous_vehicle)
+    world.place_spectator_above_location(autonomous_vehicle.get_location())
 
     # [Steer (-1.0, 1.0), Throttle (0.0, 1.0), Brake (0.0, 1.0)]
     action = [0.0, 1.0, 0.0]
+    discrete_action = 0
 
     while True:
         try:
+            # Continuous action
             autonomous_vehicle.control_vehicle(action)
-            display.play_window_tick()
+            # Discrete action
+            # autonomous_vehicle.control_vehicle_discrete(discrete_action)
         except KeyboardInterrupt:
             autonomous_vehicle.destroy_vehicle()
-            display.close_window()
             CarlaServer.close_server()
             break
 
+# Spawn traffic
 def traffic_main():
-    # Carla client
-    client = carla.Client('localhost', 2000)
-    client.set_timeout(10.0)
-    world = World(client)
+    world = World()
 
-    # world.spawn_vehicles(20, True)
-    world.spawn_pedestrians(50)
-    print("Press Ctrl+C to exit...")
+    world.spawn_vehicles(20, autopilot_on=True)
+    world.spawn_pedestrians(20)
     while True:
         try:
             print("", end="")
@@ -75,38 +68,32 @@ def traffic_main():
             print("Exiting...")
             world.destroy_vehicles()
             world.destroy_pedestrians()
-            CarlaServer.close_server()
             break
 
-    
+# Change the weather
 def weather_main():
-    # Carla client
-    client = carla.Client('localhost', 2000)
-    client.set_timeout(10.0)
-    world = World(client)
+    world = World()
 
     while True:
         try:
-            # world.choose_weather()
+            world.choose_weather()
+        except KeyboardInterrupt:
+            break
+        
+# Change the map
+def map_main():
+    world = World()
+
+    while True:
+        try:
             world.change_map()
-            pass
         except KeyboardInterrupt:
             break
 
+# Open and close the server
 def server_main():
     process = CarlaServer.initialize_server(low_quality=True)
     CarlaServer.close_server(process)
-
-def test_main():
-    # Carla client
-    client = carla.Client('localhost', 2000)
-    client.set_timeout(10.0)
-    world = World(client)
-
-    print(client.get_available_maps())
-    print('\n\n ========================================')
-    world.print_all_weather_presets()
-
 
 if __name__ == '__main__':
     CarlaServer.initialize_server(low_quality=True)

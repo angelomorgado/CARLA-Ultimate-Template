@@ -9,6 +9,10 @@
 # Allows controlling a vehicle with a keyboard. For a simpler and more
 # documented example, please take a look at tutorial.py.
 
+'''
+This script is Carla's official manual control script. It is used to control the vehicle using the keyboard. And it has plenty other functionalities such as changing the weather, changing the map, spawning vehicles, and many more.
+'''
+
 """
 Welcome to CARLA manual control.
 
