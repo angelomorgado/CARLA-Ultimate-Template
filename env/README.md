@@ -216,11 +216,34 @@ self.observation_space = spaces.Dict({
 \* The Situations are: 0: Road, 1: Roundabout, 2: Junction, 3: Tunnel
 However you can customize this by changing the dictionary and the number of situations variable.
 
+To  change the observation space you can do it at the file [observation_action_space.py](../env/observation_action_space.py).
+
+### Action Space
+
+Observation space is totally customizable, and it follows the gymnasium.Spaces standard, however, if you wish to use the default ones, the observation space is:
+
+```python!
+
+# For continuous actions
+# [Steering (-1.0, 1.0), Throttle/Brake (-1.0, 1.0)] <- [-1, 0] brake / [0, 1] throttle
+self.action_space = spaces.Box(low=np.array([-1.0, -1.0]), high=np.array([1.0, 1.0]), dtype=np.float32)
+
+# For discrete actions
+# 0: Accelerate, 1: Deaccelerate, 2: Turn Left, 3: Turn Right
+self.action_space = spaces.Discrete(4)
+```
+
 ### Reward Function
 
 To customize the reward function you can simply change the function `calculate_reward` in the file [reward.py](../env/reward.py). If you want to change the signature of the function, don't forget to also change it in the [CarlaEnv](../env/environment.py) class!
 
-The default reward function takes int
+The default reward function takes into account these factors:
+- The orientation of the ego vehicle. To do this it uses the cousine of the angle between the ego vehicle's forward vector and the road's forward vector. The closer to 1, the better.
+- The distance between the ego vehicle and the waypoint location. The closer, the better. (I'm thinking in removing this one)
+- The speed of the ego vehicle. It it passes the limit speed, it gets a penalty.
+- It penalizes the car if it's stopped.
+- It ends the simulation and penalizes severely the ego vehicle if it has a collision, trespasses a lane, or goes off-road.
+- It ends the simulation and penalizes severely the ego vehicle if it doesn't stop at a red light or at a stop sign.
 
 ### Methods
 
@@ -247,21 +270,6 @@ The public methods accessible through the CarlaEnv class are:
 - `env.place_spectator_above_vehicle()`: It places the server screen on top of the ego vehicle.
 - `env.output_all_waypoints(spacing)`: Outputs on the server screen all waypoints separated by a determined spacing.
 - `env.output_waypoints_to_target(spacing)`: Outputs on the server screen the waypoints from the starting point of the scenario to the target point, separated by a certain spacing.
-
-### Action Space
-
-Observation space is totally customizable, and it follows the gymnasium.Spaces standard, however, if you wish to use the default ones, the observation space is:
-
-```python!
-
-# For continuous actions
-# [Steering (-1.0, 1.0), Throttle/Brake (-1.0, 1.0)] <- [-1, 0] brake / [0, 1] throttle
-self.action_space = spaces.Box(low=np.array([-1.0, -1.0]), high=np.array([1.0, 1.0]), dtype=np.float32)
-
-# For discrete actions
-# 0: Accelerate, 1: Deaccelerate, 2: Turn Left, 3: Turn Right
-self.action_space = spaces.Discrete(4)
-```
 
 ## Attributes
 
