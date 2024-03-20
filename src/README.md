@@ -59,6 +59,23 @@ This module provides functionality for managing vehicles in a Carla simulation e
 - `__read_vehicle_file(filename)`: Read data from a JSON file.
 - `__attach_sensors(vehicle_data, world)`: Attach sensors to the vehicle based on data from a JSON file.
 
+### Vehicle Physics Customization
+
+It is possible to customize the physics of a vehicle based on weather conditions. This can be achieved through JSON files. One such example can be found in the `test_vehicle_physics.json` file.
+
+#### Affected Vehicle Physics by Weather Conditions Such as Rain
+
+- **Mass** affects the vehicle's weight. A heavier vehicle may have more traction, but it may also be slower to accelerate and brake.
+
+- **Tire friction** determines the friction between the tires and the road. Higher values result in more grip, while lower values can lead to reduced traction on slippery surfaces.
+Damping Rate:
+
+- **Damping Rate** affects the damping force applied to the wheels. It influences how quickly the wheel's vibrations are dampened. Adjusting this parameter can impact the vehicle's response on different surfaces.
+
+- **Longitudinal Swiftness** influences how the tire responds to longitudinal forces, affecting acceleration and braking. Lower values may lead to wheel slip on slippery surfaces.
+
+- **Drag Coefficient** influences the air resistance. While not directly related to the road surface, it can impact the overall dynamics of the vehicle, especially at higher speeds.
+
 ---
 ## 2- Sensors
 

@@ -216,6 +216,12 @@ self.observation_space = spaces.Dict({
 \* The Situations are: 0: Road, 1: Roundabout, 2: Junction, 3: Tunnel
 However you can customize this by changing the dictionary and the number of situations variable.
 
+### Reward Function
+
+To customize the reward function you can simply change the function `calculate_reward` in the file [reward.py](../env/reward.py). If you want to change the signature of the function, don't forget to also change it in the [CarlaEnv](../env/environment.py) class!
+
+The default reward function takes int
+
 ### Methods
 
 The public methods accessible through the CarlaEnv class are:

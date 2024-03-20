@@ -11,51 +11,32 @@ I'll make a proper documentation and README once the project is finished.
 
 ---
 
-## To Run the Project
+## Installation and Usage
 
-1. It is recommended to use a virtual environment with python 3.8. 
-2. Install the requirements with `pip install -r requirements.txt`
-3. Run the CARLA server with the desired map
-4. Run the project with `python main.py`
+1. It is recommended to use a virtual environment with python 3.8.
+ - If you wish to use the same virtual environment as me which used Carla 0.9.15, install conda and run `conda env create -f environment.yml`
+ - If you wish to use a different version of Carla, you can create a new environment with `conda create -n carla python=3.8` and then install the requirements with `pip install -r requirements.txt`
+3. Setup the environment variable `CARLA_SERVER` to the path of the Carla server directory.
+4. Run the Carla server:
+ - If the script automatically starts the server, you can skip this step. Make sure to set the environment variable `CARLA_SERVER` to the path of the Carla server directory.
+ - If the script does not automatically start the server, you need to start the server manually.
+5. Run any scripts
 
 ---
 
 ## Modules
 
-- `main.py`: Main file, controls the entire process
-- `display.py`: Contains the methods to display the sensors in a PyGame window
-- `vehicle.py`: Contains the methods responsible for creating the ego vehicle, attaching sensors to it, destroying it, and in future versions, controlling it
-- `sensors.py`: Contains classes for each sensor, with methods to attach them to the vehicle, and to get their data through callbacks
-- `config.py`: Contains option parameters for the simulation
-
-These modules are coded to be extremely dynamic, allowing their integration with any other project.
-
----
-
-## Sensors
-
-Available sensors:
-- RGB Camera
-- LiDAR
-- Radar
-- GNSS
-- IMU
-- Collision
-- Lane Invasion
-
-Future sensors:
-- Semantic Segmentation Camera
-- Instance Segmentation Camera
-- Depth Camera
-- Lidar Semantic Segmentation
-- Obstacle Detection
-- Optical Flow Camera (AKA: Motion Camera)
-
-The collision and lane invasion sensors are special in the way that they are only triggered when the vehicle collides with something or invades a lane, respectively. And their information is not displayed in the PyGame window, but in the terminal.
+This template's modules are located and documented in the `src` directory. Their documentation can be found [here](src/README.md)
 
 ---
 
 ## Features
+
+### Gymnasium Environment
+
+Using this template, a gymnasium wrapper was created for the Carla simulator. This allows the training of autonomous driving agents using reinforcement learning algorithms. By wrapping the Carla simulator in a gym environment, it is possible to use libraries such as Stable Baselines to train agents.
+
+More about this tool can be found in [its documentation](env/README.md)
 
 ### Custom Vehicular Sensory
 
@@ -65,20 +46,10 @@ By leveraging json files, it is possible to create various builds of vehicles wi
 
 Through Pygame, it is possible to visualize the sensor data in real-time. This is useful for debugging and testing purposes.
 
-
 ### Vehicle Physics Customization
 
 Vehicles have their physics changed according to the weather. This template allows for the customization of a vehicle's physics based on the weather conditions. This is useful for simulating the effects of weather on a vehicle's performance. This can be achieved through JSON files. One such example can be found in the `test_vehicle_physics.json` file.
 
-#### Affected Vehicle Physics by Weather Conditions Such as Rain
+### Complete Simulation Control and Management Using Minimal Code
 
-- **Mass** affects the vehicle's weight. A heavier vehicle may have more traction, but it may also be slower to accelerate and brake.
-
-- **Tire friction** determines the friction between the tires and the road. Higher values result in more grip, while lower values can lead to reduced traction on slippery surfaces.
-Damping Rate:
-
-- **Damping Rate** affects the damping force applied to the wheels. It influences how quickly the wheel's vibrations are dampened. Adjusting this parameter can impact the vehicle's response on different surfaces.
-
-- **Longitudinal Swiftness** influences how the tire responds to longitudinal forces, affecting acceleration and braking. Lower values may lead to wheel slip on slippery surfaces.
-
-- **Drag Coefficient** influences the air resistance. While not directly related to the road surface, it can impact the overall dynamics of the vehicle, especially at higher speeds.
+The template allows for the complete control and management of the Carla simulator using minimal code. This is achieved through the use of the `World` class. This class allows for the easy management of the Carla simulator, such as changing the map, the weather, and even spawning traffic and pedestrians.
