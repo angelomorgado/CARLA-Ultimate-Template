@@ -1,8 +1,7 @@
-import torch as th
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
-from stable_baselines3.common.policies import ActorCriticPolicy
 import gymnasium as gym
 
 from env.aux.point_net import PointNetfeat
@@ -25,7 +24,7 @@ class CustomCombinedExtractor(BaseFeaturesExtractor):
         self.extractors = nn.ModuleDict(extractors)
         self._features_dim = total_concat_size
 
-    def forward(self, observations) -> th.Tensor:
+    def forward(self, observations) -> torch.Tensor:
         encoded_tensor_list = []
 
         for key, extractor in self.extractors.items():
@@ -34,10 +33,10 @@ class CustomCombinedExtractor(BaseFeaturesExtractor):
             else:
                 encoded_tensor_list.append(extractor(observations[key]))
 
-        return th.cat(encoded_tensor_list, dim=1)
+        return torch.cat(encoded_tensor_list, dim=1)
 
     def __process_lidar(self, lidar_data):
-        lidar_data = th.from_numpy(lidar_data).float()
+        lidar_data = torch.from_numpy(lidar_data).float()
         lidar_data = lidar_data.unsqueeze(0)
         
         # Extract features using PointNet
