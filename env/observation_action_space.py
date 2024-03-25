@@ -4,7 +4,7 @@ import numpy as np
 # Change this according to your needs.
 observation_shapes = {
     'rgb_data': (360, 640, 3),
-    'lidar_data': (500*4,), # (500, 4) I'm trying it flattened to check if it works with stable-baselines3cloud_shape
+    'lidar_data': (3, 500), 
     'position': (3,),
     'target_position': (3,),
     'num_of_stuations': 4

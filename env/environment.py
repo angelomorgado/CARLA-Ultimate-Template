@@ -50,6 +50,7 @@ from src.display import Display
 import configuration as config
 from env.reward import calculate_reward
 import env.observation_action_space
+from env.pre_processing import PreProcessing
 
 # Name: 'carla-rl-gym-v0'
 class CarlaEnv(gym.Env):
@@ -81,6 +82,7 @@ class CarlaEnv(gym.Env):
         # 5. Observation space:
         self.observation_space = env.observation_action_space.observation_space
         self.__observation = None
+        self.pre_processing = PreProcessing()
 
         # 6: Action space
         if self.__is_continuous:
@@ -200,13 +202,15 @@ class CarlaEnv(gym.Env):
         target_position = np.array([self.__active_scenario_dict['target_gnss']['lat'], self.__active_scenario_dict['target_gnss']['lon'], self.__active_scenario_dict['target_gnss']['alt']])
         situation = self.__situations_map[self.__active_scenario_dict['situation']]
 
-        self.__observation = {
+        observation = {
             'rgb_data': np.uint8(rgb_image),
-            'lidar_data': np.float32(lidar_point_cloud.flatten()),
+            'lidar_data': np.float32(lidar_point_cloud),
             'position': np.float32(current_position),
             'target_position': np.float32(target_position),
             'situation': situation
         }
+        
+        self.__observation = self.pre_processing.preprocess_data(observation)
 
     # ===================================================== SCENARIO METHODS =====================================================
     def load_scenario(self, scenario_name, seed=None):

@@ -6,8 +6,14 @@ from env.environment import CarlaEnv
 from stable_baselines3 import PPO
 import gymnasium as gym
 
+from agent.custom_policy import CustomCombinedExtractor
+
 def main():
     env = gym.make('carla-rl-gym-v0', time_limit=50, initialize_server=True, random_weather=False, synchronous_mode=True, continuous=True, show_sensor_data=True)
+    
+    policy_kwargs = dict(
+        features_extractor_class=CustomCombinedExtractor,
+    )
     
     model = PPO(
         policy="MultiInputPolicy",
@@ -26,6 +32,7 @@ def main():
     model.save("ppo_test-agent")
     
     env.close()
+
 
 if __name__ == '__main__':
     main()
